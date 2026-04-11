@@ -24,7 +24,7 @@ HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
 def download_models():
     if not Path("models").exists():
         snapshot_download(
-            repo_id="your-username/promptscanner-models",
+            repo_id="aynaalh/promptscanner-models",
             token=HF_TOKEN,
             local_dir="models",
         )
