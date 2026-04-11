@@ -423,6 +423,7 @@ def _predict_ner(text, tokenizer, model, id2tag):
     if cur:
         entities.append({"value": " ".join(cur_toks), "type": cur,
                            "token_start": len(tokens) - len(cur_toks), "token_end": len(tokens)})
+    st.write(word_pred)
     return entities
 
 def hybrid_detect(text, arabert_tok, arabert_mdl, arabert_id2tag,
