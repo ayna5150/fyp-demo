@@ -264,7 +264,7 @@ def load_arabert():
         return None, None, None
     try:
         tok   = AutoTokenizer.from_pretrained(str(path))
-        model = AutoModelForTokenClassification.from_pretrained(str(path))
+        model = AutoModelForTokenClassification.from_pretrained(str(path), use_fast=False )
         model.eval()
         vocab_file = next(
             (p for p in [path/"tag_vocab.json", path/"tag_vocab_augmorg.json"] if p.exists()),
@@ -293,7 +293,7 @@ def load_xlmr():
     if not path.exists():
         return None, None, None
     try:
-        tok   = AutoTokenizer.from_pretrained(str(path))
+        tok   = AutoTokenizer.from_pretrained(str(path), use_fast=False )
         model = AutoModelForTokenClassification.from_pretrained(str(path))
         model.eval()
         vocab_file = next(
