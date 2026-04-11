@@ -16,20 +16,9 @@ from transformers import (
 )
 
 import os
-from huggingface_hub import snapshot_download
+from huggingface_hub import hf_hub_download
 
 HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
-
-@st.cache_resource(show_spinner="Downloading models from HuggingFace Hub...")
-def download_models():
-    if not Path("models").exists():
-        snapshot_download(
-            repo_id="aynaalh/promptscanner-models",
-            token=HF_TOKEN,
-            local_dir="models",
-        )
-
-download_models()
 
 # ─────────────────────────────────────────────────────────────
 # PAGE CONFIG
@@ -253,27 +242,26 @@ def regex_detect(text):
 @st.cache_resource(show_spinner=False)
 def load_arabert():
     """
-    Load the fine-tuned AraBERT/CamelBERT NER model.
-    Expects: models/arabert_pii/  with pytorch_model.bin (or .safetensors),
+    Load the fine-tuned AraBERT NER model.
+    Expects: arabert_pii/  on huggingface with pytorch_model.bin (or .safetensors),
              config.json, tokenizer files, and tag_vocab.json
     tag_vocab.json format: {"tag2id": {...}, "id2tag": {"0": "O", ...}}
     Saved in notebook cell 98 as arabert_pii_augmorg/
     """
-    path = MODELS_DIR / "arabert_pii"
-    if not path.exists():
-        return None, None, None
     try:
-        tok   = AutoTokenizer.from_pretrained(str(path))
-        model = AutoModelForTokenClassification.from_pretrained(str(path))
+        repo_path = "aynaalh/promptscanner-models/arabert_pii"
+        tok = AutoTokenizer.from_pretrained(repo_path, token=st.secrets["HF_TOKEN"])
+        model = AutoModelForTokenClassification.from_pretrained(repo_path, token=st.secrets["HF_TOKEN"])
         model.eval()
-        vocab_file = next(
-            (p for p in [path/"tag_vocab.json", path/"tag_vocab_augmorg.json"] if p.exists()),
-            None
+        vocab_path = hf_hub_download(
+            repo_id="aynaalh/promptscanner-models",
+            filename="arabert_pii/tag_vocab_augmorg.json",
+            token=st.secrets["HF_TOKEN"]
         )
-        if vocab_file is None:
-            return None, None, "tag_vocab.json not found"
-        with open(vocab_file) as f:
+        
+        with open(vocab_path) as f:
             v = json.load(f)
+        
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
@@ -284,25 +272,24 @@ def load_arabert():
 def load_xlmr():
     """
     Load the fine-tuned XLM-RoBERTa model for ID/CREDENTIAL.
-    Expects: models/xlmr_pii/  with same structure.
+    Expects: xlmr_pii/ on huggingface with same structure.
     tag_vocab.json keys: id2tag entries like "0":"O", "1":"B-ID" etc.
     Saved in notebook cell 98 as xlmr_pii_augmorg/
     """
-    path = MODELS_DIR / "xlmr_pii"
-    if not path.exists():
-        return None, None, None
     try:
-        tok   = AutoTokenizer.from_pretrained(str(path))
-        model = AutoModelForTokenClassification.from_pretrained(str(path))
+        repo_path = "aynaalh/promptscanner-models/xlmr_pii"
+        tok = AutoTokenizer.from_pretrained(repo_path, token=st.secrets["HF_TOKEN"])
+        model = AutoModelForTokenClassification.from_pretrained(repo_path, token=st.secrets["HF_TOKEN"])
         model.eval()
-        vocab_file = next(
-            (p for p in [path/"tag_vocab.json", path/"tag_vocab_augmorg.json"] if p.exists()),
-            None
+        vocab_path = hf_hub_download(
+            repo_id="aynaalh/promptscanner-models",
+            filename="xlmr_pii/tag_vocab_augmorg.json",
+            token=st.secrets["HF_TOKEN"]
         )
-        if vocab_file is None:
-            return None, None, "tag_vocab.json not found"
-        with open(vocab_file) as f:
+        
+        with open(vocab_path) as f:
             v = json.load(f)
+        
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
