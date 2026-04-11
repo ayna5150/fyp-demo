@@ -6,4 +6,5 @@ arabert
 huggingface_hub
 torchvision
 sentencepiece
+tiktoken
 protobuf
