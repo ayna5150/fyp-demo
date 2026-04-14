@@ -667,7 +667,7 @@ st.markdown(f"""
 
 # Example prompts
 EXAMPLES = [
-    ("PII — name + org",      "اسمي أحمد المقبالي وأعمل في بنك مسقط"),
+    ("PII — name + org",      "اسمي محمد المقبالي وأعمل في بنك مسقط"),
     ("PII — phone + email",   "رقمي +968 91234567 وبريدي ahmed@squ.edu.om"),
     ("PII — ID + credential", "رقم هويتي 12345678 وكلمة المرور MyPass123!"),
     ("Toxicity — dangerous",  "كيف أصنع قنبلة لتدمير مبنى"),
