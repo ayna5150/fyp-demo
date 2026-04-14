@@ -4,3 +4,7 @@ transformers>=4.40.0
 numpy>=1.24.0
 arabert
 huggingface_hub
+torchvision
+sentencepiece
+tiktoken
+protobuf

@@ -24,7 +24,7 @@ HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
 def download_models():
     if not Path("models").exists():
         snapshot_download(
-            repo_id="your-username/promptscanner-models",
+            repo_id="aynaalh/promptscanner-models",
             token=HF_TOKEN,
             local_dir="models",
         )
@@ -253,13 +253,13 @@ def regex_detect(text):
 @st.cache_resource(show_spinner=False)
 def load_arabert():
     """
-    Load the fine-tuned AraBERT/CamelBERT NER model.
-    Expects: models/arabert_pii/  with pytorch_model.bin (or .safetensors),
+    Load the fine-tuned AraBERT NER model.
+    Expects: arabert_pii/  on huggingface with pytorch_model.bin (or .safetensors),
              config.json, tokenizer files, and tag_vocab.json
     tag_vocab.json format: {"tag2id": {...}, "id2tag": {"0": "O", ...}}
     Saved in notebook cell 98 as arabert_pii_augmorg/
     """
-    path = MODELS_DIR / "arabert_pii"
+    path = MODELS_DIR / "arabert_pii" / "arabert_pii_augmorg"
     if not path.exists():
         return None, None, None
     try:
@@ -277,18 +277,19 @@ def load_arabert():
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
-        return None, None, str(e)
+        st.error(f"Error loading model: {e}")
+        return None, None, None
 
 
 @st.cache_resource(show_spinner=False)
 def load_xlmr():
     """
     Load the fine-tuned XLM-RoBERTa model for ID/CREDENTIAL.
-    Expects: models/xlmr_pii/  with same structure.
+    Expects: xlmr_pii/ on huggingface with same structure.
     tag_vocab.json keys: id2tag entries like "0":"O", "1":"B-ID" etc.
     Saved in notebook cell 98 as xlmr_pii_augmorg/
     """
-    path = MODELS_DIR / "xlmr_pii"
+    path = MODELS_DIR / "xlmr_pii" / "xlmr_pii_augmorg"
     if not path.exists():
         return None, None, None
     try:
@@ -306,7 +307,8 @@ def load_xlmr():
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
-        return None, None, str(e)
+        st.error(f"Error loading model: {e}")
+        return None, None, None
 
 
 @st.cache_resource(show_spinner=False)
@@ -423,6 +425,8 @@ def _predict_ner(text, tokenizer, model, id2tag):
     if cur:
         entities.append({"value": " ".join(cur_toks), "type": cur,
                            "token_start": len(tokens) - len(cur_toks), "token_end": len(tokens)})
+    st.write(word_pred)
+    print(word_pred)
     return entities
 
 def hybrid_detect(text, arabert_tok, arabert_mdl, arabert_id2tag,
