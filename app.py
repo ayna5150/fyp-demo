@@ -259,7 +259,7 @@ def load_arabert():
     tag_vocab.json format: {"tag2id": {...}, "id2tag": {"0": "O", ...}}
     Saved in notebook cell 98 as arabert_pii_augmorg/
     """
-    path = MODELS_DIR / "arabert_pii"
+    path = MODELS_DIR / "arabert_pii" / "arabert_pii_augmorg"
     if not path.exists():
         return None, None, None
     try:
@@ -288,7 +288,7 @@ def load_xlmr():
     tag_vocab.json keys: id2tag entries like "0":"O", "1":"B-ID" etc.
     Saved in notebook cell 98 as xlmr_pii_augmorg/
     """
-    path = MODELS_DIR / "xlmr_pii"
+    path = MODELS_DIR / "xlmr_pii" / "xlmr_pii_augmorg "
     if not path.exists():
         return None, None, None
     try:
