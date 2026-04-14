@@ -277,6 +277,7 @@ def load_arabert():
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
+        st.write("AraBERT load error:", e)
         return None, None, str(e)
 
 
@@ -306,6 +307,7 @@ def load_xlmr():
         id2tag = {int(k): lbl for k, lbl in v["id2tag"].items()}
         return tok, model, id2tag
     except Exception as e:
+        st.write("XLMR load error:", e)
         return None, None, str(e)
 
 
