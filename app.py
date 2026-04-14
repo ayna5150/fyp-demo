@@ -290,9 +290,9 @@ def load_xlmr():
     tag_vocab.json keys: id2tag entries like "0":"O", "1":"B-ID" etc.
     Saved in notebook cell 98 as xlmr_pii_augmorg/
     """
-    path = MODELS_DIR / "xlmr_pii" / "xlmr_pii_augmorg "
+    path = MODELS_DIR / "xlmr_pii" / "xlmr_pii_augmorg"
     if not path.exists():
-        st.write("XLM-RoBERTa model not found at models/xlmr_pii/xlmr_pii_augmorg/")
+        st.write("XLM-RoBERTa model not found at:", path)
         return None, None, None
     try:
         tok   = AutoTokenizer.from_pretrained(str(path))
