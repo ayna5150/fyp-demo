@@ -261,6 +261,7 @@ def load_arabert():
     """
     path = MODELS_DIR / "arabert_pii" / "arabert_pii_augmorg"
     if not path.exists():
+        st.write("AraBERT model directory not found:", path)
         return None, None, None
     try:
         tok   = AutoTokenizer.from_pretrained(str(path))
