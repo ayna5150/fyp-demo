@@ -253,7 +253,7 @@ def regex_detect(text):
 @st.cache_resource(show_spinner=False)
 def load_arabert():
     """
-    Load the fine-tuned AraBERT/CamelBERT NER model.
+    Load the fine-tuned AraBERT NER model.
     Expects: models/arabert_pii/  with pytorch_model.bin (or .safetensors),
              config.json, tokenizer files, and tag_vocab.json
     tag_vocab.json format: {"tag2id": {...}, "id2tag": {"0": "O", ...}}
@@ -291,6 +291,7 @@ def load_xlmr():
     """
     path = MODELS_DIR / "xlmr_pii" / "xlmr_pii_augmorg "
     if not path.exists():
+        st.write("XLM-RoBERTa model not found at models/xlmr_pii/xlmr_pii_augmorg/")
         return None, None, None
     try:
         tok   = AutoTokenizer.from_pretrained(str(path))
@@ -657,7 +658,7 @@ st.markdown("""
 st.markdown(f"""
 <div class="sbar">
   <div class="si"><div class="dot {'dot-on' if ar_ok else 'dot-off'}"></div>
-      <span class="si-label">PII Model — AraBERT/CamelBERT (PERS, ORG, ADDRESS, DATE)</span></div>
+      <span class="si-label">PII Model — AraBERT (PERS, ORG, ADDRESS, DATE)</span></div>
   <div class="si"><div class="dot {'dot-on' if xl_ok else 'dot-off'}"></div>
       <span class="si-label">XLM-RoBERTa (ID, CREDENTIAL)</span></div>
   <div class="si"><div class="dot dot-on"></div>
