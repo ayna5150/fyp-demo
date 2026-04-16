@@ -259,7 +259,7 @@ def load_arabert():
     tag_vocab.json format: {"tag2id": {...}, "id2tag": {"0": "O", ...}}
     Saved in notebook cell 98 as arabert_pii_augmorg/
     """
-    path = MODELS_DIR / "arabert_pii" / "arabert_pii_augmorg"
+    path = MODELS_DIR / "arabert_pii_aug" / "arabert_pii_aug"
     if not path.exists():
         st.write("AraBERT model directory not found:", path)
         return None, None, None
@@ -268,7 +268,7 @@ def load_arabert():
         model = AutoModelForTokenClassification.from_pretrained(str(path))
         model.eval()
         vocab_file = next(
-            (p for p in [path/"tag_vocab.json", path/"tag_vocab_augmorg.json"] if p.exists()),
+            (p for p in [path/"tag_vocab.json", path/"tag_vocab_aug.json"] if p.exists()),
             None
         )
         if vocab_file is None:
