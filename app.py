@@ -174,64 +174,81 @@ STRINGS = {
 # ─────────────────────────────────────────────────────────────
 def get_css(dark):
     if dark:
-        return """
-        :root {
-            --bg:      #0B1426;
-            --surface: #0F1C35;
-            --card:    #162240;
-            --white:   #1E2A45;
-            --navy:    #EAE4D9;
-            --ink:     #EAE4D9;
-            --muted:   #7A8BAA;
-            --border:  rgba(255,255,255,0.07);
-            --orange:  #E8520A;
-            --orange2: #F26A22;
-            --blue:    #2D5BE3;
-            --teal:    #00C9A7;
-            --red:     #D93025;
-            --purple:  #6B4FBB;
-            --gold:    #C8960A;
-        }
-        html, body, [class*="css"] {
-            background: var(--bg) !important;
-            color: var(--ink) !important;
-        }
-        .stTextArea textarea {
-            background: var(--card) !important;
-            color: var(--ink) !important;
-            border-color: var(--border) !important;
-        }
+        vars = """
+        --bg:      #0B1426;
+        --surface: #0F1C35;
+        --card:    #162240;
+        --white:   #1E2A45;
+        --navy:    #EAE4D9;
+        --ink:     #EAE4D9;
+        --muted:   #7A8BAA;
+        --border:  rgba(255,255,255,0.07);
         """
     else:
-        return """
-        :root {
-            --bg:      #EAE4D9;
-            --surface: #F3EDE3;
-            --card:    #F3EDE3;
-            --white:   #FDFAF5;
-            --navy:    #0F1C35;
-            --ink:     #1A1714;
-            --muted:   #7A7068;
-            --border:  rgba(0,0,0,0.08);
-            --orange:  #E8520A;
-            --orange2: #F26A22;
-            --blue:    #2D5BE3;
-            --teal:    #00C9A7;
-            --red:     #D93025;
-            --purple:  #6B4FBB;
-            --gold:    #C8960A;
-        }
-        html, body, [class*="css"] {
-            background: var(--bg) !important;
-            color: var(--ink) !important;
-        }
-        .stTextArea textarea {
-            background: var(--white) !important;
-            color: var(--ink) !important;
-        }
+        vars = """
+        --bg:      #EAE4D9;
+        --surface: #F3EDE3;
+        --card:    #F3EDE3;
+        --white:   #FDFAF5;
+        --navy:    #0F1C35;
+        --ink:     #1A1714;
+        --muted:   #7A7068;
+        --border:  rgba(0,0,0,0.08);
         """
 
+    shared = """
+        --orange:  #E8520A;
+        --orange2: #F26A22;
+        --blue:    #2D5BE3;
+        --teal:    #00C9A7;
+        --red:     #D93025;
+        --purple:  #6B4FBB;
+        --gold:    #C8960A;
+    """
+
+    return f"""
+    :root {{ {vars} {shared} }}
+    html, body,
+    .stApp,
+    .stApp > div,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewBlockContainer"],
+    [data-testid="stHeader"],
+    [data-testid="stBottomBlockContainer"],
+    .main .block-container {{
+        background: var(--bg) !important;
+        color: var(--ink) !important;
+    }}
+    .stTextArea textarea {{
+        background: {'var(--card)' if dark else 'var(--white)'} !important;
+        color: var(--ink) !important;
+        border-color: var(--border) !important;
+    }}
+    """
+
 COMMON_CSS = """
+/* Force background on all Streamlit containers */
+.stApp {
+    background: var(--bg) !important;
+}
+.stApp > div {
+    background: var(--bg) !important;
+}
+[data-testid="stAppViewContainer"] {
+    background: var(--bg) !important;
+}
+[data-testid="stAppViewBlockContainer"] {
+    background: var(--bg) !important;
+}
+[data-testid="stHeader"] {
+    background: var(--bg) !important;
+}
+[data-testid="stToolbar"] {
+    background: var(--bg) !important;
+}
+section[data-testid="stSidebar"] {
+    background: var(--surface) !important;
+}
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 * { font-family: 'Plus Jakarta Sans', sans-serif !important; }
