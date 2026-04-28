@@ -29,7 +29,6 @@ if "language"     not in st.session_state: st.session_state.language     = "ar"
 if "prompt"       not in st.session_state: st.session_state.prompt       = ""
 if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
 if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
-if "sidebar_open" not in st.session_state: st.session_state.sidebar_open = True
 
 RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 
@@ -207,7 +206,7 @@ COMMON_CSS = """
 .ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
 .ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
 .ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
-[data-testid="collapsedControl"] { display: flex !important; }
+[data-testid="collapsedControl"] { display: flex !important; visibility: visible !important; }
 section[data-testid="stSidebar"] { min-width: 260px !important; max-width: 320px !important; }
 
 .stTextArea textarea {
@@ -587,26 +586,23 @@ with st.sidebar:
             st.rerun()
 
 # ─── HEADER ────────────────────────────────────────────────
-col_title, col_controls = st.columns([8, 2])
+# ─── HEADER ────────────────────────────────────────────────
+col_controls, col_title = st.columns([2, 8])
+with col_controls:
+    cc1, cc2 = st.columns(2)
+    with cc1:
+        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
+            st.session_state.dark_mode = not st.session_state.dark_mode
+            st.rerun()
+    with cc2:
+        if st.button(T["lang_toggle"], key="toggle_lang"):
+            st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
+            st.rerun()
 with col_title:
     st.markdown(f'''
 <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
 <div class="ps-slogan">{T["tagline"]}</div>
 ''', unsafe_allow_html=True)
-with col_controls:
-    cc1, cc2, cc3 = st.columns(3)
-    with cc1:
-        if st.button("☰", key="toggle_sidebar", help="Toggle sidebar"):
-            st.session_state.sidebar_open = not st.session_state.get("sidebar_open", True)
-            st.rerun()
-    with cc2:
-        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
-            st.session_state.dark_mode = not st.session_state.dark_mode
-            st.rerun()
-    with cc3:
-        if st.button(T["lang_toggle"], key="toggle_lang"):
-            st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
-            st.rerun()
 
 st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
