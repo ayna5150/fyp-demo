@@ -21,7 +21,7 @@ st.set_page_config(
     page_title="PromptScanner",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
@@ -173,10 +173,14 @@ def get_css(dark):
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--card) !important; color: var(--ink) !important; border-color: var(--border) !important; }
-        section[data-testid="stSidebar"] { background: #0F1C35 !important; }
+        section[data-testid="stSidebar"] {
+            background: #0F1C35 !important;
+            border-right: 1px solid rgba(255,255,255,0.07) !important;
+            min-width: 260px !important;
+        }
         section[data-testid="stSidebar"] * { color: #EAE4D9 !important; }
-        section[data-testid="stSidebar"] .sb-model-name { color: #0F1C35 !important; }
-        """
+        section[data-testid="stSidebar"] .sb-model-name { color: #0F1C35 !important; background: #EAE4D9 !important; }
+        [data-testid="collapsedControl"] { display: none !important; }"""
     else:
         return """
         :root {
@@ -186,8 +190,12 @@ def get_css(dark):
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--white) !important; color: var(--ink) !important; }
-        section[data-testid="stSidebar"] { background: #F3EDE3 !important; border-right: 1px solid rgba(0,0,0,0.08) !important; }
-        """
+        section[data-testid="stSidebar"] {
+            background: #F3EDE3 !important;
+            border-right: 1px solid rgba(0,0,0,0.08) !important;
+            min-width: 260px !important;
+        }
+        [data-testid="collapsedControl"] { display: none !important; }"""
 
 COMMON_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,300&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -225,16 +233,22 @@ div[data-testid="stButton"] button {
     box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important;
 }
 div[data-testid="stButton"] button:hover { opacity: 0.85 !important; transform: translateY(-1px); }
-div[data-testid="stButton"][class*="ex_"] button,
-.example-btn button {
+section[data-testid="stSidebar"] div[data-testid="stButton"] button {
     background: var(--white) !important;
     color: var(--ink) !important;
     border: 1px solid var(--border) !important;
     box-shadow: none !important;
     font-size: .76rem !important;
     font-weight: 500 !important;
-    padding: .4rem .8rem !important;
+    padding: .35rem .8rem !important;
+    letter-spacing: 0 !important;
     text-align: right !important;
+    justify-content: flex-end !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover {
+    border-color: #E8520A !important;
+    color: #E8520A !important;
+    transform: none !important;
 }
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; }
@@ -570,19 +584,34 @@ tx_ok = tx_mdl is not None
 inject_css()
 T = STRINGS[st.session_state.language]
 
+# ─── SIDEBAR — always visible ──────────────────────────────
+with st.sidebar:
+    logo_path = Path("assets/logo.png")
+    if logo_path.exists():
+        st.image(str(logo_path), width=44)
+
+    st.markdown(f'<div class="sb-title">{T["sidebar_about"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="sb-desc">{T["sidebar_desc"]}</div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="sb-title">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
+    models_ok = [ar_ok, xl_ok, True, tx_ok]
+    for (name, desc), ok in zip(T["models_info"], models_ok):
+        dot = "🟢" if ok else "🔴"
+        st.markdown(f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="sb-title" style="margin-top:1rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
+    for lbl, ex in T["examples"]:
+        if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
+            st.session_state.prompt      = ex
+            st.session_state.scan_result = None
+            st.session_state.rewritten   = None
+            st.rerun()
+
 # ─── HEADER ────────────────────────────────────────────────
 col_logo, col_controls = st.columns([8, 2])
 
 with col_logo:
-    logo_path = Path("assets/logo.png")
-    if logo_path.exists():
-        lc1, lc2 = st.columns([1, 9])
-        with lc1:
-            st.image(str(logo_path), width=48)
-        with lc2:
-            st.markdown(f'<div class="ps-wordmark" style="margin-top:4px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with col_controls:
     cc1, cc2 = st.columns(2)
@@ -597,37 +626,6 @@ with col_controls:
 
 st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
-
-# ─── INFO PANEL ────────────────────────────────────────────
-models_ok = [ar_ok, xl_ok, True, tx_ok]
-
-col_about, col_models, col_ex = st.columns([3, 3, 4], gap="large")
-
-with col_about:
-    st.markdown(f'''
-<div class="info-card">
-  <div class="sb-title">{T["sidebar_about"]}</div>
-  <div class="sb-desc">{T["sidebar_desc"]}</div>
-</div>''', unsafe_allow_html=True)
-
-with col_models:
-    models_html = f'<div class="info-card"><div class="sb-title">{T["sidebar_models"]}</div>'
-    for (name, desc), ok in zip(T["models_info"], models_ok):
-        dot = "🟢" if ok else "🔴"
-        models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
-    models_html += '</div>'
-    st.markdown(models_html, unsafe_allow_html=True)
-
-with col_ex:
-    st.markdown(f'<div class="sb-title">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
-    for lbl, ex in T["examples"]:
-        if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
-            st.session_state.prompt      = ex
-            st.session_state.scan_result = None
-            st.session_state.rewritten   = None
-            st.rerun()
-
-st.markdown('<div style="height:1.5rem"></div>', unsafe_allow_html=True)
 
 # ─── INPUT ─────────────────────────────────────────────────
 prompt = st.text_area("prompt_input", value=st.session_state.prompt,
