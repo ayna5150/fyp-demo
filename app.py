@@ -586,8 +586,32 @@ with st.sidebar:
             st.rerun()
 
 # ─── HEADER ────────────────────────────────────────────────
-# ─── HEADER ────────────────────────────────────────────────
-col_controls, col_title = st.columns([2, 8])
+col_sb, col_logo, col_controls = st.columns([1, 7, 2])
+
+with col_sb:
+    # This JS clicks the Streamlit sidebar toggle button
+    st.markdown("""
+<button onclick="
+  const btn = window.parent.document.querySelector('[data-testid=\\"collapsedControl\\"]');
+  if(btn) btn.click();
+" style="
+  background:transparent;
+  border:1px solid rgba(0,0,0,0.12);
+  border-radius:8px;
+  padding:6px 12px;
+  font-size:16px;
+  cursor:pointer;
+  color:inherit;
+  margin-top:4px;
+">☰</button>
+""", unsafe_allow_html=True)
+
+with col_logo:
+    st.markdown(f'''
+<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
+<div class="ps-slogan">{T["tagline"]}</div>
+''', unsafe_allow_html=True)
+
 with col_controls:
     cc1, cc2 = st.columns(2)
     with cc1:
@@ -598,11 +622,6 @@ with col_controls:
         if st.button(T["lang_toggle"], key="toggle_lang"):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
-with col_title:
-    st.markdown(f'''
-<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
-<div class="ps-slogan">{T["tagline"]}</div>
-''', unsafe_allow_html=True)
 
 st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
