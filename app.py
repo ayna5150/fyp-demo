@@ -206,8 +206,23 @@ COMMON_CSS = """
 .ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
 .ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
 .ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
-[data-testid="collapsedControl"] { display: flex !important; visibility: visible !important; }
-section[data-testid="stSidebar"] { min-width: 260px !important; max-width: 320px !important; }
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: #0F1C35 !important;
+    border-radius: 0 8px 8px 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    top: 50% !important;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: #EAE4D9 !important;
+    width: 18px !important;
+    height: 18px !important;
+}
 
 .stTextArea textarea {
     border: 1px solid var(--border) !important; border-radius: 12px !important;
@@ -586,25 +601,7 @@ with st.sidebar:
             st.rerun()
 
 # ─── HEADER ────────────────────────────────────────────────
-import streamlit.components.v1 as components
-
-col_sb, col_logo, col_controls = st.columns([1, 7, 2])
-
-with col_sb:
-    components.html("""
-<button onclick="
-  const btn = window.parent.document.querySelector('[data-testid=\\"collapsedControl\\"]');
-  if(btn) btn.click();
-" style="
-  background:transparent;
-  border:1px solid rgba(0,0,0,0.15);
-  border-radius:8px;
-  padding:6px 14px;
-  font-size:18px;
-  cursor:pointer;
-  margin-top:6px;
-">☰</button>
-""", height=50)
+col_logo, col_controls = st.columns([8, 2])
 
 with col_logo:
     st.markdown(f'''
