@@ -173,13 +173,7 @@ def get_css(dark):
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--card) !important; color: var(--ink) !important; border-color: var(--border) !important; }
-        section[data-testid="stSidebar"] {
-            background: #0F1C35 !important;
-            border-right: 1px solid rgba(255,255,255,0.07) !important;
-            min-width: 260px !important;
-        }
-        section[data-testid="stSidebar"] * { color: #EAE4D9 !important; }
-        section[data-testid="stSidebar"] .sb-model-name { color: #0F1C35 !important; background: #EAE4D9 !important; }
+        section[data-testid="stSidebar"] { display: none !important; }
         [data-testid="collapsedControl"] { display: none !important; }"""
     else:
         return """
@@ -190,11 +184,7 @@ def get_css(dark):
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--white) !important; color: var(--ink) !important; }
-        section[data-testid="stSidebar"] {
-            background: #F3EDE3 !important;
-            border-right: 1px solid rgba(0,0,0,0.08) !important;
-            min-width: 260px !important;
-        }
+        section[data-testid="stSidebar"] { display: none !important; }
         [data-testid="collapsedControl"] { display: none !important; }"""
 
 COMMON_CSS = """
@@ -292,11 +282,11 @@ section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover {
 .rw-label { font-family: 'JetBrains Mono', monospace !important; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
 
 .sb-title { font-family: 'JetBrains Mono', monospace !important; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 1rem; }
-.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; height: 100%; }
-.sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .6rem; }
-.sb-model-name { font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; font-weight: 700; color: #EAE4D9; background: #0F1C35; border-radius: 4px; padding: 1px 6px; white-space: nowrap; margin-top: 1px; }
-.sb-model-desc { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
+.info-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
+.sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
+.sb-model-name { font-family: 'JetBrains Mono', monospace !important; font-size: .68rem; font-weight: 700; color: #EAE4D9; background: #0F1C35; border-radius: 4px; padding: 2px 6px; white-space: nowrap; flex-shrink: 0; }
+.sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .sb-ex-btn { display: block; width: 100%; text-align: right; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .78rem; color: var(--ink); cursor: pointer; margin-bottom: 5px; transition: border-color .15s; }
 .sb-ex-btn:hover { border-color: #E8520A; color: #E8520A; }
 .section-gap { margin-top: 1rem; }
@@ -583,43 +573,30 @@ tx_ok = tx_mdl is not None
 
 inject_css()
 T = STRINGS[st.session_state.language]
+models_ok = [ar_ok, xl_ok, True, tx_ok]
 
-# ─── SIDEBAR — always visible ──────────────────────────────
-with st.sidebar:
+inject_css()
+
+# ─── TOP BAR ───────────────────────────────────────────────
+top_left, top_right = st.columns([8, 2])
+with top_left:
     logo_path = Path("assets/logo.png")
     if logo_path.exists():
-        st.image(str(logo_path), width=44)
+        lc1, lc2 = st.columns([1, 10])
+        with lc1:
+            st.image(str(logo_path), width=52)
+        with lc2:
+            st.markdown(f'<div class="ps-wordmark" style="padding-top:6px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="sb-title">{T["sidebar_about"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sb-desc">{T["sidebar_desc"]}</div>', unsafe_allow_html=True)
-
-    st.markdown(f'<div class="sb-title">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
-    models_ok = [ar_ok, xl_ok, True, tx_ok]
-    for (name, desc), ok in zip(T["models_info"], models_ok):
-        dot = "🟢" if ok else "🔴"
-        st.markdown(f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>', unsafe_allow_html=True)
-
-    st.markdown(f'<div class="sb-title" style="margin-top:1rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
-    for lbl, ex in T["examples"]:
-        if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
-            st.session_state.prompt      = ex
-            st.session_state.scan_result = None
-            st.session_state.rewritten   = None
-            st.rerun()
-
-# ─── HEADER ────────────────────────────────────────────────
-col_logo, col_controls = st.columns([8, 2])
-
-with col_logo:
-    st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
-
-with col_controls:
-    cc1, cc2 = st.columns(2)
-    with cc1:
+with top_right:
+    rc1, rc2 = st.columns(2)
+    with rc1:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-    with cc2:
+    with rc2:
         if st.button(T["lang_toggle"], key="toggle_lang"):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
@@ -627,66 +604,99 @@ with col_controls:
 st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
-# ─── INPUT ─────────────────────────────────────────────────
-prompt = st.text_area("prompt_input", value=st.session_state.prompt,
-    height=110, placeholder=T["placeholder"], label_visibility="collapsed")
+# ─── MAIN 2-COLUMN LAYOUT ──────────────────────────────────
+col_info, col_main = st.columns([3, 7], gap="large")
 
-c1, c2, _ = st.columns([1, 1, 6])
-with c1:
-    scan_clicked = st.button(T["btn_scan"], use_container_width=True)
-with c2:
-    if st.button(T["btn_clear"], use_container_width=True):
-        st.session_state.prompt = ""; st.session_state.scan_result = None
-        st.session_state.rewritten = None; st.rerun()
+# ── LEFT: Info panel ──────────────────────────────────────
+with col_info:
+    # About
+    st.markdown(f'''
+<div class="info-panel">
+  <div class="sb-title">{T["sidebar_about"]}</div>
+  <div class="sb-desc">{T["sidebar_desc"]}</div>
+</div>
+''', unsafe_allow_html=True)
 
-# ─── SCAN ──────────────────────────────────────────────────
-if scan_clicked and prompt.strip():
-    with st.spinner(T["scanning"]):
-        t0 = time.time()
-        res = run_scan(prompt.strip(), ar_tok, ar_mdl, ar_id2tag,
-                       xl_tok, xl_mdl, xl_id2tag, tx_tok, tx_mdl)
-        elapsed = round(time.time() - t0, 2)
-    st.session_state.scan_result = {"res": res, "prompt": prompt.strip(), "elapsed": elapsed}
-    st.session_state.rewritten = None
-elif scan_clicked and not prompt.strip():
-    st.warning(T["warn_empty"])
+    # Models
+    models_html = f'<div class="info-panel"><div class="sb-title">{T["sidebar_models"]}</div>'
+    for (name, desc), ok in zip(T["models_info"], models_ok):
+        dot = "🟢" if ok else "🔴"
+        models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
+    models_html += '</div>'
+    st.markdown(models_html, unsafe_allow_html=True)
 
-# ─── RESULTS ───────────────────────────────────────────────
-if st.session_state.scan_result:
-    sr = st.session_state.scan_result
-    res = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
-    pii_ents = res.get("pii", []); tox_res = res.get("tox")
+    # Examples
+    st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
+    for lbl, ex in T["examples"]:
+        if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
+            st.session_state.prompt      = ex
+            st.session_state.scan_result = None
+            st.session_state.rewritten   = None
+            st.rerun()
 
-    st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin-bottom:.8rem;">{T["scanned_in"]} {elapsed}s</div>', unsafe_allow_html=True)
+# ── RIGHT: Scanner ─────────────────────────────────────────
+with col_main:
+    prompt = st.text_area("prompt_input", value=st.session_state.prompt,
+        height=130, placeholder=T["placeholder"], label_visibility="collapsed")
 
-    left, right = st.columns(2, gap="large")
+    bc1, bc2, _ = st.columns([1, 1, 5])
+    with bc1:
+        scan_clicked = st.button(T["btn_scan"], use_container_width=True)
+    with bc2:
+        if st.button(T["btn_clear"], use_container_width=True):
+            st.session_state.prompt = ""
+            st.session_state.scan_result = None
+            st.session_state.rewritten = None
+            st.rerun()
 
-    with left:
-        n_pii = len(pii_ents)
-        badge = f'<span class="badge b-warn">{n_pii}</span>' if n_pii else f'<span class="badge b-safe">{T["badge_clean"]}</span>'
-        st.markdown(f'<div class="card card-pii"><div class="card-head">{T["pii_head"]} &nbsp; {badge}</div>', unsafe_allow_html=True)
-        if pii_ents:
-            st.markdown(f'<div class="richtext">{build_masked_html(prompt_, pii_ents)}</div>', unsafe_allow_html=True)
-            st.markdown('<div class="epills">', unsafe_allow_html=True)
-            for e in pii_ents:
-                src = {"regex":"RGX","arabert":"NER","xlmr":"XLM"}.get(e.get("source",""),"")
-                st.markdown(f'<div class="epill"><span class="epill-lbl">{e["type"]}</span><span class="epill-val">{e["value"]}</span><span style="color:var(--muted);font-size:.62rem;margin-right:.3rem;">{src}</span></div>', unsafe_allow_html=True)
+    # ── SCAN ─────────────────────────────────────────────
+    if scan_clicked and prompt.strip():
+        with st.spinner(T["scanning"]):
+            t0 = time.time()
+            res = run_scan(prompt.strip(), ar_tok, ar_mdl, ar_id2tag,
+                           xl_tok, xl_mdl, xl_id2tag, tx_tok, tx_mdl)
+            elapsed = round(time.time() - t0, 2)
+        st.session_state.scan_result = {"res": res, "prompt": prompt.strip(), "elapsed": elapsed}
+        st.session_state.rewritten = None
+    elif scan_clicked and not prompt.strip():
+        st.warning(T["warn_empty"])
+
+    # ── RESULTS ──────────────────────────────────────────
+    if st.session_state.scan_result:
+        sr = st.session_state.scan_result
+        res = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
+        pii_ents = res.get("pii", []); tox_res = res.get("tox")
+
+        st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;">{T["scanned_in"]} {elapsed}s</div>', unsafe_allow_html=True)
+
+        r_left, r_right = st.columns(2, gap="medium")
+
+        with r_left:
+            n_pii = len(pii_ents)
+            badge = f'<span class="badge b-warn">{n_pii}</span>' if n_pii else f'<span class="badge b-safe">{T["badge_clean"]}</span>'
+            st.markdown(f'<div class="card card-pii"><div class="card-head">{T["pii_head"]} &nbsp; {badge}</div>', unsafe_allow_html=True)
+            if pii_ents:
+                st.markdown(f'<div class="richtext">{build_masked_html(prompt_, pii_ents)}</div>', unsafe_allow_html=True)
+                st.markdown('<div class="epills">', unsafe_allow_html=True)
+                for e in pii_ents:
+                    src = {"regex":"RGX","arabert":"NER","xlmr":"XLM"}.get(e.get("source",""),"")
+                    st.markdown(f'<div class="epill"><span class="epill-lbl">{e["type"]}</span><span class="epill-val">{e["value"]}</span><span style="color:var(--muted);font-size:.62rem;margin-right:.3rem;">{src}</span></div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+                src_counts = Counter(e.get("source","?") for e in pii_ents)
+                src_labels = {"regex":"Regex","arabert":"AraBERT","xlmr":"XLM-RoBERTa"}
+                src_html = " · ".join(f'<span style="color:var(--muted);font-size:.74rem;">{src_labels.get(k,k)}: <span style="color:var(--ink);">{v}</span></span>' for k, v in src_counts.items())
+                st.markdown(f'<div style="margin-top:.6rem;">{src_html}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="nopii">{T["no_pii"]}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-            src_counts = Counter(e.get("source","?") for e in pii_ents)
-            src_labels = {"regex":"Regex","arabert":"AraBERT","xlmr":"XLM-RoBERTa"}
-            src_html = " · ".join(f'<span style="color:var(--muted);font-size:.74rem;">{src_labels.get(k,k)}: <span style="color:var(--ink);">{v}</span></span>' for k, v in src_counts.items())
-            st.markdown(f'<div style="margin-top:.6rem;">{src_html}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div class="nopii">{T["no_pii"]}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    with right:
-        st.markdown(f'<div class="card card-tox"><div class="card-head">{T["tox_head"]}</div>', unsafe_allow_html=True)
-        if tox_res:
-            label = tox_res["prediction"]; conf = tox_res["confidence"]
-            probs = tox_res["all_probs"]; color = TOX_COLOR.get(label, "#00C9A7")
-            ar_lbl = T["tox_labels"].get(label, label)
-            st.markdown(f'''
+        with r_right:
+            st.markdown(f'<div class="card card-tox"><div class="card-head">{T["tox_head"]}</div>', unsafe_allow_html=True)
+            if tox_res:
+                label = tox_res["prediction"]; conf = tox_res["confidence"]
+                probs = tox_res["all_probs"]; color = TOX_COLOR.get(label, "#00C9A7")
+                ar_lbl = T["tox_labels"].get(label, label)
+                st.markdown(f'''
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
   <div><div class="tox-name" style="color:{color};">{ar_lbl}</div>
        <div class="tox-conf">{T["confidence"]}: {conf*100:.1f}%</div></div>
@@ -694,22 +704,22 @@ if st.session_state.scan_result:
 </div>
 <div class="pbar-bg"><div class="pbar-fill" style="width:{conf*100:.1f}%;background:{color};"></div></div>
 ''', unsafe_allow_html=True)
-            rows = ""
-            for lbl, p in sorted(probs.items(), key=lambda x: -x[1]):
-                w = max(2, int(p * 110)); c2 = TOX_COLOR.get(lbl, "#7A7068")
-                ar = T["tox_labels"].get(lbl, lbl)
-                rows += f'<tr><td>{ar}</td><td><span class="pmini" style="width:{w}px;background:{c2};"></span>{p*100:.1f}%</td></tr>'
-            st.markdown(f'<table class="ptable">{rows}</table>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div style="color:var(--muted);font-size:.84rem;">{T["tox_unavail"]}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+                rows = ""
+                for lbl, p in sorted(probs.items(), key=lambda x: -x[1]):
+                    w = max(2, int(p * 110)); c2 = TOX_COLOR.get(lbl, "#7A7068")
+                    ar = T["tox_labels"].get(lbl, lbl)
+                    rows += f'<tr><td>{ar}</td><td><span class="pmini" style="width:{w}px;background:{c2};"></span>{p*100:.1f}%</td></tr>'
+                st.markdown(f'<table class="ptable">{rows}</table>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div style="color:var(--muted);font-size:.84rem;">{T["tox_unavail"]}</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    if tox_res and tox_res.get("words"):
-        label = tox_res["prediction"]; color = TOX_COLOR.get(label, "#00C9A7")
-        hl_html = build_highlight_html(tox_res["words"], tox_res["scores"], tox_res["is_stop"], color)
-        key_words = sorted([(w,s) for w,s,stop in zip(tox_res["words"],tox_res["scores"],tox_res["is_stop"]) if not stop and s>0.4], key=lambda x:-x[1])[:3]
-        key_str = " · ".join(f'<span style="color:{color};font-weight:700;">{w}</span> <span style="color:var(--muted);font-size:.74rem;">({s:.2f})</span>' for w,s in key_words) if key_words else "—"
-        st.markdown(f'''
+        if tox_res and tox_res.get("words"):
+            label = tox_res["prediction"]; color = TOX_COLOR.get(label, "#00C9A7")
+            hl_html = build_highlight_html(tox_res["words"], tox_res["scores"], tox_res["is_stop"], color)
+            key_words = sorted([(w,s) for w,s,stop in zip(tox_res["words"],tox_res["scores"],tox_res["is_stop"]) if not stop and s>0.4], key=lambda x:-x[1])[:3]
+            key_str = " · ".join(f'<span style="color:{color};font-weight:700;">{w}</span> <span style="color:var(--muted);font-size:.74rem;">({s:.2f})</span>' for w,s in key_words) if key_words else "—"
+            st.markdown(f'''
 <div class="card card-hl section-gap">
   <div class="card-head">{T["hl_head"]}</div>
   <div class="richtext" style="margin-bottom:.7rem;">{hl_html}</div>
@@ -723,35 +733,36 @@ if st.session_state.scan_result:
 </div>
 ''', unsafe_allow_html=True)
 
-    if tox_res and tox_res["prediction"] != "Normal":
-        st.markdown(f'<div class="card card-rw section-gap"><div class="card-head">{T["rewrite_head"]}</div>', unsafe_allow_html=True)
-        if st.session_state.rewritten is None:
-            if st.button(T["btn_rewrite"], key="do_rewrite"):
-                masked_plain = build_masked_plain(prompt_, pii_ents)
-                with st.spinner(T["rewriting"]):
-                    result = call_rewrite(prompt_, masked_plain, tox_res["prediction"])
-                if result:
-                    st.session_state.rewritten = result; st.rerun()
-                else:
-                    st.error(T["rewrite_fail"])
-        if st.session_state.rewritten:
-            rw_left, rw_right = st.columns(2, gap="medium")
-            with rw_left:
-                st.markdown(f'<div class="rw-label">{T["orig_label"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="rw-box">{prompt_}</div>', unsafe_allow_html=True)
-            with rw_right:
-                st.markdown(f'<div class="rw-label">{T["new_label"]}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="rw-box">{st.session_state.rewritten}</div>', unsafe_allow_html=True)
-            if st.button(T["btn_rewrite"], key="re_rewrite"):
-                masked_plain = build_masked_plain(prompt_, pii_ents)
-                with st.spinner(T["rewriting"]):
-                    result = call_rewrite(prompt_, masked_plain, tox_res["prediction"])
-                if result:
-                    st.session_state.rewritten = result; st.rerun()
-                else:
-                    st.error(T["rewrite_fail"])
-        st.markdown('</div>', unsafe_allow_html=True)
+        if tox_res and tox_res["prediction"] != "Normal":
+            st.markdown(f'<div class="card card-rw section-gap"><div class="card-head">{T["rewrite_head"]}</div>', unsafe_allow_html=True)
+            if st.session_state.rewritten is None:
+                if st.button(T["btn_rewrite"], key="do_rewrite"):
+                    masked_plain = build_masked_plain(prompt_, pii_ents)
+                    with st.spinner(T["rewriting"]):
+                        result = call_rewrite(prompt_, masked_plain, tox_res["prediction"])
+                    if result:
+                        st.session_state.rewritten = result; st.rerun()
+                    else:
+                        st.error(T["rewrite_fail"])
+            if st.session_state.rewritten:
+                rw_left, rw_right = st.columns(2, gap="medium")
+                with rw_left:
+                    st.markdown(f'<div class="rw-label">{T["orig_label"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="rw-box">{prompt_}</div>', unsafe_allow_html=True)
+                with rw_right:
+                    st.markdown(f'<div class="rw-label">{T["new_label"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="rw-box">{st.session_state.rewritten}</div>', unsafe_allow_html=True)
+                if st.button(T["btn_rewrite"], key="re_rewrite"):
+                    masked_plain = build_masked_plain(prompt_, pii_ents)
+                    with st.spinner(T["rewriting"]):
+                        result = call_rewrite(prompt_, masked_plain, tox_res["prediction"])
+                    if result:
+                        st.session_state.rewritten = result; st.rerun()
+                    else:
+                        st.error(T["rewrite_fail"])
+            st.markdown('</div>', unsafe_allow_html=True)
 
+# ─── FOOTER ────────────────────────────────────────────────
 st.markdown(f'''
 <div style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);
             display:flex;justify-content:space-between;align-items:center;
