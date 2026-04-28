@@ -586,25 +586,25 @@ with st.sidebar:
             st.rerun()
 
 # ─── HEADER ────────────────────────────────────────────────
+import streamlit.components.v1 as components
+
 col_sb, col_logo, col_controls = st.columns([1, 7, 2])
 
 with col_sb:
-    # This JS clicks the Streamlit sidebar toggle button
-    st.markdown("""
+    components.html("""
 <button onclick="
   const btn = window.parent.document.querySelector('[data-testid=\\"collapsedControl\\"]');
   if(btn) btn.click();
 " style="
   background:transparent;
-  border:1px solid rgba(0,0,0,0.12);
+  border:1px solid rgba(0,0,0,0.15);
   border-radius:8px;
-  padding:6px 12px;
-  font-size:16px;
+  padding:6px 14px;
+  font-size:18px;
   cursor:pointer;
-  color:inherit;
-  margin-top:4px;
+  margin-top:6px;
 ">☰</button>
-""", unsafe_allow_html=True)
+""", height=50)
 
 with col_logo:
     st.markdown(f'''
