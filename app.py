@@ -217,36 +217,30 @@ section[data-testid="stSidebar"] { display: none !important; }
 div[data-testid="stButton"] button {
     background: #0F1C35 !important; color: #EAE4D9 !important;
     font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
-    font-size: .82rem !important; border: none !important; border-radius: 10px !important;
-    padding: .6rem 1.4rem !important; letter-spacing: .06em !important;
+    font-size: .85rem !important; border: none !important; border-radius: 10px !important;
+    padding: .55rem 1.6rem !important; letter-spacing: .04em !important;
     transition: all .2s !important; cursor: pointer !important;
     box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important;
+    white-space: nowrap !important; width: auto !important;
 }
 div[data-testid="stButton"] button:hover { opacity: 0.85 !important; transform: translateY(-1px); }
-section[data-testid="stSidebar"] div[data-testid="stButton"] button {
-    background: var(--white) !important;
-    color: var(--ink) !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: none !important;
-    font-size: .76rem !important;
-    font-weight: 500 !important;
-    padding: .35rem .8rem !important;
-    letter-spacing: 0 !important;
-    text-align: right !important;
-    justify-content: flex-end !important;
+div[data-testid="stFormSubmitButton"] button {
+    background: #0F1C35 !important; color: #EAE4D9 !important;
+    font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
+    font-size: .85rem !important; border: none !important; border-radius: 10px !important;
+    padding: .55rem 2rem !important; letter-spacing: .04em !important;
+    transition: all .2s !important; cursor: pointer !important;
+    box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important;
+    width: auto !important;
 }
-section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover {
-    border-color: #E8520A !important;
-    color: #E8520A !important;
-    transform: none !important;
-}
+div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; }
 .card-pii  { border-top: 3px solid #E8520A; }
 .card-tox  { border-top: 3px solid #2D5BE3; }
 .card-hl   { border-top: 3px solid #6B4FBB; }
 .card-rw   { border-top: 3px solid #00C9A7; }
-.card-head { font-family: 'JetBrains Mono', monospace !important; font-size: .67rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: .85rem; }
+.card-head { font-family: 'JetBrains Mono', monospace !important; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .85rem; }
 
 .richtext { font-size: 1rem; line-height: 2.2; padding: .85rem 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 10px; direction: rtl; text-align: right; word-break: break-word; color: var(--ink); }
 .tag-pii { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 5px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; margin: 0 2px; vertical-align: middle; }
@@ -637,17 +631,12 @@ with col_info:
 # ── RIGHT: Scanner ─────────────────────────────────────────
 with col_main:
     prompt = st.text_area("prompt_input", value=st.session_state.prompt,
-        height=130, placeholder=T["placeholder"], label_visibility="collapsed")
+        height=130, placeholder=T["placeholder"], label_visibility="collapsed",
+        key="prompt_input_area")
 
-    bc1, bc2, _ = st.columns([1, 1, 5])
-    with bc1:
-        scan_clicked = st.button(T["btn_scan"], use_container_width=True)
-    with bc2:
-        if st.button(T["btn_clear"], use_container_width=True):
-            st.session_state.prompt = ""
-            st.session_state.scan_result = None
-            st.session_state.rewritten = None
-            st.rerun()
+    # Enter key triggers scan via form
+    with st.form(key="scan_form", clear_on_submit=False):
+        scan_clicked = st.form_submit_button(T["btn_scan"])
 
     # ── SCAN ─────────────────────────────────────────────
     if scan_clicked and prompt.strip():
@@ -663,6 +652,13 @@ with col_main:
 
     # ── RESULTS ──────────────────────────────────────────
     if st.session_state.scan_result:
+        # Clear button only appears after scan
+        if st.button(T["btn_clear"], key="btn_clear"):
+            st.session_state.prompt = ""
+            st.session_state.scan_result = None
+            st.session_state.rewritten = None
+            st.rerun()
+
         sr = st.session_state.scan_result
         res = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
         pii_ents = res.get("pii", []); tox_res = res.get("tox")
