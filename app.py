@@ -225,6 +225,17 @@ div[data-testid="stButton"] button {
     box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important;
 }
 div[data-testid="stButton"] button:hover { opacity: 0.85 !important; transform: translateY(-1px); }
+div[data-testid="stButton"][class*="ex_"] button,
+.example-btn button {
+    background: var(--white) !important;
+    color: var(--ink) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    font-size: .76rem !important;
+    font-weight: 500 !important;
+    padding: .4rem .8rem !important;
+    text-align: right !important;
+}
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; }
 .card-pii  { border-top: 3px solid #E8520A; }
@@ -268,8 +279,9 @@ div[data-testid="stButton"] button:hover { opacity: 0.85 !important; transform: 
 
 .sb-title { font-family: 'JetBrains Mono', monospace !important; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 .sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 1rem; }
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; height: 100%; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .6rem; }
-.sb-model-name { font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; font-weight: 700; color: #0F1C35; background: rgba(15,28,53,0.08); border-radius: 4px; padding: 1px 6px; white-space: nowrap; margin-top: 1px; }
+.sb-model-name { font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; font-weight: 700; color: #EAE4D9; background: #0F1C35; border-radius: 4px; padding: 1px 6px; white-space: nowrap; margin-top: 1px; }
 .sb-model-desc { font-size: .78rem; color: var(--muted); line-height: 1.4; }
 .sb-ex-btn { display: block; width: 100%; text-align: right; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .78rem; color: var(--ink); cursor: pointer; margin-bottom: 5px; transition: border-color .15s; }
 .sb-ex-btn:hover { border-color: #E8520A; color: #E8520A; }
@@ -558,41 +570,19 @@ tx_ok = tx_mdl is not None
 inject_css()
 T = STRINGS[st.session_state.language]
 
-# ─── ABOUT EXPANDER ────────────────────────────────────────
-with st.expander(f"◆ {T['sidebar_about']} · {T['sidebar_models']} · {T['sidebar_examples']}", expanded=False):
-    col_about, col_models, col_ex = st.columns([3, 3, 3], gap="large")
-
-    with col_about:
-        st.markdown(f'<div class="sb-title">{T["sidebar_about"]}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="sb-desc">{T["sidebar_desc"]}</div>', unsafe_allow_html=True)
-
-    with col_models:
-        st.markdown(f'<div class="sb-title">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
-        models_ok = [ar_ok, xl_ok, True, tx_ok]
-        for (name, desc), ok in zip(T["models_info"], models_ok):
-            dot = "🟢" if ok else "🔴"
-            st.markdown(f'''<div class="sb-model">
-                <span class="sb-model-name">{name}</span>
-                <span class="sb-model-desc">{dot} {desc}</span>
-            </div>''', unsafe_allow_html=True)
-
-    with col_ex:
-        st.markdown(f'<div class="sb-title">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
-        for lbl, ex in T["examples"]:
-            if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
-                st.session_state.prompt      = ex
-                st.session_state.scan_result = None
-                st.session_state.rewritten   = None
-                st.rerun()
-
 # ─── HEADER ────────────────────────────────────────────────
 col_logo, col_controls = st.columns([8, 2])
 
 with col_logo:
-    st.markdown(f'''
-<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
-<div class="ps-slogan">{T["tagline"]}</div>
-''', unsafe_allow_html=True)
+    logo_path = Path("assets/logo.png")
+    if logo_path.exists():
+        lc1, lc2 = st.columns([1, 9])
+        with lc1:
+            st.image(str(logo_path), width=48)
+        with lc2:
+            st.markdown(f'<div class="ps-wordmark" style="margin-top:4px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with col_controls:
     cc1, cc2 = st.columns(2)
@@ -607,6 +597,37 @@ with col_controls:
 
 st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
+
+# ─── INFO PANEL ────────────────────────────────────────────
+models_ok = [ar_ok, xl_ok, True, tx_ok]
+
+col_about, col_models, col_ex = st.columns([3, 3, 4], gap="large")
+
+with col_about:
+    st.markdown(f'''
+<div class="info-card">
+  <div class="sb-title">{T["sidebar_about"]}</div>
+  <div class="sb-desc">{T["sidebar_desc"]}</div>
+</div>''', unsafe_allow_html=True)
+
+with col_models:
+    models_html = f'<div class="info-card"><div class="sb-title">{T["sidebar_models"]}</div>'
+    for (name, desc), ok in zip(T["models_info"], models_ok):
+        dot = "🟢" if ok else "🔴"
+        models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
+    models_html += '</div>'
+    st.markdown(models_html, unsafe_allow_html=True)
+
+with col_ex:
+    st.markdown(f'<div class="sb-title">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
+    for lbl, ex in T["examples"]:
+        if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
+            st.session_state.prompt      = ex
+            st.session_state.scan_result = None
+            st.session_state.rewritten   = None
+            st.rerun()
+
+st.markdown('<div style="height:1.5rem"></div>', unsafe_allow_html=True)
 
 # ─── INPUT ─────────────────────────────────────────────────
 prompt = st.text_area("prompt_input", value=st.session_state.prompt,
