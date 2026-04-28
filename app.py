@@ -24,11 +24,12 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-if "dark_mode"   not in st.session_state: st.session_state.dark_mode   = False
-if "language"    not in st.session_state: st.session_state.language    = "ar"
-if "prompt"      not in st.session_state: st.session_state.prompt      = ""
-if "scan_result" not in st.session_state: st.session_state.scan_result = None
-if "rewritten"   not in st.session_state: st.session_state.rewritten   = None
+if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
+if "language"     not in st.session_state: st.session_state.language     = "ar"
+if "prompt"       not in st.session_state: st.session_state.prompt       = ""
+if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
+if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
+if "sidebar_open" not in st.session_state: st.session_state.sidebar_open = True
 
 RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 
@@ -174,6 +175,8 @@ def get_css(dark):
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--card) !important; color: var(--ink) !important; border-color: var(--border) !important; }
         section[data-testid="stSidebar"] { background: #0F1C35 !important; }
+        section[data-testid="stSidebar"] * { color: #EAE4D9 !important; }
+        section[data-testid="stSidebar"] .sb-model-name { color: #0F1C35 !important; }
         """
     else:
         return """
@@ -184,7 +187,7 @@ def get_css(dark):
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--white) !important; color: var(--ink) !important; }
-        section[data-testid="stSidebar"] { background: #F3EDE3 !important; }
+        section[data-testid="stSidebar"] { background: #F3EDE3 !important; border-right: 1px solid rgba(0,0,0,0.08) !important; }
         """
 
 COMMON_CSS = """
@@ -198,12 +201,14 @@ COMMON_CSS = """
     background: var(--bg) !important; color: var(--ink) !important;
 }
 
-.ps-wordmark { font-weight: 800; font-size: 1.8rem; letter-spacing: -1px; line-height: 1; }
+.ps-wordmark { font-weight: 800; font-size: 2rem; letter-spacing: -1px; line-height: 1; }
 .ps-wordmark .dark { color: var(--navy); }
 .ps-wordmark .orng { color: #E8520A; }
-.ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.88rem; color: var(--muted); margin-top: 2px; }
-.ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.8rem; margin-top: 0.2rem; }
-.ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.2rem; opacity: 0.2; }
+.ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
+.ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
+.ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
+[data-testid="collapsedControl"] { display: flex !important; }
+section[data-testid="stSidebar"] { min-width: 260px !important; max-width: 320px !important; }
 
 .stTextArea textarea {
     border: 1px solid var(--border) !important; border-radius: 12px !important;
@@ -589,12 +594,16 @@ with col_title:
 <div class="ps-slogan">{T["tagline"]}</div>
 ''', unsafe_allow_html=True)
 with col_controls:
-    cc1, cc2 = st.columns(2)
+    cc1, cc2, cc3 = st.columns(3)
     with cc1:
+        if st.button("☰", key="toggle_sidebar", help="Toggle sidebar"):
+            st.session_state.sidebar_open = not st.session_state.get("sidebar_open", True)
+            st.rerun()
+    with cc2:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-    with cc2:
+    with cc3:
         if st.button(T["lang_toggle"], key="toggle_lang"):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
