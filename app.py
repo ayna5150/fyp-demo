@@ -21,7 +21,7 @@ st.set_page_config(
     page_title="PromptScanner",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
@@ -206,23 +206,8 @@ COMMON_CSS = """
 .ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
 .ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
 .ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
-[data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    width: 40px !important;
-    height: 40px !important;
-    background: #0F1C35 !important;
-    border-radius: 0 8px 8px 0 !important;
-    align-items: center !important;
-    justify-content: center !important;
-    top: 50% !important;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
-}
-[data-testid="collapsedControl"] svg {
-    fill: #EAE4D9 !important;
-    width: 18px !important;
-    height: 18px !important;
-}
+[data-testid="collapsedControl"] { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; }
 
 .stTextArea textarea {
     border: 1px solid var(--border) !important; border-radius: 12px !important;
@@ -573,32 +558,32 @@ tx_ok = tx_mdl is not None
 inject_css()
 T = STRINGS[st.session_state.language]
 
-# ─── SIDEBAR ───────────────────────────────────────────────
-with st.sidebar:
-    logo_path = Path("assets/logo.png")
-    if logo_path.exists():
-        st.image(str(logo_path), width=48)
+# ─── ABOUT EXPANDER ────────────────────────────────────────
+with st.expander(f"◆ {T['sidebar_about']} · {T['sidebar_models']} · {T['sidebar_examples']}", expanded=False):
+    col_about, col_models, col_ex = st.columns([3, 3, 3], gap="large")
 
-    st.markdown(f'<div class="sb-title">{T["sidebar_about"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="sb-desc">{T["sidebar_desc"]}</div>', unsafe_allow_html=True)
+    with col_about:
+        st.markdown(f'<div class="sb-title">{T["sidebar_about"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="sb-desc">{T["sidebar_desc"]}</div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="sb-title">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
-    models_ok = [ar_ok, xl_ok, True, tx_ok]
-    for (name, desc), ok in zip(T["models_info"], models_ok):
-        dot = "🟢" if ok else "🔴"
-        st.markdown(f'''<div class="sb-model">
-            <span class="sb-model-name">{name}</span>
-            <span class="sb-model-desc">{dot} {desc}</span>
-        </div>''', unsafe_allow_html=True)
+    with col_models:
+        st.markdown(f'<div class="sb-title">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
+        models_ok = [ar_ok, xl_ok, True, tx_ok]
+        for (name, desc), ok in zip(T["models_info"], models_ok):
+            dot = "🟢" if ok else "🔴"
+            st.markdown(f'''<div class="sb-model">
+                <span class="sb-model-name">{name}</span>
+                <span class="sb-model-desc">{dot} {desc}</span>
+            </div>''', unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(f'<div class="sb-title">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
-    for lbl, ex in T["examples"]:
-        if st.button(lbl, key=f"sb_ex_{lbl}", use_container_width=True):
-            st.session_state.prompt = ex
-            st.session_state.scan_result = None
-            st.session_state.rewritten   = None
-            st.rerun()
+    with col_ex:
+        st.markdown(f'<div class="sb-title">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
+        for lbl, ex in T["examples"]:
+            if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
+                st.session_state.prompt      = ex
+                st.session_state.scan_result = None
+                st.session_state.rewritten   = None
+                st.rerun()
 
 # ─── HEADER ────────────────────────────────────────────────
 col_logo, col_controls = st.columns([8, 2])
