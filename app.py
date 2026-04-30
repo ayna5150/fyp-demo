@@ -726,7 +726,7 @@ with top_right:
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
     with rc3:
-        if st.button("📖 User Guide", use_container_width=True):
+        if st.button("📖 Guide", use_container_width=True):
             st.session_state.page = "guide"
             st.rerun()
 
