@@ -28,6 +28,7 @@ if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
 if "language"     not in st.session_state: st.session_state.language     = "ar"
 if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
 if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
+if "prompt_reset" not in st.session_state: st.session_state.prompt_reset = 0
 
 RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 
@@ -103,7 +104,7 @@ STRINGS = {
         "btn_rewrite":  "Rewrite Prompt",
         "scanning":     "Scanning…",
         "rewriting":    "Rewriting prompt…",
-        "scanned_in":   "Scanned in",
+        "scanned_in":   "Scanning time",
         "pii_head":     "◆ Text without personal information",
         "tox_head":     "◆ Toxicity Analysis",
         "hl_head":      "◆ Keyword Attention",
@@ -777,7 +778,7 @@ with col_main:
     height=130,
     placeholder=T["placeholder"],
     label_visibility="collapsed",
-    key="prompt"
+    key=f"prompt_{st.session_state.prompt_reset}"
 )
 
     # Enter key triggers scan via form
@@ -804,9 +805,9 @@ with col_main:
     if st.session_state.scan_result:
         # Clear button only appears after scan
         if st.button(T["btn_clear"], key="btn_clear"):
-            st.session_state["prompt"] = ""
             st.session_state.scan_result = None
             st.session_state.rewritten = None
+            st.session_state.prompt_reset += 1
             st.rerun()
 
         sr = st.session_state.scan_result
@@ -868,7 +869,7 @@ with col_main:
             st.markdown(f'''
 <div class="card card-hl section-gap">
   <div class="card-head">{T["hl_head"]}</div>
-  <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;">{"تُبرز هذه الخريطة الكلمات التي أثّرت في تصنيف النص، بحيث تظهر الكلمات الأكثر تأثيراً بلون أغمق وأكثر تشبعاً." if st.session_state.language == "ar" else "This map highlights the words that influenced the toxicity classification. Words with higher attention scores appear darker and more saturated."}</div>
+  <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;">{"يوضح المخطط تأثير الكلمات في التصنيف الذي حصلت عليه، بحيث تظهر الكلمات الأكثر تأثيرا بلون داكن " if st.session_state.language == "ar" else "This map highlights the words that influenced the toxicity classification. Words with higher attention scores appear darker and more saturated."}</div>
   <div class="richtext" style="margin-bottom:.7rem;">{hl_html}</div>
   <div style="font-size:.78rem;color:var(--muted);margin-bottom:.45rem;">{T["top_words"]}: {key_str}</div>
   <div class="legend">
