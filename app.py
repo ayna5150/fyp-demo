@@ -258,7 +258,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .card-tox  { border-top: 3px solid #2D5BE3; }
 .card-hl   { border-top: 3px solid #6B4FBB; }
 .card-rw   { border-top: 3px solid #00C9A7; }
-.card-head { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .88rem; font-weight: 700; letter-spacing: 0; color: var(--ink); margin-bottom: .85rem; }
+.card-head { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 1rem; font-weight: 700; letter-spacing: 0; color: var(--ink); margin-bottom: .85rem; }
 
 .richtext { font-size: 1rem; line-height: 2.2; padding: .85rem 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 10px; direction: rtl; text-align: right; word-break: break-word; color: var(--ink); }
 .tag-pii { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 5px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; margin: 0 2px; vertical-align: middle; }
@@ -804,7 +804,7 @@ with col_main:
     if st.session_state.scan_result:
         # Clear button only appears after scan
         if st.button(T["btn_clear"], key="btn_clear"):
-            st.session_state.prompt = ""
+            st.session_state["prompt"] = ""
             st.session_state.scan_result = None
             st.session_state.rewritten = None
             st.rerun()
@@ -868,6 +868,7 @@ with col_main:
             st.markdown(f'''
 <div class="card card-hl section-gap">
   <div class="card-head">{T["hl_head"]}</div>
+  <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;">{"تُبرز هذه الخريطة الكلمات التي أثّرت في تصنيف النص، بحيث تظهر الكلمات الأكثر تأثيراً بلون أغمق وأكثر تشبعاً." if st.session_state.language == "ar" else "This map highlights the words that influenced the toxicity classification. Words with higher attention scores appear darker and more saturated."}</div>
   <div class="richtext" style="margin-bottom:.7rem;">{hl_html}</div>
   <div style="font-size:.78rem;color:var(--muted);margin-bottom:.45rem;">{T["top_words"]}: {key_str}</div>
   <div class="legend">
@@ -911,8 +912,12 @@ with col_main:
 # ─── FOOTER ────────────────────────────────────────────────
 st.markdown(f'''
 <div style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);
-            display:flex;justify-content:center;align-items:center;
+            display:flex;justify-content:space-between;align-items:center;
             font-size:.72rem;color:var(--muted);">
+  <span style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--navy);">PromptScanner</span>
+  <a href="mailto:promptscanner.om@gmail.com" style="color:var(--muted);text-decoration:none;font-family:JetBrains Mono,monospace;">promptscanner.om@gmail.com</a>
+</div>
+''', unsafe_allow_html=True)
   <span style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--navy);">PromptScanner</span>
 </div>
 ''', unsafe_allow_html=True)
