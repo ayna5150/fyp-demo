@@ -689,11 +689,28 @@ with col_info:
 ''', unsafe_allow_html=True)
 
     # Models
-    models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
+    st.markdown(
+        f'<div class="sb-title" style="margin-top:1rem">{T["sidebar_models"]}</div>',
+        unsafe_allow_html=True
+    )
+    
+    models_html = '<div class="info-panel">'
+    
     for (name, desc), ok in zip(T["models_info"], models_ok):
+    
         dot = "🟢" if ok else "🔴"
-        models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
+    
+        model_class = "tox-model" if "AraBERT v2" in name else "pii-model"
+    
+        models_html += f'''
+        <div class="sb-model">
+            <span class="sb-model-name {model_class}">{name}</span>
+            <span class="sb-model-desc">{dot} {desc}</span>
+        </div>
+        '''
+    
     models_html += '</div>'
+    
     st.markdown(models_html, unsafe_allow_html=True)
 
     # Examples
