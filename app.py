@@ -343,7 +343,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 }
 
 .tox-model {
-    background: #0F1C35 !important;
+    background: #2464e0 !important;
     border: 1px solid rgba(45,91,227,0.18);
     color: #EAE4D9 !important;
     backdrop-filter: blur(10px);
