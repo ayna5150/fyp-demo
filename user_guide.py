@@ -1058,68 +1058,68 @@ def render_website_guide(t, rtl=False):
   <!-- Body: sidebar + main -->
   <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;">
 
-    <!-- Sidebar -->
-    <div style="background:#ebe5d8;border-radius:8px;padding:12px;position:relative;">
-      <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">A</div>
-      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
-                  letter-spacing:.1em;color:#888;margin-bottom:8px;">
-        {'النماذج المستخدمة' if rtl else 'Models'}
-      </div>
-      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
-                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
-        <div>
-          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT NER</div>
-          <div style="font-size:.65rem;color:#888;">{'كشف الأشخاص والمؤسسات' if rtl else 'Names, orgs, dates'}</div>
-        </div>
-      </div>
-      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
-                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
-        <div>
-          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">XLM-RoBERTa</div>
-          <div style="font-size:.65rem;color:#888;">{'كشف الهويات وبيانات الدخول' if rtl else 'IDs, credentials'}</div>
-        </div>
-      </div>
-      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
-                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
-        <div>
-          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">Regex Engine</div>
-          <div style="font-size:.65rem;color:#888;">{'الهاتف والبريد والروابط' if rtl else 'Phone, email, URL'}</div>
-        </div>
-      </div>
-      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:12px;
-                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
-        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
-        <div>
-          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT v2</div>
-          <div style="font-size:.65rem;color:#888;">{'تصنيف المحتوى السام' if rtl else 'Toxicity classifier'}</div>
-        </div>
-      </div>
-      <!-- Example buttons -->
-      <div class="ann" style="position:absolute;top:168px;left:-8px;z-index:2;">B</div>
-      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
-                  letter-spacing:.1em;color:#888;margin-bottom:6px;">
-        {'أمثلة للتجربة' if rtl else 'Examples'}
-      </div>
-      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
-                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
-        {'اسم + مؤسسة' if rtl else 'Name + Org'}
-      </div>
-      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
-                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
-        {'هاتف + بريد' if rtl else 'Phone + Email'}
-      </div>
-      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
-                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
-        {'هوية + بيانات دخول' if rtl else 'ID + Credential'}
-      </div>
-      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
-                  font-size:.73rem;font-weight:600;text-align:center;">
-        {'محتوى خطير' if rtl else 'Dangerous content'}
-      </div>
+<!-- Sidebar -->
+<div style="background:#ebe5d8;border-radius:8px;padding:12px;position:relative;">
+  <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">A</div>
+  <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
+              letter-spacing:.1em;color:#888;margin-bottom:8px;">
+    {'النماذج المستخدمة' if rtl else 'Models'}
+  </div>
+  <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+              border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+    <div>
+      <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT NER</div>
+      <div style="font-size:.65rem;color:#888;">{'كشف الأشخاص والمؤسسات' if rtl else 'Names, orgs, dates'}</div>
     </div>
+  </div>
+  <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+              border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+    <div>
+      <div style="font-weight:700;font-size:.72rem;color:var(--navy);">XLM-RoBERTa</div>
+      <div style="font-size:.65rem;color:#888;">{'كشف الهويات وبيانات الدخول' if rtl else 'IDs, credentials'}</div>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+              border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+    <div>
+      <div style="font-weight:700;font-size:.72rem;color:var(--navy);">Regex Engine</div>
+      <div style="font-size:.65rem;color:#888;">{'الهاتف والبريد والروابط' if rtl else 'Phone, email, URL'}</div>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:12px;
+              border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+    <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+    <div>
+      <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT v2</div>
+      <div style="font-size:.65rem;color:#888;">{'تصنيف المحتوى السام' if rtl else 'Toxicity classifier'}</div>
+    </div>
+  </div>
+  <!-- Example buttons -->
+  <div class="ann" style="position:absolute;top:168px;left:-8px;z-index:2;">B</div>
+  <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
+              letter-spacing:.1em;color:#888;margin-bottom:6px;">
+    {'أمثلة للتجربة' if rtl else 'Examples'}
+  </div>
+  <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+              margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+    {'اسم + مؤسسة' if rtl else 'Name + Org'}
+  </div>
+  <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+              margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+    {'هاتف + بريد' if rtl else 'Phone + Email'}
+  </div>
+  <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+              margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+    {'هوية + بيانات دخول' if rtl else 'ID + Credential'}
+  </div>
+  <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+              font-size:.73rem;font-weight:600;text-align:center;">
+    {'محتوى خطير' if rtl else 'Dangerous content'}
+  </div>
+</div>
 
     <!-- Main area -->
     <div style="display:flex;flex-direction:column;gap:10px;position:relative;">
