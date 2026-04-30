@@ -230,6 +230,91 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 
 /* ── RTL support ── */
 .rtl { direction: rtl; text-align: right; }
+
+/* ── EN/AR language toggle button ── */
+button[data-testid="baseButton-secondary"][kind="secondary"]:has(+ *),
+div[data-testid="stButton"]:has(button[key="guide_lang_toggle"]) button {
+    background: #ebe5d8 !important;
+    color: var(--navy) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    padding: 6px 12px !important;
+}
+/* Broader selector to catch the lang toggle reliably */
+div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stButton"] button {
+    background: #ebe5d8 !important;
+    color: var(--navy) !important;
+    border: none !important;
+    border-radius: 8px !important;
+}
+
+/* ── Guide header (navy cover with badge buttons) ── */
+.guide-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 44px 48px 36px;
+    margin-bottom: 0;
+}
+.gh-logo-row {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.gh-logo {
+    width: 52px; height: 52px; border-radius: 11px;
+    object-fit: contain; flex-shrink: 0;
+}
+.gh-name {
+    font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1;
+}
+.gh-name span { color: var(--amber); }
+.gh-sub {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-top: 2px;
+}
+.gh-title {
+    font-size: 1.9rem; font-weight: 300; margin-bottom: 10px;
+}
+.gh-desc {
+    color: rgba(255,255,255,0.62); font-size: 0.91rem;
+    max-width: 560px; line-height: 1.65; margin: 0;
+}
+.gh-bottom-rule {
+    height: 3px;
+    background: linear-gradient(90deg, var(--amber), transparent 60%);
+    margin-top: 0;
+}
+
+/* ── Tab buttons inside the header: override Streamlit to look like orange/grey pills ── */
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button {
+    border-radius: 24px !important;
+    font-weight: 700 !important;
+    font-size: 0.83rem !important;
+    letter-spacing: 0.04em !important;
+    padding: 8px 20px !important;
+    border: none !important;
+    transition: all 0.2s !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="primary"] {
+    background: var(--amber) !important;
+    color: var(--navy) !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="secondary"] {
+    background: rgba(255,255,255,0.15) !important;
+    color: rgba(255,255,255,0.75) !important;
+}
+div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="secondary"]:hover {
+    background: rgba(255,255,255,0.25) !important;
+    color: #fff !important;
+}
+div[data-testid="stHorizontalBlock"] {
+    background: var(--navy) !important;
+    padding: 0 48px 28px !important;
+    margin: 0 !important;
+    gap: 10px !important;
+    border-bottom: none !important;
+    align-items: center !important;
+}
 </style>
 """
 
@@ -553,14 +638,62 @@ T = {
 # ──────────────────────────────────────────────────────────────────────────────
 
 def cover(title, desc, badge, extra="", rtl=False):
-    dir_attr = 'dir="rtl"' if rtl else ''
+    """Not used directly — header is rendered inside render_user_guide."""
+    pass
+
+
+def guide_header(t, active_tab, rtl=False):
+    """
+    Full navy header: logo + name, tagline, title, description,
+    and the two badge-style tab buttons — exactly like the original HTML design.
+    """
+    tab_web_active  = active_tab == "website"
+    tab_ext_active  = active_tab == "extension"
+    dir_attr        = 'dir="rtl"' if rtl else ''
+
+    # Render the static navy header HTML
     st.markdown(f"""
-<div class="cover" {dir_attr}>
-  <div class="cover-title">{title}</div>
-  <p class="cover-desc">{desc}</p>
-  <div class="cover-badge">{badge}</div>
-  {f'<div class="cover-compat">{extra}</div>' if extra else ''}
-</div>""", unsafe_allow_html=True)
+<div class="guide-header" {dir_attr}>
+
+  <!-- Logo + name row -->
+  <div class="gh-logo-row">
+    <img src="logo.png" class="gh-logo" alt="PromptScanner logo"/>
+    <div>
+      <div class="gh-name">Prompt<span>Scanner</span></div>
+      <div class="gh-sub">{'فاحص الخصوصية والسلامة' if rtl else 'Arabic AI Safety Tool'}</div>
+    </div>
+  </div>
+
+  <!-- Title + description -->
+  <div class="gh-title">{'دليل المستخدم' if rtl else 'User Guide'}</div>
+  <p class="gh-desc">{'تعليمات خطوة بخطوة لاستخدام PromptScanner للكشف عن المعلومات الشخصية والمحتوى الضار في مطالباتك العربية قبل إرسالها.' if rtl else 'Step-by-step instructions for using PromptScanner to detect personally identifiable information and toxic content in Arabic prompts before submitting them to an AI chatbot.'}</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+    # Tab buttons — rendered as Streamlit buttons styled as orange/grey badges
+    btn_col1, btn_col2, spacer = st.columns([1.8, 2.4, 5])
+    with btn_col1:
+        if st.button(
+            t["tab_web"],
+            key="tab_btn_website",
+            use_container_width=True,
+            type="primary" if tab_web_active else "secondary",
+        ):
+            st.query_params["tab"] = "website"
+            st.rerun()
+    with btn_col2:
+        if st.button(
+            t["tab_ext"],
+            key="tab_btn_extension",
+            use_container_width=True,
+            type="primary" if tab_ext_active else "secondary",
+        ):
+            st.query_params["tab"] = "extension"
+            st.rerun()
+
+    # Bottom border of the header area
+    st.markdown('<div class="gh-bottom-rule"></div>', unsafe_allow_html=True)
 
 
 def sec_header(num, part, title, rtl=False):
@@ -622,9 +755,18 @@ def pill(text, bg, fg):
 def annotations(items, rtl=False):
     rows = ""
     for label, text in items:
-        rows += f'<div class="ann-row"><div class="ann">{label}</div><div>{text}</div></div>'
+        rows += (
+            f'<div class="ann-row">'
+            f'<div class="ann" style="flex-shrink:0;">{label}</div>'
+            f'<div style="color:#2a2a2a;font-size:0.87rem;line-height:1.6;">{text}</div>'
+            f'</div>'
+        )
     dir_attr = 'dir="rtl"' if rtl else ''
-    st.markdown(f'<div {dir_attr}>{rows}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="background:#ffffff;border:1px solid var(--border);'
+        f'border-radius:10px;padding:12px 16px;margin-top:8px;" {dir_attr}>{rows}</div>',
+        unsafe_allow_html=True
+    )
 
 
 def step(num, label, desc, extra_html="", marker_class="", rtl=False, last=False):
@@ -839,7 +981,7 @@ def ext_popup_settings(t):
 
 def popup_with_annotations(popup_html, ann_items, rtl=False):
     """Renders popup mockup and annotation list side by side."""
-    col_popup, col_ann = st.columns([1, 1.2])
+    col_popup, col_ann = st.columns([1, 1.3])
     with col_popup:
         st.markdown(popup_html, unsafe_allow_html=True)
     with col_ann:
@@ -859,8 +1001,6 @@ def doc_footer(text, rtl=False):
 # ──────────────────────────────────────────────────────────────────────────────
 
 def render_website_guide(t, rtl=False):
-
-    cover(t["cover_web_title"], t["cover_web_desc"], t["cover_web_badge"], rtl=rtl)
 
     # ── Section 1: What is PromptScanner ──────────────────────────────────────
     sec_header("1", t["sec_overview"], "PromptScanner", rtl=rtl)
@@ -890,10 +1030,146 @@ def render_website_guide(t, rtl=False):
 
     # ── Section 2: Interface layout ───────────────────────────────────────────
     sec_header("2", t["sec_interface"], t["sec_interface"], rtl=rtl)
-    annotations([
-        ("A", t["ann_a"]), ("B", t["ann_b"]),
-        ("C", t["ann_c"]), ("D", t["ann_d"]), ("E", t["ann_e"]),
-    ], rtl=rtl)
+
+    # Interface preview mockup with A-E annotation markers
+    rtl_style = "direction:rtl;text-align:right;" if rtl else ""
+    st.markdown(f"""
+<div style="background:#f0ebe0;border:1px solid var(--border);border-radius:12px;
+            padding:18px;margin:16px 0 8px;{rtl_style}">
+
+  <!-- Nav bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;
+              padding-bottom:12px;border-bottom:1px solid #ddd;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:30px;height:30px;background:var(--navy);border-radius:7px;
+                  display:flex;align-items:center;justify-content:center;font-size:.9rem;">⬡</div>
+      <div style="font-weight:800;font-size:.95rem;color:var(--navy);">
+        Prompt<span style="color:var(--amber);">Scanner</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <div style="background:var(--navy);color:#fff;border-radius:7px;
+                  padding:5px 11px;font-size:.75rem;font-weight:700;">🌙</div>
+      <div style="background:var(--navy);color:#fff;border-radius:7px;
+                  padding:5px 11px;font-size:.75rem;font-weight:700;">EN</div>
+    </div>
+  </div>
+
+  <!-- Body: sidebar + main -->
+  <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;">
+
+    <!-- Sidebar -->
+    <div style="background:#ebe5d8;border-radius:8px;padding:12px;position:relative;">
+      <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">A</div>
+      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
+                  letter-spacing:.1em;color:#888;margin-bottom:8px;">
+        {'النماذج المستخدمة' if rtl else 'Models'}
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT NER</div>
+          <div style="font-size:.65rem;color:#888;">{'كشف الأشخاص والمؤسسات' if rtl else 'Names, orgs, dates'}</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">XLM-RoBERTa</div>
+          <div style="font-size:.65rem;color:#888;">{'كشف الهويات وبيانات الدخول' if rtl else 'IDs, credentials'}</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:5px;
+                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">Regex Engine</div>
+          <div style="font-size:.65rem;color:#888;">{'الهاتف والبريد والروابط' if rtl else 'Phone, email, URL'}</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:6px;padding:6px 9px;margin-bottom:12px;
+                  border:1px solid #ddd;display:flex;align-items:flex-start;gap:7px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#0a8a72;margin-top:3px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-weight:700;font-size:.72rem;color:var(--navy);">AraBERT v2</div>
+          <div style="font-size:.65rem;color:#888;">{'تصنيف المحتوى السام' if rtl else 'Toxicity classifier'}</div>
+        </div>
+      </div>
+      <!-- Example buttons -->
+      <div class="ann" style="position:absolute;top:168px;left:-8px;z-index:2;">B</div>
+      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
+                  letter-spacing:.1em;color:#888;margin-bottom:6px;">
+        {'أمثلة للتجربة' if rtl else 'Examples'}
+      </div>
+      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+        {'اسم + مؤسسة' if rtl else 'Name + Org'}
+      </div>
+      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+        {'هاتف + بريد' if rtl else 'Phone + Email'}
+      </div>
+      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+                  margin-bottom:5px;font-size:.73rem;font-weight:600;text-align:center;">
+        {'هوية + بيانات دخول' if rtl else 'ID + Credential'}
+      </div>
+      <div style="background:var(--navy);color:#fff;border-radius:6px;padding:6px 9px;
+                  font-size:.73rem;font-weight:600;text-align:center;">
+        {'محتوى خطير' if rtl else 'Dangerous content'}
+      </div>
+    </div>
+
+    <!-- Main area -->
+    <div style="display:flex;flex-direction:column;gap:10px;position:relative;">
+      <!-- Text area -->
+      <div style="position:relative;">
+        <div class="ann" style="position:absolute;top:-8px;right:-8px;z-index:2;">C</div>
+        <div style="background:#fff;border:1px solid #ccc;border-radius:8px;
+                    padding:10px 13px;min-height:68px;font-size:.84rem;
+                    color:#aaa;direction:rtl;text-align:right;">
+          {'اكتب نصك العربي هنا…' if rtl else 'اكتب نصك العربي هنا…'}
+        </div>
+      </div>
+      <!-- Buttons -->
+      <div style="display:flex;gap:8px;position:relative;">
+        <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">D</div>
+        <div style="background:var(--navy);color:#fff;border-radius:8px;
+                    padding:8px 20px;font-weight:700;font-size:.82rem;">
+          {'فحص' if rtl else 'فحص'}
+        </div>
+        <div style="background:#e0d8cc;color:var(--navy);border-radius:8px;
+                    padding:8px 16px;font-size:.82rem;">
+          {'مسح' if rtl else 'مسح'}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # Annotation legend
+    ann_items_web = [
+        ("A", t["ann_a"]),
+        ("B", t["ann_b"]),
+        ("C", t["ann_c"]),
+        ("D", t["ann_d"]),
+        ("E", t["ann_e"]),
+    ]
+    # Render E separately as a plain callout (it describes top-right buttons not in mockup)
+    annotations(ann_items_web[:4], rtl=rtl)
+    st.markdown(
+        f'<div style="display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;">'
+        f'<div style="background:var(--navy);color:#fff;border-radius:8px;'
+        f'padding:6px 14px;font-size:.8rem;font-weight:700;">🌙 Dark mode</div>'
+        f'<div style="background:var(--navy);color:#fff;border-radius:8px;'
+        f'padding:6px 14px;font-size:.8rem;font-weight:700;">EN / AR toggle</div>'
+        f'</div>'
+        f'<p style="font-size:.84rem;color:var(--muted);margin-top:6px;'
+        f'{"direction:rtl;text-align:right;" if rtl else ""}">{t["ann_e"]}</p>',
+        unsafe_allow_html=True
+    )
 
     # ── Section 3: Scanning steps ─────────────────────────────────────────────
     sec_header("3", t["sec_steps"], t["sec_steps"], rtl=rtl)
@@ -984,9 +1260,6 @@ def render_website_guide(t, rtl=False):
 # ──────────────────────────────────────────────────────────────────────────────
 
 def render_extension_guide(t, rtl=False):
-
-    cover(t["cover_ext_title"], t["cover_ext_desc"], t["cover_ext_badge"],
-          extra=t["cover_ext_compat"], rtl=rtl)
 
     # ── Section 1: What it does ───────────────────────────────────────────────
     sec_header("1", t["sec_overview"], t["sec_overview"], rtl=rtl)
@@ -1092,42 +1365,27 @@ def render_user_guide():
 
     st.markdown(CSS, unsafe_allow_html=True)
 
-    # ── Language selector (top right) ─────────────────────────────────────────
-    _, lang_col = st.columns([8, 1])
-    with lang_col:
-        guide_lang = st.selectbox(
-            "Language",
-            options=["English", "العربية"],
-            index=0,
-            key="guide_lang",
-            label_visibility="collapsed",
-        )
-
-    rtl = guide_lang == "العربية"
-    t   = T["ar"] if rtl else T["en"]
-
-    # ── Tab bar ───────────────────────────────────────────────────────────────
+    # ── Determine active tab early (needed for header) ────────────────────────
     active_tab = st.query_params.get("tab", "website")
 
-    tab1, tab2 = st.columns(2)
-    with tab1:
-        if st.button(
-            t["tab_web"],
-            key="tab_btn_website",
-            use_container_width=True,
-            type="primary" if active_tab == "website" else "secondary",
-        ):
-            st.query_params["tab"] = "website"
+    # ── Language toggle — beige pill matching app.py style, top-right ─────────
+    lang_state = st.session_state.get("guide_lang", "en")
+
+    # Render EN/AR toggle as a small button in top-right corner
+    # We use a single-column float trick: empty left col + button right col
+    _, lang_col = st.columns([11, 1])
+    with lang_col:
+        current_label = "AR" if lang_state == "en" else "EN"
+        if st.button(current_label, key="guide_lang_toggle", use_container_width=True):
+            st.session_state.guide_lang = "ar" if lang_state == "en" else "en"
             st.rerun()
-    with tab2:
-        if st.button(
-            t["tab_ext"],
-            key="tab_btn_extension",
-            use_container_width=True,
-            type="primary" if active_tab == "extension" else "secondary",
-        ):
-            st.query_params["tab"] = "extension"
-            st.rerun()
+
+    lang_state = st.session_state.get("guide_lang", "en")
+    rtl = lang_state == "ar"
+    t   = T["ar"] if rtl else T["en"]
+
+    # ── Navy header with logo, name, title and tab buttons ────────────────────
+    guide_header(t, active_tab, rtl=rtl)
 
     # ── Render active tab ─────────────────────────────────────────────────────
     if active_tab == "website":
