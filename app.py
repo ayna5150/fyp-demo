@@ -694,7 +694,7 @@ with top_left:
     if logo_path.exists():
         lc1, lc2 = st.columns([1, 10])
         with lc1:
-            st.image(str(logo_path), width=52)
+            st.markdown(f'<img src="data:image/png;base64,{__import__("base64").b64encode(open(str(logo_path),"rb").read()).decode()}" style="width:52px;height:52px;object-fit:contain;border-radius:10px;" />', unsafe_allow_html=True)
         with lc2:
             st.markdown(f'<div class="ps-wordmark" style="padding-top:6px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
     else:
