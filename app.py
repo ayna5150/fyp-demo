@@ -918,6 +918,3 @@ st.markdown(f'''
   <a href="mailto:promptscanner.om@gmail.com" style="color:var(--muted);text-decoration:none;font-family:JetBrains Mono,monospace;">promptscanner.om@gmail.com</a>
 </div>
 ''', unsafe_allow_html=True)
-<span style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--navy);">PromptScanner</span>
-</div>
-''', unsafe_allow_html=True)
