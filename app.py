@@ -227,6 +227,11 @@ textarea {
     border: none !important;
     box-shadow: none !important;
 }
+div[data-testid="stForm"] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
 div[data-testid="stButton"] button {
     background: #0F1C35 !important; color: #EAE4D9 !important;
     font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
@@ -338,11 +343,11 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 }
 
 .tox-model {
-    background: rgba(45,91,227,0.12) !important;
-    border: 1px solid rgba(45,91,227,0.25);
-    color: #7FB3FF !important;
+    background: #0F1C35 !important;
+    border: 1px solid rgba(45,91,227,0.18);
+    color: #EAE4D9 !important;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px rgba(45,91,227,0.12);
+    box-shadow: 0 4px 14px rgba(15,28,53,0.18);
 }
 .card {
     backdrop-filter: blur(12px);
@@ -776,7 +781,7 @@ with col_main:
         res = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
         pii_ents = res.get("pii", []); tox_res = res.get("tox")
 
-        st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;">{T["scanned_in"]} {elapsed}s</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;direction:rtl;text-align:right;">{T["scanned_in"]} <bdi>{elapsed} sec</bdi></div>', unsafe_allow_html=True)
 
         r_left, r_right = st.columns(2, gap="medium")
 
