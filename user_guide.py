@@ -1121,31 +1121,31 @@ def render_website_guide(t, rtl=False):
   </div>
 </div>
 
-    <!-- Main area -->
-    <div style="display:flex;flex-direction:column;gap:10px;position:relative;">
-      <!-- Text area -->
-      <div style="position:relative;">
-        <div class="ann" style="position:absolute;top:-8px;right:-8px;z-index:2;">C</div>
-        <div style="background:#fff;border:1px solid #ccc;border-radius:8px;
-                    padding:10px 13px;min-height:68px;font-size:.84rem;
-                    color:#aaa;direction:rtl;text-align:right;">
-          {'اكتب نصك العربي هنا…' if rtl else 'اكتب نصك العربي هنا…'}
-        </div>
-      </div>
-      <!-- Buttons -->
-      <div style="display:flex;gap:8px;position:relative;">
-        <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">D</div>
-        <div style="background:var(--navy);color:#fff;border-radius:8px;
-                    padding:8px 20px;font-weight:700;font-size:.82rem;">
-          {'فحص' if rtl else 'فحص'}
-        </div>
-        <div style="background:#e0d8cc;color:var(--navy);border-radius:8px;
-                    padding:8px 16px;font-size:.82rem;">
-          {'مسح' if rtl else 'مسح'}
-        </div>
-      </div>
+<!-- Main area -->
+<div style="display:flex;flex-direction:column;gap:10px;position:relative;">
+  <!-- Text area -->
+  <div style="position:relative;">
+    <div class="ann" style="position:absolute;top:-8px;right:-8px;z-index:2;">C</div>
+    <div style="background:#fff;border:1px solid #ccc;border-radius:8px;
+                padding:10px 13px;min-height:68px;font-size:.84rem;
+                color:#aaa;direction:rtl;text-align:right;">
+      {'اكتب نصك العربي هنا…' if rtl else 'اكتب نصك العربي هنا…'}
     </div>
   </div>
+<!-- Buttons -->
+<div style="display:flex;gap:8px;position:relative;">
+    <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">D</div>
+    <div style="background:var(--navy);color:#fff;border-radius:8px;
+                padding:8px 20px;font-weight:700;font-size:.82rem;">
+      {'فحص' if rtl else 'فحص'}
+    </div>
+    <div style="background:#e0d8cc;color:var(--navy);border-radius:8px;
+                padding:8px 16px;font-size:.82rem;">
+      {'مسح' if rtl else 'مسح'}
+    </div>
+</div>
+</div>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
