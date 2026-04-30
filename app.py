@@ -26,7 +26,6 @@ st.set_page_config(
 
 if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
 if "language"     not in st.session_state: st.session_state.language     = "ar"
-if "prompt"       not in st.session_state: st.session_state.prompt       = ""
 if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
 if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
 
@@ -210,8 +209,24 @@ section[data-testid="stSidebar"] { display: none !important; }
     font-size: 1.05rem !important; padding: 1rem !important; line-height: 1.7 !important;
     direction: rtl; transition: border-color .2s;
 }
-.stTextArea textarea:focus { border-color: #0F1C35 !important; box-shadow: 0 0 0 3px rgba(15,28,53,0.1) !important; }
+.stTextArea textarea:focus {
+    border-color: var(--border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
 
+.stTextArea textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+textarea {
+    caret-color: #E8520A !important;
+}
+[data-baseweb="textarea"] {
+    border: none !important;
+    box-shadow: none !important;
+}
 div[data-testid="stButton"] button {
     background: #0F1C35 !important; color: #EAE4D9 !important;
     font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
@@ -253,9 +268,33 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .pbar-bg { background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; margin-top: .45rem; }
 .pbar-fill { height: 100%; border-radius: 4px; }
 .ptable { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .85rem; }
-.ptable td { padding: .32rem 0; border-bottom: 1px solid var(--border); color: var(--ink); }
-.ptable td:first-child { color: var(--muted); }
-.ptable td:last-child { text-align: right; font-family: 'JetBrains Mono', monospace !important; font-size: .74rem; }
+.ptable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-top: 1rem;
+}
+
+.ptable tr {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+}
+
+.ptable td {
+    padding: .55rem .7rem;
+    border: none !important;
+    color: var(--ink);
+}
+
+.ptable td:first-child {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.ptable td:last-child {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace !important;
+}
 .pmini { display: inline-block; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: .3rem; }
 
 .badge { display: inline-block; padding: .16rem .65rem; border-radius: 20px; font-size: .68rem; font-family: 'JetBrains Mono', monospace !important; font-weight: 700; letter-spacing: .06em; }
@@ -277,11 +316,42 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
 .info-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
-.sb-model-name { font-family: 'JetBrains Mono', monospace !important; font-size: .68rem; font-weight: 700; color: #EAE4D9; background: #0F1C35; border-radius: 4px; padding: 2px 6px; white-space: nowrap; flex-shrink: 0; }
+.sb-model-name {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: .68rem;
+    font-weight: 700;
+    color: white;
+    background: #E8520A;
+    border-radius: 6px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .sb-ex-btn { display: block; width: 100%; text-align: right; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .78rem; color: var(--ink); cursor: pointer; margin-bottom: 5px; transition: border-color .15s; }
 .sb-ex-btn:hover { border-color: #E8520A; color: #E8520A; }
 .section-gap { margin-top: 1rem; }
+.pii-model {
+    background: rgba(232,82,10,0.15) !important;
+    border: 1px solid rgba(232,82,10,0.3);
+    color: #E8520A !important;
+}
+
+.tox-model {
+    background: rgba(45,91,227,0.12) !important;
+    border: 1px solid rgba(45,91,227,0.25);
+    color: #7FB3FF !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 14px rgba(45,91,227,0.12);
+}
+.card {
+    backdrop-filter: blur(12px);
+    transition: all .2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
 """
 
 def inject_css():
@@ -390,7 +460,17 @@ def clean_arabic(text):
         text = re.sub(a, b, text)
     text = re.sub(r'[^\u0600-\u06FF\s]', '', text)
     return re.sub(r'\s+', ' ', text).strip()
+    
+def is_mostly_english(text, threshold=0.7):
+    english_chars = re.findall(r'[A-Za-z]', text)
+    arabic_chars = re.findall(r'[\u0600-\u06FF]', text)
 
+    total = len(english_chars) + len(arabic_chars)
+
+    if total == 0:
+        return False
+
+    return (len(english_chars) / total) > threshold
 def regex_detect(text):
     found = []
     for pii_type, patterns in REGEX_PATTERNS.items():
@@ -609,7 +689,14 @@ with col_info:
 ''', unsafe_allow_html=True)
 
     # Models
-    models_html = f'<div class="info-panel"><div class="sb-title">{T["sidebar_models"]}</div>'
+    model_class = "tox-model" if "AraBERT v2" in name else "pii-model"
+
+    models_html += f'''
+    <div class="sb-model">
+        <span class="sb-model-name {model_class}">{name}</span>
+        <span class="sb-model-desc">{dot} {desc}</span>
+    </div>
+'''
     for (name, desc), ok in zip(T["models_info"], models_ok):
         dot = "🟢" if ok else "🔴"
         models_html += f'<div class="sb-model"><span class="sb-model-name">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
@@ -620,16 +707,20 @@ with col_info:
     st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
     for lbl, ex in T["examples"]:
         if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
-            st.session_state.prompt      = ex
+            st.session_state["prompt"]      = ex
             st.session_state.scan_result = None
             st.session_state.rewritten   = None
             st.rerun()
 
 # ── RIGHT: Scanner ─────────────────────────────────────────
 with col_main:
-    prompt = st.text_area("prompt_input", value=st.session_state.prompt,
-        height=130, placeholder=T["placeholder"], label_visibility="collapsed",
-        key="prompt_input_area")
+    prompt = st.text_area(
+    "prompt_input",
+    height=130,
+    placeholder=T["placeholder"],
+    label_visibility="collapsed",
+    key="prompt"
+)
 
     # Enter key triggers scan via form
     with st.form(key="scan_form", clear_on_submit=False):
@@ -637,6 +728,10 @@ with col_main:
 
     # ── SCAN ─────────────────────────────────────────────
     if scan_clicked and prompt.strip():
+        if is_mostly_english(prompt):
+        st.error("⚠️ Prompt must be written in Arabic.")
+        st.stop()
+
         with st.spinner(T["scanning"]):
             t0 = time.time()
             res = run_scan(prompt.strip(), ar_tok, ar_mdl, ar_id2tag,
@@ -692,7 +787,7 @@ with col_main:
                 st.markdown(f'''
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
   <div><div class="tox-name" style="color:{color};">{ar_lbl}</div>
-       <div class="tox-conf">{T["confidence"]}: {conf*100:.1f}%</div></div>
+       <div class="tox-conf">{T["confidence"]}: ‎<span dir="ltr">%{conf*100:.1f}</span></div></div>
   <div style="margin-top:.2rem;">{tox_badge(label, T)}</div>
 </div>
 <div class="pbar-bg"><div class="pbar-fill" style="width:{conf*100:.1f}%;background:{color};"></div></div>
