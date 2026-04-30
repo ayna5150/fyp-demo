@@ -35,7 +35,6 @@ RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 STRINGS = {
     "ar": {
         "tagline":      "حارس خصوصيتك في عالم الذكاء الاصطناعي",
-        "sub":          "كشف المعلومات الشخصية · تحليل السمية · مشروع التخرج — SQU",
         "placeholder":  "اكتب أو الصق النص العربي هنا…",
         "btn_scan":     "⟶ فحص",
         "btn_clear":    "✕ مسح",
@@ -99,7 +98,6 @@ STRINGS = {
     },
     "en": {
         "tagline":      "Your Privacy Guardian in the AI World",
-        "sub":          "Arabic PII Detection · Toxicity Classification · Final Year Project — SQU",
         "placeholder":  "Type or paste Arabic text here…",
         "btn_scan":     "⟶ Scan",
         "btn_clear":    "✕ Clear",
@@ -188,7 +186,7 @@ def get_css(dark):
         [data-testid="collapsedControl"] { display: none !important; }"""
 
 COMMON_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,300&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 * { font-family: 'Plus Jakarta Sans', sans-serif !important; }
 .block-container { padding: 1.5rem 2rem 4rem; max-width: 900px; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden; display: none; }
@@ -201,7 +199,7 @@ COMMON_CSS = """
 .ps-wordmark { font-weight: 800; font-size: 2rem; letter-spacing: -1px; line-height: 1; }
 .ps-wordmark .dark { color: var(--navy); }
 .ps-wordmark .orng { color: #E8520A; }
-.ps-slogan { font-family: 'Fraunces', serif !important; font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
+.ps-slogan { font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
 .ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
 .ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
 [data-testid="collapsedControl"] { display: none !important; }
@@ -240,7 +238,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .card-tox  { border-top: 3px solid #2D5BE3; }
 .card-hl   { border-top: 3px solid #6B4FBB; }
 .card-rw   { border-top: 3px solid #00C9A7; }
-.card-head { font-family: 'JetBrains Mono', monospace !important; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .85rem; }
+.card-head { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .88rem; font-weight: 700; letter-spacing: 0; color: var(--ink); margin-bottom: .85rem; }
 
 .richtext { font-size: 1rem; line-height: 2.2; padding: .85rem 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 10px; direction: rtl; text-align: right; word-break: break-word; color: var(--ink); }
 .tag-pii { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 5px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; margin: 0 2px; vertical-align: middle; }
@@ -275,7 +273,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .rw-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1rem; font-size: 1rem; line-height: 1.8; direction: rtl; text-align: right; color: var(--ink); white-space: pre-wrap; margin-bottom: .6rem; }
 .rw-label { font-family: 'JetBrains Mono', monospace !important; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
 
-.sb-title { font-family: 'JetBrains Mono', monospace !important; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.sb-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
 .sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
 .info-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
@@ -595,7 +593,6 @@ with top_right:
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
 
-st.markdown(f'<div class="ps-sub">{T["sub"]}</div>', unsafe_allow_html=True)
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
 # ─── MAIN 2-COLUMN LAYOUT ──────────────────────────────────
@@ -761,9 +758,8 @@ with col_main:
 # ─── FOOTER ────────────────────────────────────────────────
 st.markdown(f'''
 <div style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);
-            display:flex;justify-content:space-between;align-items:center;
+            display:flex;justify-content:center;align-items:center;
             font-size:.72rem;color:var(--muted);">
   <span style="font-family:JetBrains Mono,monospace;font-weight:700;color:var(--navy);">PromptScanner</span>
-  <span>{T["footer"]}</span>
 </div>
 ''', unsafe_allow_html=True)
