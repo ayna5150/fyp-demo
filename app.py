@@ -729,8 +729,8 @@ with col_main:
     # ── SCAN ─────────────────────────────────────────────
     if scan_clicked and prompt.strip():
         if is_mostly_english(prompt):
-        st.error("⚠️ Prompt must be written in Arabic.")
-        st.stop()
+            st.error("⚠️ Prompt must be written in Arabic.")
+            st.stop()
 
         with st.spinner(T["scanning"]):
             t0 = time.time()
