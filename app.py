@@ -401,6 +401,8 @@ REGEX_PATTERNS = {
     'FINANCIAL_INFO': [r'\b4\d{3}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b', r'\bOM\d{2}[A-Z]{3}\d{16}\b'],
 }
 
+LATIN_OR_DIGIT = re.compile(r'[a-zA-Z0-9]')
+
 HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
 
 @st.cache_resource(show_spinner="جارٍ تحميل النماذج…")
@@ -488,6 +490,33 @@ def regex_detect(text):
         if it['char_start'] >= last_end:
             filtered.append(it); last_end = it['char_end']
     return filtered
+    
+def is_valid_id_or_credential(value: str) -> bool:
+    """
+    Returns True only if the value could plausibly be an ID or credential.
+    Rejects pure Arabic strings, single characters, and empty values.
+    """
+    if not value or len(value.strip()) < 2:
+        return False
+    # Must contain at least one Latin letter or digit
+    if not LATIN_OR_DIGIT.search(value):
+        return False
+    return True
+
+def filter_invalid_entities(entities: list) -> list:
+    """
+    Post-processing filter applied after all three components have run.
+    Removes ID and CREDENTIAL detections that are provably wrong.
+    """
+    filtered = []
+    for e in entities:
+        if e['type'] in ('ID', 'CREDENTIAL'):
+            if not is_valid_id_or_credential(e['value']):
+                # Log for debugging if needed
+                # print(f"[FILTER] Rejected {e['type']}: '{e['value']}'")
+                continue
+        filtered.append(e)
+    return filtered
 
 def _token_char_ranges(tokens):
     ranges, pos = {}, 0
@@ -541,6 +570,9 @@ def hybrid_detect(text, ar_tok, ar_mdl, ar_id2tag, xl_tok, xl_mdl, xl_id2tag):
             if e["type"] not in XLMR_CATEGORIES: continue
             if _token_overlaps_regex(e["token_start"], e["token_end"], tok_char, regex_spans): continue
             e["source"] = "xlmr"; all_ents.append(e)
+            
+    # Apply post-filter before returning
+    all_ents = filter_invalid_entities(all_ents)
     return all_ents
 
 def predict_toxicity_with_attention(text, tokenizer, model):
