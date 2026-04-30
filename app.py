@@ -24,6 +24,21 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Page routing ────────────────────────────────────────────
+if "page" not in st.session_state:
+    st.session_state.page = "scanner"
+
+if st.session_state.page == "guide":
+    from user_guide import render_user_guide
+
+    # Back button
+    if st.button("← Back to Scanner"):
+        st.session_state.page = "scanner"
+        st.rerun()
+
+    render_user_guide()
+    st.stop()   # ← critical: stops the rest of app.py from rendering
+
 if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
 if "language"     not in st.session_state: st.session_state.language     = "ar"
 if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
@@ -701,7 +716,7 @@ with top_left:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with top_right:
-    rc1, rc2 = st.columns(2)
+    rc1, rc2, rc3 = st.columns(3)
     with rc1:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
             st.session_state.dark_mode = not st.session_state.dark_mode
@@ -709,6 +724,10 @@ with top_right:
     with rc2:
         if st.button(T["lang_toggle"], key="toggle_lang"):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
+            st.rerun()
+    with rc3:
+        if st.button("📖 User Guide", use_container_width=True):
+            st.session_state.page = "guide"
             st.rerun()
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
