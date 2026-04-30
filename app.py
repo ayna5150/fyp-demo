@@ -703,7 +703,7 @@ models_ok = [ar_ok, xl_ok, True, tx_ok]
 inject_css()
 
 # ─── TOP BAR ───────────────────────────────────────────────
-top_left, top_right = st.columns([8, 2])
+top_left, top_right = st.columns([6, 4])
 with top_left:
     logo_path = Path("assets/logo.png")
     if logo_path.exists():
