@@ -808,7 +808,7 @@ with col_main:
                 st.markdown(f'''
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
   <div><div class="tox-name" style="color:{color};">{ar_lbl}</div>
-       <div class="tox-conf">‎<span dir="ltr">%{conf*100:.1f}</span>{T["confidence"]}: </div></div>
+       <div class="tox-conf">‎<span dir="ltr">%{conf*100:.1f}  </span>{T["confidence"]}    </div></div>
   <div style="margin-top:.2rem;">{tox_badge(label, T)}</div>
 </div>
 <div class="pbar-bg"><div class="pbar-fill" style="width:{conf*100:.1f}%;background:{color};"></div></div>
@@ -820,7 +820,7 @@ with col_main:
                     rows += f'<tr><td>{ar}</td><td><span class="pmini" style="width:{w}px;background:{c2};"></span>{p*100:.1f}%</td></tr>'
                 st.markdown(f'<table class="ptable">{rows}</table>', unsafe_allow_html=True)
             else:
-                st.markdown(f'<div style="color:var(--muted);font-size:.84rem;">{T["tox_unavail"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'''<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;direction:rtl;text-align:right;">{T["scanned_in"]}<span dir="ltr">{elapsed} s</span></div>''',unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         if tox_res and tox_res.get("words"):
