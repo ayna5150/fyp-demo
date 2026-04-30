@@ -7,10 +7,6 @@ from pathlib import Path
 
 CSS = """
 <style>
-/* ── Remove Streamlit chrome ── */
-#MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 0.5rem !important; }
-section[data-testid="stMain"] > div { padding-top: 0 !important; }
 
 /* ── Colour palette ── */
 :root {
@@ -22,61 +18,59 @@ section[data-testid="stMain"] > div { padding-top: 0 !important; }
     --blue:   #1a5fa8;
     --muted:  #6b6560;
     --border: #e0d8cc;
-    --bg:     #f5f0e8;
-    --surf:   #ffffff;
+    --bg:     #EAE4D9;
+    --surf:   #F3EDE3;
     --surf2:  #f9f6f0;
 }
 
-/* ── Tab bar ── */
-div[data-testid="stHorizontalBlock"] {
-    background: var(--navy) !important;
-    border-bottom: 3px solid var(--amber) !important;
-    gap: 0 !important;
-    padding: 0 !important;
-    margin-bottom: 0 !important;
+.header-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
 }
-div[data-testid="stHorizontalBlock"] > div {
-    padding: 0 !important;
+
+.header-btn {
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: none;
+    cursor: pointer;
 }
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button {
-    background: var(--navy) !important;
-    color: rgba(255,255,255,0.5) !important;
-    border: none !important;
-    border-radius: 0 !important;
-    border-bottom: 3px solid transparent !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    padding: 14px 0 !important;
-    width: 100% !important;
-    margin-bottom: -3px !important;
+
+.header-btn-primary {
+    background: #e8941a;
+    color: #1a2340;
 }
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button:hover {
-    color: rgba(255,255,255,0.85) !important;
-    background: var(--navy) !important;
+
+.header-btn-secondary {
+    background: rgba(255,255,255,0.15);
+    color: white;
 }
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="primary"] {
-    color: var(--amber) !important;
-    border-bottom: 3px solid var(--amber) !important;
-    background: var(--navy) !important;
+
+div[data-testid="stButton"] button[kind="secondary"] {
+    background: #EAE4D9 !important;
+    color: #1a2340 !important;
+    border-radius: 10px !important;
+    border: 1px solid #d6cec2 !important;
+    font-weight: 600 !important;
 }
 
 /* ── Cover banner ── */
 .cover {
     background: var(--navy);
     color: #fff;
-    padding: 36px 40px 32px;
-    border-radius: 0;
-    margin-bottom: 0;
+    padding: 64px 48px 56px;
+    position: relative;
+    overflow: hidden;
 }
-.cover-title   { font-size: 1.8rem; font-weight: 300; margin: 0 0 8px; }
-.cover-desc    { color: rgba(255,255,255,0.65); font-size: 0.92rem; max-width: 520px; }
+.cover-title   { font-size: 2rem; font-weight: 300; margin-bottom: 10px; line-height: 1.2;}
+.cover-desc    { color: rgba(255,255,255,0.65); max-width: 480px; }
 .cover-badge   {
-    display: inline-block; margin-top: 16px;
+    display: inline-block; margin-top: 28px;
     background: var(--amber); color: var(--navy);
-    font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em;
-    padding: 5px 14px; border-radius: 20px;
+    font-weight: 700; font-size: 0.78rem; letter-spacing: 0.08em;
+    padding: 6px 16px; border-radius: 20px;
 }
 .cover-compat  { margin-top: 10px; font-size: 0.78rem; color: rgba(255,255,255,0.4); }
 
@@ -241,8 +235,8 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 T = {
     "en": {
         # tabs
-        "tab_web":  "Part 1 — Website",
-        "tab_ext":  "Part 2 — Browser Extension",
+        "tab_web":  "Website",
+        "tab_ext":  "Browser Extension",
         # cover
         "cover_web_title":  "User Guide — Part 1: Website",
         "cover_web_desc":   "Step-by-step instructions for using the PromptScanner web application to detect personal information and toxic content in Arabic prompts.",
@@ -556,11 +550,41 @@ def cover(title, desc, badge, extra="", rtl=False):
     dir_attr = 'dir="rtl"' if rtl else ''
     st.markdown(f"""
 <div class="cover" {dir_attr}>
+
+  <!-- BRAND HEADER -->
+  <div style="margin-bottom:18px;">
+    <div style="font-size:2.6rem;font-weight:800;line-height:1;">
+      <span style="color:white;">Prompt</span>
+      <span style="color:#e8941a;">Scanner</span>
+    </div>
+    <div style="font-size:0.8rem;letter-spacing:0.25em;color:rgba(255,255,255,0.5);margin-top:6px;">
+      ARABIC AI SAFETY TOOL
+    </div>
+  </div>
+
   <div class="cover-title">{title}</div>
   <p class="cover-desc">{desc}</p>
+  # Add after description
+buttons_html = f"""
+<div class="header-buttons">
+  <form method="get">
+    <button class="header-btn {'header-btn-primary' if st.query_params.get('tab','website')=='website' else 'header-btn-secondary'}"
+            name="tab" value="website">
+        Part 1 — Website
+    </button>
+  </form>
+  <form method="get">
+    <button class="header-btn {'header-btn-primary' if st.query_params.get('tab')=='extension' else 'header-btn-secondary'}"
+            name="tab" value="extension">
+        Part 2 — Browser Extension
+    </button>
+  </form>
+</div>
+"""
   <div class="cover-badge">{badge}</div>
   {f'<div class="cover-compat">{extra}</div>' if extra else ''}
-</div>""", unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
 
 def sec_header(num, part, title, rtl=False):
@@ -1093,18 +1117,15 @@ def render_user_guide():
     st.markdown(CSS, unsafe_allow_html=True)
 
     # ── Language selector (top right) ─────────────────────────────────────────
-    _, lang_col = st.columns([8, 1])
-    with lang_col:
-        guide_lang = st.selectbox(
-            "Language",
-            options=["English", "العربية"],
-            index=0,
-            key="guide_lang",
-            label_visibility="collapsed",
-        )
+    _, lang_col = st.columns([9, 1])
 
-    rtl = guide_lang == "العربية"
-    t   = T["ar"] if rtl else T["en"]
+    with lang_col:
+        if st.button("EN" if st.session_state.get("lang","en")=="en" else "AR"):
+            st.session_state.lang = "ar" if st.session_state.get("lang","en")=="en" else "en"
+            st.rerun()
+
+    rtl = st.session_state.get("lang","en") == "ar"
+    t  = T["ar"] if rtl else T["en"]
 
     # ── Tab bar ───────────────────────────────────────────────────────────────
     active_tab = st.query_params.get("tab", "website")
