@@ -29,6 +29,7 @@ if "language"     not in st.session_state: st.session_state.language     = "ar"
 if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
 if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
 if "prompt_reset" not in st.session_state: st.session_state.prompt_reset = 0
+if "prompt_value" not in st.session_state: st.session_state.prompt_value = ""
 
 RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 
@@ -318,8 +319,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .rw-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1rem; font-size: 1rem; line-height: 1.8; direction: rtl; text-align: right; color: var(--ink); white-space: pre-wrap; margin-bottom: .6rem; }
 .rw-label { font-family: 'JetBrains Mono', monospace !important; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
 
-.sb-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
+.sb-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .88rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #0F1C35; margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 2px solid rgba(15,28,53,0.15); }.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
 .info-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-name {
@@ -766,15 +766,17 @@ with col_info:
     st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
     for lbl, ex in T["examples"]:
         if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
-            st.session_state["prompt"]      = ex
-            st.session_state.scan_result = None
-            st.session_state.rewritten   = None
+            st.session_state.prompt_value = ex
+            st.session_state.prompt_reset += 1
+            st.session_state.scan_result  = None
+            st.session_state.rewritten    = None
             st.rerun()
 
 # ── RIGHT: Scanner ─────────────────────────────────────────
 with col_main:
     prompt = st.text_area(
     "prompt_input",
+    value=st.session_state.prompt_value,
     height=130,
     placeholder=T["placeholder"],
     label_visibility="collapsed",
