@@ -710,13 +710,13 @@ with col_info:
     
         models_html += f"""
 <div class="sb-model">
-    <span class="sb-model-name {model_class}">
-        {name}
-    </span>
+<span class="sb-model-name {model_class}">
+    {name}
+</span>
 
-    <span class="sb-model-desc">
-        {dot} {desc}
-    </span>
+<span class="sb-model-desc">
+    {dot} {desc}
+</span>
 </div>
         """
     
