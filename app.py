@@ -709,15 +709,15 @@ with col_info:
         model_class = "tox-model" if "AraBERT v2" in name else "pii-model"
     
         models_html += f"""
-        <div class="sb-model">
-            <span class="sb-model-name {model_class}">
-                {name}
-            </span>
-    
-            <span class="sb-model-desc">
-                {dot} {desc}
-            </span>
-        </div>
+<div class="sb-model">
+    <span class="sb-model-name {model_class}">
+        {name}
+    </span>
+
+    <span class="sb-model-desc">
+        {dot} {desc}
+    </span>
+</div>
         """
     
     models_html += "</div>"
