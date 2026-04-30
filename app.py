@@ -808,7 +808,7 @@ with col_main:
                 st.markdown(f'''
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
   <div><div class="tox-name" style="color:{color};">{ar_lbl}</div>
-       <div class="tox-conf">{T["confidence"]}: ‎<span dir="ltr">%{conf*100:.1f}</span></div></div>
+       <div class="tox-conf">‎<span dir="ltr">%{conf*100:.1f}</span>{T["confidence"]}: </div></div>
   <div style="margin-top:.2rem;">{tox_badge(label, T)}</div>
 </div>
 <div class="pbar-bg"><div class="pbar-fill" style="width:{conf*100:.1f}%;background:{color};"></div></div>
