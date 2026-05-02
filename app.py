@@ -31,6 +31,22 @@ if "page" not in st.session_state:
 if st.session_state.page == "guide":
     from user_guide import render_user_guide
 
+    # Inject custom CSS
+    st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        margin-top: 20px;       
+        background-color: #EAE4D9;
+        color: #fff;              
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        padding: 6px 12px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Back button
     if st.button("← Back to Scanner"):
         st.session_state.page = "scanner"
