@@ -35,8 +35,8 @@ if st.session_state.page == "guide":
     st.markdown("""
     <style>
     div.stButton > button:first-child {
-        margin-top: 20px;       
-        background-color: #EAE4D9;
+        margin-top: 10px;       
+        background-color: #bbb6ae;
         color: #fff;              
         border: none !important;
         border-radius: 8px !important;
