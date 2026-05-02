@@ -1,5 +1,6 @@
 import streamlit as st
 from pathlib import Path
+import base64
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SHARED STYLES
@@ -9,7 +10,7 @@ CSS = """
 <style>
 /* ── Remove Streamlit chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 0.5rem !important; }
+.block-container { padding-top: 0.5rem !important; margin: auto;}
 section[data-testid="stMain"] > div { padding-top: 0 !important; }
 
 /* ── Colour palette ── */
@@ -22,79 +23,51 @@ section[data-testid="stMain"] > div { padding-top: 0 !important; }
     --blue:   #1a5fa8;
     --muted:  #6b6560;
     --border: #e0d8cc;
-    --bg:     #f5f0e8;
+    --bg:     #EAE4D9;
     --surf:   #ffffff;
     --surf2:  #f9f6f0;
 }
 
-/* ── Tab bar ── */
-div[data-testid="stHorizontalBlock"] {
-    background: var(--navy) !important;
-    border-bottom: 3px solid var(--amber) !important;
-    gap: 0 !important;
-    padding: 0 !important;
-    margin-bottom: 0 !important;
+[data-testid="stAppViewContainer"] {
+    background-color: var(--bg) !important;
 }
-div[data-testid="stHorizontalBlock"] > div {
-    padding: 0 !important;
-}
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button {
-    background: var(--navy) !important;
-    color: rgba(255,255,255,0.5) !important;
-    border: none !important;
-    border-radius: 0 !important;
-    border-bottom: 3px solid transparent !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    padding: 14px 0 !important;
-    width: 100% !important;
-    margin-bottom: -3px !important;
-}
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button:hover {
-    color: rgba(255,255,255,0.85) !important;
-    background: var(--navy) !important;
-}
-div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="primary"] {
-    color: var(--amber) !important;
-    border-bottom: 3px solid var(--amber) !important;
-    background: var(--navy) !important;
+/* ── Top bar (language switch area) ── */
+.top-bar {
+    background: var(--bg);  /* beige */
+    justify-content: flex-end;
+
 }
 
-/* ── Cover banner ── */
-.cover {
-    background: var(--navy);
-    color: #fff;
-    padding: 36px 40px 32px;
-    border-radius: 0;
-    margin-bottom: 0;
-}
-.cover-title   { font-size: 1.8rem; font-weight: 300; margin: 0 0 8px; }
-.cover-desc    { color: rgba(255,255,255,0.65); font-size: 0.92rem; max-width: 520px; }
-.cover-badge   {
-    display: inline-block; margin-top: 16px;
-    background: var(--amber); color: var(--navy);
-    font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em;
-    padding: 5px 14px; border-radius: 20px;
-}
-.cover-compat  { margin-top: 10px; font-size: 0.78rem; color: rgba(255,255,255,0.4); }
 
 /* ── Section headers ── */
 .sec-head {
-    display: flex; align-items: center; gap: 12px;
-    border-bottom: 2px solid var(--navy);
-    padding-bottom: 10px; margin: 40px 0 18px;
+  display: flex; align-items: center; gap: 14px;
+  margin: 52px 0 28px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--navy);
 }
+
 .sec-num {
-    background: var(--navy); color: #fff;
-    font-weight: 800; font-size: 0.88rem;
-    width: 32px; height: 32px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+  background: var(--navy); color: #fff;
+  font-weight: 800; font-size: 1rem;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-.sec-part  { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); font-weight: 700; margin-bottom: 1px; }
-.sec-title { font-size: 1.15rem; font-weight: 700; }
+.sec-title { font-size: 1.35rem; font-weight: 700; }
+.sec-part {
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--amber); font-weight: 700; margin-bottom: 2px;
+}
+
+.sub-title {
+    font-size: 1.1rem; font-weight: 600; color: var(--navy); margin: 15px 0 14px;}
+.sub-title[dir="rtl"] {
+  text-align: right;
+}
+.sub-title[dir="ltr"] {
+  text-align: left;
+}
 
 /* ── Step cards ── */
 .step-row   { display: flex; gap: 0; margin-bottom: 0; }
@@ -116,6 +89,14 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 }
 .step-label { font-weight: 700; font-size: 0.94rem; margin-bottom: 4px; color: var(--navy); }
 .step-desc  { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+.step-row[dir="rtl"] {
+  flex-direction: row-reverse;   /* flip children order */
+  text-align: right;             /* align text inside */
+}
+.step-row[dir="ltr"] {
+  flex-direction: row;
+  text-align: left;
+}
 
 /* ── Callouts ── */
 .callout {
@@ -148,7 +129,7 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 .cat-pill  { font-size: 0.69rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.03em; }
 
 /* ── Flow diagram ── */
-.flow      { display: flex; align-items: center; gap: 0; margin: 14px 0; overflow-x: auto; flex-wrap: wrap; }
+.flow      { display: flex; justify-content: center; align-items: center; gap: 0; margin: 14px auto; overflow-x: auto; flex-wrap: wrap; max-width: 100%;}
 .flow-node { background: var(--navy); color: #fff; border-radius: 7px; padding: 8px 13px; font-size: 0.79rem; font-weight: 600; text-align: center; min-width: 95px; flex-shrink: 0; line-height: 1.4; margin: 3px 0; }
 .flow-amber{ background: var(--amber) !important; color: var(--navy) !important; }
 .flow-teal { background: var(--teal) !important; }
@@ -168,19 +149,19 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 
 /* ── Tables ── */
 .guide-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.86rem; }
-.guide-table th { background: var(--navy); color: #fff; padding: 7px 12px; text-align: left; font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.guide-table th { background: #2b365c; color: #fff; padding: 7px 12px; text-align: left; font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .guide-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-.guide-table tr:last-child td { border-bottom: none; }
 .guide-table tr:nth-child(even) td { background: var(--surf2); }
+.guide-table tr:nth-child(odd) td { background: var(--bg); }
 
 /* ── Keyword attention highlight ── */
-.hl-high  { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(192,57,43,0.82);  color: #fff; font-weight: 700; }
-.hl-mid   { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(192,57,43,0.42);  color: #5c1a15; font-weight: 600; }
-.hl-low   { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(192,57,43,0.17);  color: #7a3020; }
+.hl-high  { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(92, 190, 251);  color: #fff; font-weight: 700; }
+.hl-mid   { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(118, 199, 247);  color: #fff; font-weight: 600; }
+.hl-low   { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(158, 210, 238);  color: #7dbfe6; }
 .hl-stop  { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(160,160,160,0.1); color: #999; }
-.hl-ph    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(108,63,197,0.82); color: #fff; font-weight: 700; }
-.hl-pm    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(108,63,197,0.42); color: #2d1066; font-weight: 600; }
-.hl-pl    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(108,63,197,0.17); color: #4a2090; }
+.hl-ph    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(252, 148, 90); color: #fff; font-weight: 700; }
+.hl-pm    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(249, 187, 149); color: #e28743; font-weight: 600; }
+.hl-pl    { display: inline-block; border-radius: 4px; padding: 2px 7px; margin: 2px; font-size: 0.86rem; background: rgba(247, 191, 155); color: #e28743; }
 
 /* ── Rewrite comparison ── */
 .rw-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
@@ -223,6 +204,8 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 .ext-grp-t  { font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase; color: #888; font-weight: 700; padding: 9px 0 3px; }
 .ext-grp-t::before { content: "◆ "; font-size: 0.42rem; color: #e8941a; }
 .ext-save   { background: #e8941a; color: #fff; border-radius: 9px; padding: 11px; text-align: center; font-weight: 700; font-size: 0.85rem; margin-top: 9px; }
+.tag-pii { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 5px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; margin: 0 2px; vertical-align: middle; }
+
 
 /* ── Doc footer ── */
 .doc-footer { background: var(--navy); color: rgba(255,255,255,0.45); text-align: center; padding: 18px; font-size: 0.75rem; margin-top: 40px; }
@@ -234,28 +217,31 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="pr
 /* ── EN/AR language toggle button ── */
 button[data-testid="baseButton-secondary"][kind="secondary"]:has(+ *),
 div[data-testid="stButton"]:has(button[key="guide_lang_toggle"]) button {
-    background: #ebe5d8 !important;
-    color: var(--navy) !important;
+    background: var(--navy) !important;
+    color: var(--bg) !important;
     border: none !important;
     border-radius: 8px !important;
     font-weight: 700 !important;
     font-size: 0.82rem !important;
     padding: 6px 12px !important;
 }
-/* Broader selector to catch the lang toggle reliably */
+/* Broader selector to catch the lang toggle reliably 
 div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stButton"] button {
-    background: #ebe5d8 !important;
-    color: var(--navy) !important;
+    background: var(--navy) !important;
+    color: var(--bg) !important;
     border: none !important;
     border-radius: 8px !important;
 }
-
+/*
 /* ── Guide header (navy cover with badge buttons) ── */
 .guide-header {
     background: var(--navy);
     color: #fff;
     padding: 44px 48px 36px;
     margin-bottom: 0;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
 }
 .gh-logo-row {
     display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
@@ -285,7 +271,7 @@ div[data-testid="stVerticalBlock"] > div:first-child div[data-testid="stButton"]
     margin-top: 0;
 }
 
-/* ── Tab buttons inside the header: override Streamlit to look like orange/grey pills ── */
+/* ── Tab buttons inside the header ── */
 div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button {
     border-radius: 24px !important;
     font-weight: 700 !important;
@@ -309,11 +295,12 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button[kind="se
 }
 div[data-testid="stHorizontalBlock"] {
     background: var(--navy) !important;
-    padding: 0 48px 28px !important;
-    margin: 0 !important;
-    gap: 10px !important;
-    border-bottom: none !important;
-    align-items: center !important;
+    padding: 20px 48px 20px !important;
+    width: 100vw !important;
+    max-width: 100vw !important;   /* prevent Streamlit container clipping */
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    border: none !important;
 }
 </style>
 """
@@ -326,16 +313,8 @@ div[data-testid="stHorizontalBlock"] {
 T = {
     "en": {
         # tabs
-        "tab_web":  "Part 1 — Website",
-        "tab_ext":  "Part 2 — Browser Extension",
-        # cover
-        "cover_web_title":  "User Guide — Part 1: Website",
-        "cover_web_desc":   "Step-by-step instructions for using the PromptScanner web application to detect personal information and toxic content in Arabic prompts.",
-        "cover_web_badge":  "Website Guide",
-        "cover_ext_title":  "User Guide — Part 2: Browser Extension",
-        "cover_ext_desc":   "How to install and use the PromptScanner Chrome extension to scan prompts directly inside ChatGPT and Gemini before sending.",
-        "cover_ext_badge":  "Extension Guide",
-        "cover_ext_compat": "Compatible with ChatGPT & Gemini",
+        "tab_web":  "Part 1 - Website",
+        "tab_ext":  "Part 2 - Browser Extension",
         # shared section labels
         "sec_overview":     "Getting started",
         "sec_interface":    "Interface overview",
@@ -346,16 +325,16 @@ T = {
         "sec_states":       "Popup states",
         "sec_settings":     "Settings",
         # intro box
-        "intro_web": "PromptScanner analyses your Arabic prompts <strong>before</strong> you send them to an AI chatbot. It simultaneously detects private personal information and checks for harmful content — protecting your privacy and helping you communicate more safely.",
-        "intro_ext": "The PromptScanner extension adds a safety layer directly inside <strong>ChatGPT</strong> and <strong>Gemini</strong>. When you press Send or Enter, it intercepts your prompt, scans it, and shows you the results in a popup — before anything reaches the AI. You then choose to send the original, send a rewritten version, or cancel.",
+        "intro_web": "PromptScanner analyses your Arabic prompts <strong>before</strong> you send them to an AI chatbot. It simultaneously detects private personal information and checks for harmful content; protecting your privacy and helping you communicate more safely.",
+        "intro_ext": "The PromptScanner extension adds a safety layer directly inside AI chatbot websites like <strong>ChatGPT</strong> and <strong>Gemini</strong>. When you press Send or Enter, it intercepts your prompt, scans it, and shows you the results in a popup <strong>before</strong> anything reaches the AI. You then choose to send the original, send a rewritten version, or cancel.",
         # flow labels
         "flow_type":    "Type a prompt",
-        "flow_scan":    "Press فحص",
+        "flow_scan":    "Press Scan",
         "flow_run":     "3 models run in parallel",
         "flow_result":  "Results appear",
-        "flow_type2":   "Type in ChatGPT / Gemini",
+        "flow_type2":   "Type in AI chatbot eg.ChatGPT / Gemini",
         "flow_send":    "Press Send / Enter",
-        "flow_catch":   "Extension intercepts",
+        "flow_catch":   "Extension processes the prompt",
         "flow_decide":  "You decide",
         # component names/descs
         "comp_arabert_name": "AraBERT NER",
@@ -364,19 +343,19 @@ T = {
         "comp_xlmr_desc":    "Detects IDs and credentials, including Latin values inside Arabic sentences.",
         "comp_regex_name":   "Regex Engine",
         "comp_regex_desc":   "Pattern-based detection for phone, email, IP, MAC, URL and financial info.",
-        "comp_tox_name":     "AraBERT v2 — Toxicity",
+        "comp_tox_name":     "AraBERT v2 - Toxicity",
         "comp_tox_desc":     "Classifies prompts into 7 safety categories with keyword attention highlighting.",
         # interface annotations
-        "ann_a": "<strong>Model status panel (left sidebar)</strong> — shows which components are loaded (green dot = ready) and lists example prompts you can click to auto-fill.",
-        "ann_b": "<strong>Prompt input box</strong> — type or paste Arabic text here. The box is right-to-left aligned.",
-        "ann_c": "<strong>فحص (Scan) button</strong> — starts the scan. PII and toxicity analysis run simultaneously.",
-        "ann_d": "<strong>مسح (Clear) button</strong> — clears the input and resets the results panel.",
-        "ann_e": "<strong>Top-right controls</strong> — toggle dark/light mode (🌙) and interface language (EN / AR).",
+        "ann_a": "<strong>Model status panel (left sidebar)</strong> - shows which AI components are loaded and ready (green dot = active). Describes what each model detects.",
+        "ann_b": "<strong>Example buttons</strong> - click any example to automatically load a pre-written Arabic prompt into the input box. Useful for trying the tool without typing.",
+        "ann_c": "<strong>Prompt input box</strong> - type or paste Arabic prompt here. The box is right-to-left aligned.",
+        "ann_d": "<strong>Scan and clear buttons</strong> - starts the scan for PII and toxicity simultaneously, clears the input and resets the results panel.",
+        "ann_e": "<strong>Top-right controls</strong> - toggle dark/light mode (🌙) and interface language (EN / AR).",
         # steps - website
         "step1_lbl":  "Enter your Arabic prompt",
         "step1_desc": "Click the text box and type or paste Arabic text. You can also click any example button in the left sidebar to auto-fill a pre-written test prompt.",
-        "step2_lbl":  "Press فحص (Scan)",
-        "step2_desc": "All four components analyse simultaneously. Results appear in 1–2 seconds. Press مسح to clear and start over.",
+        "step2_lbl":  "Press Scan",
+        "step2_desc": "All four components analyse simultaneously. Results appear in 1-2 seconds. Press Clear to clear and start over.",
         "step3_lbl":  "Read the PII result (left card)",
         "step3_desc": "Shows CLEAN (no PII found) or N found. When PII is detected the masked text appears with [TYPE] placeholders, and coloured pills list every detected entity with its value, type, and which model found it (RGX / NER / XLM).",
         "step4_lbl":  "Read the toxicity result (right card)",
@@ -395,13 +374,13 @@ T = {
         "crit_meaning":  "Requires care",
         # tip callouts
         "tip_examples":  "You can click any <strong>example button</strong> in the left sidebar to load a pre-written test prompt. Useful for seeing results without typing.",
-        "tip_masked":    "Always use the <strong>masked text</strong> (shown in the PII card) as your prompt instead of the original — the chatbot still understands your request without receiving your private data.",
+        "tip_masked":    "Always use the <strong>masked text</strong> (shown in the PII card) as your prompt instead of the original - the chatbot still understands your request without receiving your private data.",
         "tip_save":      "Always press <strong>Save Settings</strong> after making changes in the extension. Changes are not applied until saved.",
         "tip_autoscan":  "If <strong>Auto Scan</strong> is enabled and content is safe, the extension can be configured to send automatically without showing a popup.",
         # HL legend
         "hl_high": "High (>0.7)",
-        "hl_mid":  "Medium (0.4–0.7)",
-        "hl_low":  "Low (0.1–0.4)",
+        "hl_mid":  "Medium (0.4-0.7)",
+        "hl_low":  "Low (0.1-0.4)",
         "hl_stop": "Stop word",
         # rewrite labels
         "rw_rewritten": "Rewritten text",
@@ -414,8 +393,8 @@ T = {
         "mac_desc": "MAC address", "url_desc": "Web URL", "fin_desc": "Card number / IBAN",
         # Quick ref
         "action_col": "Action", "how_col": "How",
-        "qr1":  ("Scan a prompt",              "Type or paste text → press فحص"),
-        "qr2":  ("Clear the input",            "Press مسح"),
+        "qr1":  ("Scan a prompt",              "Type or paste text → press Scan"),
+        "qr2":  ("Clear the input",            "Press Clear"),
         "qr3":  ("Try a pre-written example",  "Click any button in the left sidebar"),
         "qr4":  ("Switch dark / light mode",   "Click 🌙 (top right)"),
         "qr5":  ("Switch interface language",  "Click EN / AR (top right)"),
@@ -423,34 +402,34 @@ T = {
         "qr7":  ("Get a safe rewrite",         "Press إعادة الصياغة in the rewrite panel"),
         "qr8":  ("Understand toxic keywords",  "Read the keyword attention map (bottom panel)"),
         # Install steps
-        "inst1_lbl":  "Open Chrome Extensions",
-        "inst1_desc": "Go to chrome://extensions in the address bar, or click the puzzle-piece icon → Manage extensions.",
-        "inst2_lbl":  "Enable Developer Mode",
-        "inst2_desc": "Toggle Developer mode in the top-right corner of the extensions page.",
-        "inst3_lbl":  "Load the extension folder",
-        "inst3_desc": "Click Load unpacked and select the PromptScanner extension folder. The icon appears in the toolbar.",
-        "inst4_lbl":  "Pin the extension",
-        "inst4_desc": "Click the puzzle-piece icon, find PromptScanner, and click the pin to keep it visible.",
+        "inst1_lbl":  "Open Chrome Web Store",
+        "inst1_desc": "Go to https://chromewebstore.google.com/, and search for PromptScanner or use the direct link on our website.",
+        "inst2_lbl":  "Install the extension",
+        "inst2_desc": "Click the \"Add to Chrome\" button and confirm the installation.",
+        "inst3_lbl":  "Access the extension",
+        "inst3_desc": "Click the puzzle-piece icon, find PromptScanner, and click the pin to keep it visible.",
+        "inst4_lbl":  "Start using PromptScanner",
+        "inst4_desc": "Enter AI chatbot like ChatGPT or Gemini, type a prompt, and press Send to see PromptScanner in action!",
         # Popup state labels
-        "state_a": "State A — Safe content (no issues found)",
-        "state_b": "State B — Issues detected",
-        "state_c": "State C — Rewrite generated",
+        "state_a": "State A - Safe content (no issues found)",
+        "state_b": "State B - Issues detected",
+        "state_c": "State C - Rewrite generated",
         "state_a_desc": "When your prompt is clean the popup shows a single button.",
         "state_b_desc": "When PII or toxicity is detected you see the analysis and two options.",
         "state_c_desc": "After pressing Rewrite, the safe alternative appears alongside two send options.",
         # Popup annotations
         "pa1a": "<strong>Masked text</strong> confirms no PII was found.",
-        "pa1b": "<strong>Green Normal label</strong> — content is safe, high confidence.",
-        "pa1c": "<strong>→ إرسال الأصلي</strong> — sends the prompt as-is. One click and done.",
-        "pa2a": "<strong>Masked text</strong> — PII values appear as [TYPE] placeholders if detected.",
-        "pa2b": "<strong>Critical badge + purple label</strong> — Mental Health classification detected.",
-        "pa2c": "<strong>Key attention words</strong> — colour-coded words that drove the classification.",
-        "pa2d": "<strong>إعادة الصياغة</strong> — generates a safe rewrite (moves to State C).",
-        "pa2e": "<strong>→ إرسال الأصلي</strong> — always available; the choice is always yours.",
-        "pa3a": "<strong>النص المُعاد كتابته panel</strong> — the safe alternative with a green border.",
-        "pa3b": "<strong>→ إرسال المُعاد كتابته</strong> — sends the rewritten safe version.",
-        "pa3c": "<strong>→ إرسال الأصلي</strong> — sends the original despite the warning.",
-        "pa3d": "<strong>✕ إلغاء</strong> — closes the popup so you can edit manually without sending.",
+        "pa1b": "<strong>Green Normal label</strong> - content is safe, high confidence.",
+        "pa1c": "<strong>→ إرسال الأصلي</strong> - sends the prompt as-is. One click and done.",
+        "pa2a": "<strong>Masked text</strong> - PII values appear as [TYPE] placeholders if detected.",
+        "pa2b": "<strong>Critical badge + purple label</strong> - Mental Health classification detected.",
+        "pa2c": "<strong>Key attention words</strong> - colour-coded words that drove the classification.",
+        "pa2d": "<strong>إعادة الصياغة</strong> - generates a safe rewrite (moves to State C).",
+        "pa2e": "<strong>→ إرسال الأصلي</strong> - always available; the choice is always yours.",
+        "pa3a": "<strong>النص المُعاد كتابته panel</strong> - the safe alternative with a green border.",
+        "pa3b": "<strong>→ إرسال المُعاد كتابته</strong> - sends the rewritten safe version.",
+        "pa3c": "<strong>→ إرسال الأصلي</strong> - sends the original despite the warning.",
+        "pa3d": "<strong>✕ إلغاء</strong> - closes the popup so you can edit manually without sending.",
         # Settings
         "set_intro":       "Click the ⚙ icon in the popup header to open settings.",
         "set_dark_lbl":    "Dark Mode",
@@ -474,21 +453,13 @@ T = {
         "eqr6": ("Skip popup for safe prompts","Turn OFF Show popup for safe content"),
         "eqr7": ("Disable auto-scanning",      "Turn OFF Auto Scan"),
         # footer
-        "footer_web": "<span>PromptScanner</span> — User Guide · Part 1: Website",
-        "footer_ext": "<span>PromptScanner</span> — User Guide · Part 2: Browser Extension · ChatGPT & Gemini",
+        "footer_web": "<span>PromptScanner</span> - User Guide · Part 1: Website",
+        "footer_ext": "<span>PromptScanner</span> - User Guide · Part 2: Browser Extension · ChatGPT & Gemini",
     },
     "ar": {
         # tabs
-        "tab_web":  "الجزء الأول — الموقع الإلكتروني",
-        "tab_ext":  "الجزء الثاني — إضافة المتصفح",
-        # cover
-        "cover_web_title":  "دليل المستخدم — الجزء الأول: الموقع الإلكتروني",
-        "cover_web_desc":   "تعليمات خطوة بخطوة لاستخدام تطبيق PromptScanner للكشف عن المعلومات الشخصية والمحتوى الضار في المطالبات العربية.",
-        "cover_web_badge":  "دليل الموقع",
-        "cover_ext_title":  "دليل المستخدم — الجزء الثاني: إضافة المتصفح",
-        "cover_ext_desc":   "كيفية تثبيت واستخدام إضافة PromptScanner للمتصفح لفحص المطالبات مباشرةً داخل ChatGPT وGemini قبل الإرسال.",
-        "cover_ext_badge":  "دليل الإضافة",
-        "cover_ext_compat": "متوافق مع ChatGPT و Gemini",
+        "tab_web":  "الجزء الأول - الموقع الإلكتروني",
+        "tab_ext":  "الجزء الثاني - إضافة المتصفح",
         # shared section labels
         "sec_overview":     "البداية",
         "sec_interface":    "نظرة عامة على الواجهة",
@@ -499,12 +470,12 @@ T = {
         "sec_states":       "حالات النافذة المنبثقة",
         "sec_settings":     "الإعدادات",
         # intro box
-        "intro_web": "يحلل PromptScanner مطالباتك العربية <strong>قبل</strong> إرسالها إلى روبوت المحادثة. يكتشف المعلومات الشخصية الحساسة ويفحص المحتوى الضار في آنٍ واحد — لحماية خصوصيتك وتعزيز سلامة تفاعلاتك.",
-        "intro_ext": "تضيف إضافة PromptScanner طبقةً أمنية مباشرةً داخل <strong>ChatGPT</strong> و<strong>Gemini</strong>. عند الضغط على إرسال أو Enter، تعترض الإضافة مطالبتك وتفحصها وتعرض النتائج في نافذة منبثقة — قبل وصول أي شيء إلى الذكاء الاصطناعي. ثم تختار إرسال النص الأصلي أو النص المُعاد صياغته أو الإلغاء.",
+        "intro_web": "يحلل PromptScanner مطالباتك العربية <strong>قبل</strong> إرسالها إلى روبوت المحادثة. يكتشف المعلومات الشخصية الحساسة ويفحص المحتوى الضار في الوقت؛ لحماية خصوصيتك وتعزيز سلامة تفاعلاتك.",
+        "intro_ext": "تضيف إضافة PromptScanner طبقةً أمنية مباشرةً في مواقع روبوتات الدردشة مثل <strong>ChatGPT</strong> و<strong>Gemini</strong>. عند الضغط على إرسال أو Enter، تعترض الإضافة مطالبتك وتفحصها وتعرض النتائج في نافذة منبثقة قبل وصول أي شيء إلى الذكاء الاصطناعي. ثم يختار المستخدم إرسال النص الأصلي أو النص المُعاد صياغته أو الإلغاء.",
         # flow
         "flow_type":    "اكتب مطالبتك",
         "flow_scan":    "اضغط فحص",
-        "flow_run":     "3 نماذج تعمل في آنٍ واحد",
+        "flow_run":     "3 نماذج تعمل في الوقت ذاته",
         "flow_result":  "تظهر النتائج",
         "flow_type2":   "اكتب في ChatGPT / Gemini",
         "flow_send":    "اضغط إرسال / Enter",
@@ -517,14 +488,14 @@ T = {
         "comp_xlmr_desc":    "يكتشف أرقام الهوية وبيانات الدخول، بما فيها القيم اللاتينية داخل الجمل العربية.",
         "comp_regex_name":   "محرك التعبيرات النمطية",
         "comp_regex_desc":   "كشف مبني على أنماط ثابتة للهاتف والبريد والـ IP والـ MAC والروابط والمعلومات المالية.",
-        "comp_tox_name":     "AraBERT v2 — السمية",
+        "comp_tox_name":     "AraBERT v2 - السمية",
         "comp_tox_desc":     "يصنّف المطالبات إلى 7 فئات أمان مع إبراز الكلمات المؤثرة.",
         # annotations
-        "ann_a": "<strong>لوحة النماذج (الشريط الجانبي الأيسر)</strong> — تُظهر النماذج المحملة (النقطة الخضراء = جاهز) وأمثلة جاهزة للنقر.",
-        "ann_b": "<strong>حقل إدخال المطالبة</strong> — اكتب أو الصق النص العربي هنا. المحاذاة من اليمين لليسار.",
-        "ann_c": "<strong>زر فحص</strong> — يبدأ الفحص. يعمل كشف المعلومات الشخصية وتحليل السمية في آنٍ واحد.",
-        "ann_d": "<strong>زر مسح</strong> — يمسح حقل الإدخال ويُعيد تعيين نتائج الفحص.",
-        "ann_e": "<strong>عناصر التحكم في أعلى اليمين</strong> — للتبديل بين الوضع الليلي/النهاري (🌙) ولغة الواجهة (EN / AR).",
+        "ann_a": "<strong>لوحة النماذج (الشريط الجانبي الأيسر)</strong> - يُظهر هذا القسم مكونات الذكاء الاصطناعي المُحمّلة والجاهزة للاستخدام (النقطة الخضراء = نشطة). ويصف ما يكتشفه كل نموذج.",
+        "ann_b": "<strong>أزرار الأمثلة</strong> - انقر على أي مثال لتحميل نص عربي مكتوب مسبقًا تلقائيًا في مربع الإدخال. مفيد لتجربة الأداة دون الحاجة إلى الكتابة.",
+        "ann_c": "<strong>حقل إدخال المطالبة</strong> - اكتب أو الصق النص العربي هنا. المربع محاذٍ من اليمين إلى اليسار.",
+        "ann_d": "<strong>زر الفحص والمسح</strong> - يبدأ الفحص للكشف عن المعلومات الشخصية الحساسة والسامة في وقت واحد، ويمسح المدخلات ويعيد ضبط لوحة النتائج.",
+        "ann_e": "<strong>عناصر التحكم في أعلى اليمين</strong> - للتبديل بين الوضع الليلي/النهاري (🌙) ولغة الواجهة (EN / AR).",
         # steps
         "step1_lbl":  "أدخل مطالبتك العربية",
         "step1_desc": "انقر في حقل الإدخال واكتب أو الصق النص العربي. يمكنك أيضاً النقر على أحد أزرار الأمثلة في الشريط الجانبي لتحميل نص تجريبي جاهز.",
@@ -548,13 +519,13 @@ T = {
         "crit_meaning":  "يستدعي العناية",
         # callouts
         "tip_examples":  "يمكنك النقر على أي <strong>زر مثال</strong> في الشريط الجانبي لتحميل نص تجريبي جاهز.",
-        "tip_masked":    "استخدم دائماً <strong>النص المُقنَّع</strong> (الظاهر في بطاقة المعلومات الشخصية) بدلاً من النص الأصلي — سيظل روبوت المحادثة يفهم طلبك دون استقبال بياناتك الخاصة.",
+        "tip_masked":    "استخدم دائماً <strong>النص المُقنَّع</strong> (الظاهر في بطاقة المعلومات الشخصية) بدلاً من النص الأصلي - سيظل روبوت المحادثة يفهم طلبك دون استقبال بياناتك الخاصة.",
         "tip_save":      "اضغط دائماً <strong>حفظ الإعدادات</strong> بعد إجراء أي تغيير. لن تُطبَّق التغييرات حتى يتم الحفظ.",
         "tip_autoscan":  "إذا كان <strong>الفحص التلقائي</strong> مفعَّلاً والمحتوى آمناً، يمكن تهيئة الإضافة للإرسال تلقائياً دون عرض النافذة المنبثقة.",
         # HL legend
         "hl_high": "عالٍ (>0.7)",
-        "hl_mid":  "متوسط (0.4–0.7)",
-        "hl_low":  "منخفض (0.1–0.4)",
+        "hl_mid":  "متوسط (0.4-0.7)",
+        "hl_low":  "منخفض (0.1-0.4)",
         "hl_stop": "حرف وصل",
         # rewrite
         "rw_rewritten": "النص المُعاد كتابته",
@@ -576,34 +547,34 @@ T = {
         "qr7": ("الحصول على إعادة صياغة آمنة", "اضغط إعادة الصياغة في قسم إعادة الصياغة"),
         "qr8": ("فهم الكلمات الضارة",     "اقرأ خريطة انتباه الكلمات (القسم السفلي)"),
         # Install
-        "inst1_lbl":  "افتح إعدادات الإضافات",
-        "inst1_desc": "انتقل إلى chrome://extensions في شريط العناوين، أو انقر أيقونة قطعة اللغز ← إدارة الإضافات.",
+        "inst1_lbl":  "افتح متجر كروم الإلكتروني للإضافات",
+        "inst1_desc": "اذهب إلى https://chromewebstore.google.com/ وابحث عن PromptScanner أو استخدم الرابط المباشر الموجود على موقعنا.",
         "inst2_lbl":  "فعّل وضع المطور",
         "inst2_desc": "فعّل مفتاح وضع المطور في الزاوية العلوية اليمنى من صفحة الإضافات.",
-        "inst3_lbl":  "حمّل مجلد الإضافة",
-        "inst3_desc": "انقر تحميل غير مضغوط واختر مجلد إضافة PromptScanner. ستظهر الأيقونة في شريط الأدوات.",
-        "inst4_lbl":  "ثبّت الإضافة في الشريط",
-        "inst4_desc": "انقر أيقونة قطعة اللغز، ابحث عن PromptScanner، ثم انقر أيقونة الدبوس لتثبيتها ظاهرة.",
+        "inst3_lbl":  "الوصول إلى الإضافة",
+        "inst3_desc": "انقر على أيقونة قطعة الأحجية، ابحث عن PromptScanner، ثم اضغط على زر التثبيت (Pin) لإبقائها مرئية.",
+        "inst4_lbl":  "ابدأ باستخدام PromptScanner",
+        "inst4_desc": "ادخل إلى روبوتات الدردشة مثل ChatGPT أو Gemini، اكتب الأمر (Prompt)، ثم اضغط إرسال لترى PromptScanner يعمل!",
         # States
-        "state_a": "الحالة أ — محتوى آمن (لا مشكلات)",
-        "state_b": "الحالة ب — تم اكتشاف مشكلات",
-        "state_c": "الحالة ج — تم توليد إعادة الصياغة",
+        "state_a": "الحالة أ - محتوى آمن (لا مشكلات)",
+        "state_b": "الحالة ب - تم اكتشاف مشكلات",
+        "state_c": "الحالة ج - تم توليد إعادة الصياغة",
         "state_a_desc": "عندما تكون مطالبتك نظيفة تظهر النافذة بزر واحد.",
         "state_b_desc": "عند اكتشاف معلومات شخصية أو محتوى ضار تظهر التحليلات وخياران.",
         "state_c_desc": "بعد ضغط إعادة الصياغة تظهر النسخة الآمنة مع خيارَي الإرسال.",
         # Popup annotations
         "pa1a": "<strong>النص المُقنَّع</strong> يؤكد عدم اكتشاف معلومات شخصية.",
-        "pa1b": "<strong>التصنيف الأخضر «عادي»</strong> — المحتوى آمن بثقة عالية.",
-        "pa1c": "<strong>→ إرسال الأصلي</strong> — يُرسل المطالبة كما هي. نقرة واحدة وتنتهي.",
-        "pa2a": "<strong>النص المُقنَّع</strong> — قيم المعلومات الشخصية تظهر كعلامات [TYPE] عند اكتشافها.",
-        "pa2b": "<strong>شارة حرجة + تصنيف أرجواني</strong> — تم اكتشاف فئة الصحة النفسية.",
-        "pa2c": "<strong>الكلمات المؤثرة</strong> — كلمات ملونة تُشير إلى ما أثّر في التصنيف.",
-        "pa2d": "<strong>إعادة الصياغة</strong> — يُولِّد نسخة آمنة (ينتقل إلى الحالة ج).",
-        "pa2e": "<strong>→ إرسال الأصلي</strong> — متاح دائماً؛ القرار لك في النهاية.",
-        "pa3a": "<strong>قسم النص المُعاد كتابته</strong> — البديل الآمن بحد أخضر.",
-        "pa3b": "<strong>→ إرسال المُعاد كتابته</strong> — يُرسل النسخة الآمنة.",
-        "pa3c": "<strong>→ إرسال الأصلي</strong> — يُرسل النص الأصلي رغم التحذير.",
-        "pa3d": "<strong>✕ إلغاء</strong> — يغلق النافذة دون إرسال لتتمكن من التعديل يدوياً.",
+        "pa1b": "<strong>التصنيف الأخضر «عادي»</strong> - المحتوى آمن بثقة عالية.",
+        "pa1c": "<strong>→ إرسال الأصلي</strong> - يُرسل المطالبة كما هي. نقرة واحدة وتنتهي.",
+        "pa2a": "<strong>النص المُقنَّع</strong> - قيم المعلومات الشخصية تظهر كعلامات [TYPE] عند اكتشافها.",
+        "pa2b": "<strong>شارة حرجة + تصنيف أرجواني</strong> - تم اكتشاف فئة الصحة النفسية.",
+        "pa2c": "<strong>الكلمات المؤثرة</strong> - كلمات ملونة تُشير إلى ما أثّر في التصنيف.",
+        "pa2d": "<strong>إعادة الصياغة</strong> - يُولِّد نسخة آمنة (ينتقل إلى الحالة ج).",
+        "pa2e": "<strong>→ إرسال الأصلي</strong> - متاح دائماً؛ القرار لك في النهاية.",
+        "pa3a": "<strong>قسم النص المُعاد كتابته</strong> - البديل الآمن بحد أخضر.",
+        "pa3b": "<strong>→ إرسال المُعاد كتابته</strong> - يُرسل النسخة الآمنة.",
+        "pa3c": "<strong>→ إرسال الأصلي</strong> - يُرسل النص الأصلي رغم التحذير.",
+        "pa3d": "<strong>✕ إلغاء</strong> - يغلق النافذة دون إرسال لتتمكن من التعديل يدوياً.",
         # Settings
         "set_intro":      "انقر أيقونة ⚙ في رأس النافذة المنبثقة لفتح الإعدادات.",
         "set_dark_lbl":   "الوضع الليلي",
@@ -627,8 +598,8 @@ T = {
         "eqr6": ("تخطي النافذة للمحتوى الآمن","عطّل «عرض النافذة للمحتوى الآمن»"),
         "eqr7": ("تعطيل الفحص التلقائي",     "عطّل «الفحص التلقائي»"),
         # footer
-        "footer_web": "<span>PromptScanner</span> — دليل المستخدم · الجزء الأول: الموقع الإلكتروني",
-        "footer_ext": "<span>PromptScanner</span> — دليل المستخدم · الجزء الثاني: إضافة المتصفح · ChatGPT & Gemini",
+        "footer_web": "<span>PromptScanner</span> - دليل المستخدم · الجزء الأول: الموقع الإلكتروني",
+        "footer_ext": "<span>PromptScanner</span> - دليل المستخدم · الجزء الثاني: إضافة المتصفح · ChatGPT & Gemini",
     }
 }
 
@@ -637,15 +608,15 @@ T = {
 # SMALL RENDER HELPERS
 # ──────────────────────────────────────────────────────────────────────────────
 
-def cover(title, desc, badge, extra="", rtl=False):
-    """Not used directly — header is rendered inside render_user_guide."""
-    pass
+def img_to_base64(path):
+    return base64.b64encode(Path(path).read_bytes()).decode()
 
+logo_base64 = img_to_base64("assets/logo.png")
 
 def guide_header(t, active_tab, rtl=False):
     """
     Full navy header: logo + name, tagline, title, description,
-    and the two badge-style tab buttons — exactly like the original HTML design.
+    and the two badge-style tab buttons - exactly like the original HTML design.
     """
     tab_web_active  = active_tab == "website"
     tab_ext_active  = active_tab == "extension"
@@ -657,21 +628,21 @@ def guide_header(t, active_tab, rtl=False):
 
   <!-- Logo + name row -->
   <div class="gh-logo-row">
-    <img src="logo.png" class="gh-logo" alt="PromptScanner logo"/>
+    <img src="data:image/png;base64,{logo_base64}" class="gh-logo" alt="PromptScanner logo"/>
     <div>
       <div class="gh-name">Prompt<span>Scanner</span></div>
-      <div class="gh-sub">{'فاحص الخصوصية والسلامة' if rtl else 'Arabic AI Safety Tool'}</div>
+      <div class="gh-sub">{'حارس خصوصيتك في عالم الذكاء الاصطناعي' if rtl else 'Your Privacy Guardian in the AI World'}</div>
     </div>
   </div>
 
   <!-- Title + description -->
-  <div class="gh-title">{'دليل المستخدم' if rtl else 'User Guide'}</div>
+  <div class="gh-title" style="text-align: {'right' if rtl else 'left'};">{'دليل المستخدم' if rtl else 'User Guide'}</div>
   <p class="gh-desc">{'تعليمات خطوة بخطوة لاستخدام PromptScanner للكشف عن المعلومات الشخصية والمحتوى الضار في مطالباتك العربية قبل إرسالها.' if rtl else 'Step-by-step instructions for using PromptScanner to detect personally identifiable information and toxic content in Arabic prompts before submitting them to an AI chatbot.'}</p>
 
 </div>
 """, unsafe_allow_html=True)
 
-    # Tab buttons — rendered as Streamlit buttons styled as orange/grey badges
+    # Tab buttons - rendered as Streamlit buttons styled as orange/grey badges
     btn_col1, btn_col2, spacer = st.columns([1.8, 2.4, 5])
     with btn_col1:
         if st.button(
@@ -710,7 +681,7 @@ def intro_box(text, rtl=False):
     st.markdown(
         f'<div style="background:#1a2340;color:rgba(255,255,255,0.8);'
         f'border-radius:10px;padding:20px 24px;margin:16px 0 24px;'
-        f'line-height:1.7;font-size:0.92rem;" {dir_attr}>{text}</div>',
+        f'line-height:1.7;font-size:1rem;" {dir_attr}>{text}</div>',
         unsafe_allow_html=True
     )
 
@@ -723,7 +694,7 @@ def flow_diagram(*nodes, rtl=False):
             parts.append('<div class="flow-arr">→</div>')
     dir_attr = 'dir="rtl"' if rtl else ''
     st.markdown(
-        f'<div class="flow" {dir_attr}>{"".join(parts)}</div>',
+        f'<div class="flow">{"".join(parts)}</div>',
         unsafe_allow_html=True
     )
 
@@ -831,14 +802,14 @@ def hl_legend(t, rtl=False):
 
 
 def ext_popup_safe(t, rtl=False):
-    logo_src = "logo.png"
+    logo_src = f"data:image/png;base64,{logo_base64}"
     dir_attr = 'dir="rtl"' if rtl else ''
     return f"""
 <div class="ext-popup" {dir_attr}>
   <div class="ext-header">
     <div style="display:flex;align-items:center;gap:8px;">
       <img src="{logo_src}" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
-      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">Privacy &amp; Safety Scanner</div></div>
+      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">{'فحص الخصوصية والسلامة' if rtl else 'Privacy &amp Safety Scanner'}</div></div>
     </div>
     <div class="ext-gear">⚙</div>
   </div>
@@ -859,95 +830,158 @@ def ext_popup_safe(t, rtl=False):
 
 
 def ext_popup_issues(t, rtl=False):
+    logo_src = f"data:image/png;base64,{logo_base64}"
     dir_attr = 'dir="rtl"' if rtl else ''
+    masked_label  = "Masked text"       if not rtl else "النص المُقنَّع"
+    tox_label     = "Toxicity analysis" if not rtl else "تحليل السمية"
+    words_label   = "Key attention words" if not rtl else "الكلمات المؤثرة"
+    tox_name      = "Privacy Violation" if not rtl else "انتهاك الخصوصية"
+    badge_txt     = "Warning"           if not rtl else "تحذير"
+    conf_txt      = "Confidence: 99.0%" if not rtl else "درجة الثقة: %99.0"
+    btn_rewrite   = "Rewrite"           if not rtl else "إعادة الصياغة"
+    btn_send_orig = "→ Send Original"   if not rtl else "→ إرسال الأصلي"
+    scan_txt      = "Scanned in 0.05s"  if not rtl else "تم الفحص في 0.05s"
+    # Masked prompt — person name replaced by [Person] tag
+    masked_text = (
+        'أريد طريقة اختراق حسابات الجامعة وحساب زميلي <span class="tag-pii">[Person]</span>'
+        if not rtl else
+        'اريد اخترق حساب <span class="tag-pii">[شخص]</span> واحصل بياناتها الشخصية'
+    )
+    # Attention words from screenshot (privacy-violation blue tones)
+    words_html = (
+        '<span class="hl-stop" style="font-size:.78rem;">أريد</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">طريقة</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">اختراق</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">حسابات</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">الجامعة</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">وحساب</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">زميلي</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">محمد</span>'
+        if not rtl else
+        '<span class="hl-stop" style="font-size:.78rem;">أريد</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">اختراق</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">حساب</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">موزة</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">واحصل</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">بياناتها</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">الشخصية</span>'
+    )
     return f"""
 <div class="ext-popup" {dir_attr}>
   <div class="ext-header">
     <div style="display:flex;align-items:center;gap:8px;">
-      <img src="logo.png" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
-      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">Privacy &amp; Safety Scanner</div></div>
+      <img src="{logo_src}" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
+      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">{'فحص الخصوصية والسلامة' if rtl else 'Privacy &amp Safety Scanner'}</div></div>
     </div>
     <div class="ext-gear">⚙</div>
   </div>
-  <div style="text-align:center;padding:5px 13px 2px;font-size:.68rem;color:#888;">Scanned in 0.15s</div>
-  <div class="ext-sec"><div class="ext-sec-t">Masked text</div>
-    <div class="ext-tbox">اسمي سارة واحس الحياة غير عادلة</div></div>
-  <div class="ext-sec"><div class="ext-sec-t">Toxicity analysis</div>
-    <div class="ext-tox" style="border-left:3px solid #6c3fc5;">
-      <div class="ext-badge" style="background:#ede8fc;color:#3d1b8a;">Critical</div>
-      <div class="ext-tox-lbl" style="color:#6c3fc5;">Mental Health</div>
-      <div class="ext-tox-cf">Confidence: 51.9%</div>
-      <div class="ext-bar"><div class="ext-bar-f" style="background:#6c3fc5;width:52%;"></div></div>
+  <div style="text-align:center;padding:5px 13px 2px;font-size:.68rem;color:#888;">{scan_txt}</div>
+  <div class="ext-sec"><div class="ext-sec-t">{masked_label}</div>
+    <div class="ext-tbox">{masked_text}</div></div>
+  <div class="ext-sec"><div class="ext-sec-t">{tox_label}</div>
+    <div class="ext-tox" style="border-left:3px solid rgba(92, 190, 251);">
+      <div class="ext-badge" style="background:#fef3dc;color:#7a4e00;">{badge_txt}</div>
+      <div class="ext-tox-lbl" style="color:rgba(92, 190, 251);">{tox_name}</div>
+      <div class="ext-tox-cf">{conf_txt}</div>
+      <div class="ext-bar"><div class="ext-bar-f" style="background:rgba(92, 190, 251);width:99%;"></div></div>
     </div></div>
-  <div class="ext-sec"><div class="ext-sec-t">Key attention words</div>
-    <div class="ext-words">
-      <span class="hl-ph" style="font-size:.78rem;">اسمي</span>
-      <span class="hl-pm" style="font-size:.78rem;">سارة</span>
-      <span class="hl-pm" style="font-size:.78rem;">واحس</span>
-      <span class="hl-pl" style="font-size:.78rem;">الحياة</span>
-      <span class="hl-stop" style="font-size:.78rem;">غير</span>
-      <span class="hl-pl" style="font-size:.78rem;">عادلة</span>
-    </div></div>
+  <div class="ext-sec"><div class="ext-sec-t">{words_label}</div>
+    <div class="ext-words">{words_html}</div></div>
   <div class="ext-div"></div>
   <div style="padding:7px 13px 12px;display:flex;flex-direction:column;gap:5px;">
-    <div class="ext-btn" style="background:#1a2340;color:#fff;">إعادة الصياغة</div>
-    <div class="ext-btn" style="background:#e8941a;color:#fff;">→ إرسال الأصلي</div>
+    <div class="ext-btn" style="background:#1a2340;color:#fff;">{btn_rewrite}</div>
+    <div class="ext-btn" style="background:#e8941a;color:#fff;">{btn_send_orig}</div>
   </div>
 </div>"""
 
 
 def ext_popup_rewrite(t, rtl=False):
+    logo_src = f"data:image/png;base64,{logo_base64}"
     dir_attr = 'dir="rtl"' if rtl else ''
+    masked_label    = "Masked text"          if not rtl else "النص المُقنَّع"
+    tox_label       = "Toxicity analysis"    if not rtl else "تحليل السمية"
+    words_label     = "Key attention words"  if not rtl else "الكلمات المؤثرة"
+    rewrite_label   = "Rewritten prompt"     if not rtl else "النص المُعاد كتابته"
+    tox_name        = "Privacy Violation"    if not rtl else "انتهاك الخصوصية"
+    badge_txt       = "Warning"              if not rtl else "تحذير"
+    conf_txt        = "Confidence: 99.0%"    if not rtl else "درجة الثقة: %99.0"
+    btn_send_rw     = "→ Send Rewritten"     if not rtl else "→ إرسال المُعاد كتابته"
+    btn_send_orig   = "→ Send Original"      if not rtl else "→ إرسال الأصلي"
+    btn_cancel      = "✕ Cancel"             if not rtl else "✕ إلغاء"
+    scan_txt        = "Scanned in 0.05s"     if not rtl else "تم الفحص في 0.05s"
+    masked_text = (
+        'أريد طريقة اختراق حسابات الجامعة وحساب <span class="tag-pii">[Person]</span>'
+        if not rtl else
+        'اريد اخترق حساب <span class="tag-pii">[شخص]</span> واحصل بياناتها الشخصية'
+    )
+    words_html = (
+        '<span class="hl-stop" style="font-size:.78rem;">أريد</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">طريقة</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">اختراق</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">حسابات</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">الجامعة</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">وحساب</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">زميلي</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">محمد</span>'
+        if not rtl else
+        '<span class="hl-stop" style="font-size:.78rem;">أريد</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">اختروق</span>'
+        '<span class="hl-high"   style="font-size:.78rem;">حساب</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">موزة</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">واحصل</span>'
+        '<span class="hl-low"   style="font-size:.78rem;">بياناتها</span>'
+        '<span class="hl-mid"   style="font-size:.78rem;">الشخصية</span>'
+    )
+    rewritten_text = (
+        'لمنع أي اختراق، أريد طريقة تحسين أمان حسابات الجامعة وحساب زميلي <span class="tag-pii">[PERS]</span>.'
+        if not rtl else
+        'أريد تعلم كيفية حماية الحسابات الشخصية من الوصول غير المصرح به.'
+    )
     return f"""
 <div class="ext-popup" {dir_attr}>
   <div class="ext-header">
     <div style="display:flex;align-items:center;gap:8px;">
-      <img src="logo.png" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
-      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">Privacy &amp; Safety Scanner</div></div>
+      <img src="{logo_src}" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
+      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">{'فحص الخصوصية والسلامة' if rtl else 'Privacy &amp; Safety Scanner'}</div></div>
     </div>
     <div class="ext-gear">⚙</div>
   </div>
-  <div style="text-align:center;padding:5px 13px 2px;font-size:.68rem;color:#888;">Scanned in 0.15s</div>
-  <div class="ext-sec"><div class="ext-sec-t">Masked text</div>
-    <div class="ext-tbox">اسمي سارة واحس الحياة غير عادلة</div></div>
-  <div class="ext-sec"><div class="ext-sec-t">Toxicity analysis</div>
-    <div class="ext-tox" style="border-left:3px solid #6c3fc5;">
-      <div class="ext-badge" style="background:#ede8fc;color:#3d1b8a;">Critical</div>
-      <div class="ext-tox-lbl" style="color:#6c3fc5;">Mental Health</div>
-      <div class="ext-tox-cf">Confidence: 51.9%</div>
-      <div class="ext-bar"><div class="ext-bar-f" style="background:#6c3fc5;width:52%;"></div></div>
+  <div style="text-align:center;padding:5px 13px 2px;font-size:.68rem;color:#888;">{scan_txt}</div>
+  <div class="ext-sec"><div class="ext-sec-t">{masked_label}</div>
+    <div class="ext-tbox">{masked_text}</div></div>
+  <div class="ext-sec"><div class="ext-sec-t">{tox_label}</div>
+    <div class="ext-tox" style="border-left:3px solid rgba(92, 190, 251);">
+      <div class="ext-badge" style="background:#fef3dc;color:#7a4e00;">{badge_txt}</div>
+      <div class="ext-tox-lbl" style="color:rgba(92, 190, 251);">{tox_name}</div>
+      <div class="ext-tox-cf">{conf_txt}</div>
+      <div class="ext-bar"><div class="ext-bar-f" style="background:rgba(92, 190, 251);width:99%;"></div></div>
     </div></div>
-  <div class="ext-sec"><div class="ext-sec-t">Key attention words</div>
-    <div class="ext-words">
-      <span class="hl-ph" style="font-size:.78rem;">اسمي</span>
-      <span class="hl-pm" style="font-size:.78rem;">سارة</span>
-      <span class="hl-pm" style="font-size:.78rem;">واحس</span>
-      <span class="hl-pl" style="font-size:.78rem;">الحياة</span>
-      <span class="hl-pl" style="font-size:.78rem;">عادلة</span>
-    </div></div>
+  <div class="ext-sec"><div class="ext-sec-t">{words_label}</div>
+    <div class="ext-words">{words_html}</div></div>
   <div class="ext-sec" style="padding-bottom:7px;">
-    <div class="ext-sec-t" style="color:#0a8a72;">النص المُعاد كتابته</div>
+    <div class="ext-sec-t" style="color:#0a8a72;">{rewrite_label}</div>
     <div class="ext-tbox" style="border-color:#0a8a72;border-width:1.5px;font-size:.78rem;">
-      أنا سارة وأشعر بالحاجة إلى فهم سبب عدم توازن الحياة في حياتي.
+      {rewritten_text}
     </div></div>
   <div class="ext-div"></div>
   <div style="padding:7px 13px 5px;display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-    <div class="ext-btn" style="background:#0a8a72;color:#fff;font-size:.74rem;">→ إرسال المُعاد كتابته</div>
-    <div class="ext-btn" style="background:#e8941a;color:#fff;font-size:.74rem;">→ إرسال الأصلي</div>
+    <div class="ext-btn" style="background:#0a8a72;color:#fff;font-size:.74rem;">{btn_send_rw}</div>
+    <div class="ext-btn" style="background:#e8941a;color:#fff;font-size:.74rem;">{btn_send_orig}</div>
   </div>
   <div style="padding:0 13px 11px;">
-    <div class="ext-btn" style="background:#ebe5d8;color:#555;font-size:.76rem;">✕ إلغاء</div>
+    <div class="ext-btn" style="background:#ebe5d8;color:#555;font-size:.76rem;">{btn_cancel}</div>
   </div>
 </div>"""
 
 
-def ext_popup_settings(t):
+def ext_popup_settings(t, rtl=False):
+    logo_src = f"data:image/png;base64,{logo_base64}"
     return f"""
 <div class="ext-popup">
   <div class="ext-header">
     <div style="display:flex;align-items:center;gap:8px;">
-      <img src="logo.png" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
-      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">Privacy &amp; Safety Scanner</div></div>
+      <img src="{logo_src}" style="width:22px;height:22px;border-radius:5px;object-fit:contain;" alt="logo"/>
+      <div><div class="ext-logo">Prompt<span>Scanner</span></div><div class="ext-sub">{'فحص الخصوصية والسلامة' if rtl else 'Privacy &amp; Safety Scanner'}</div></div>
     </div>
     <div class="ext-gear" style="background:#e74c3c;color:#fff;">✕</div>
   </div>
@@ -1098,7 +1132,7 @@ def render_website_guide(t, rtl=False):
     </div>
   </div>
   <!-- Example buttons -->
-  <div class="ann" style="position:absolute;top:168px;left:-8px;z-index:2;">B</div>
+  <div class="ann" style="position:absolute;top:260px;left:-8px;z-index:2;">B</div>
   <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;
               letter-spacing:.1em;color:#888;margin-bottom:6px;">
     {'أمثلة للتجربة' if rtl else 'Examples'}
@@ -1134,12 +1168,12 @@ def render_website_guide(t, rtl=False):
   </div>
 <!-- Buttons -->
 <div style="display:flex;gap:8px;position:relative;">
-    <div class="ann" style="position:absolute;top:-8px;left:-8px;z-index:2;">D</div>
+    <div class="ann" style="position:absolute;top:-8px;{{ 'right:-8px;' if rtl else 'left:-8px;' }}z-index:2;">D</div>
     <div style="background:var(--navy);color:#fff;border-radius:8px;
                 padding:8px 20px;font-weight:700;font-size:.82rem;">
       {'فحص' if rtl else 'فحص'}
     </div>
-    <div style="background:#e0d8cc;color:var(--navy);border-radius:8px;
+    <div style="background:var(--navy);color:#fff;border-radius:8px;
                 padding:8px 16px;font-size:.82rem;">
       {'مسح' if rtl else 'مسح'}
     </div>
@@ -1191,25 +1225,23 @@ def render_website_guide(t, rtl=False):
     hl_example = """
 <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:11px;
             margin-top:10px;text-align:right;direction:rtl;line-height:2.4;">
-  <span class="hl-stop">هذا</span>
-  <span class="hl-low">المعلم</span>
-  <span class="hl-stop">اللي</span>
-  <span class="hl-mid">خسف</span>
-  <span class="hl-mid">السلايدز</span>
-  <span class="hl-high">واريد</span>
-  <span class="hl-high">اصفعه</span>
-  <span class="hl-high">وافجره</span>
+  <span class="hl-stop">كيف</span>
+  <span class="hl-ph">أفهم</span>
+  <span class="hl-pm">الناس</span>
+  <span class="hl-pm">الغبية</span>
+  <span class="hl-ph">أنهم</span>
+  <span class="hl-pm">أغبياء</span>
 </div>"""
 
     rw_example = f"""
 <div class="rw-grid">
   <div>
     <div class="rw-col-title">{t['rw_rewritten']}</div>
-    <div class="rw-box">أريد تعليمات حول كيفية التعامل مع المعلمين الذين لا يوفرون تعليماً جيداً.</div>
+    <div class="rw-box">.كيف يمكنني فهم الناس الذين يحتاجون إلى مساعدة إضافية في فهم بعض الأمور</div>
   </div>
   <div>
     <div class="rw-col-title">{t['rw_original']}</div>
-    <div class="rw-box" style="color:#999;">هذا المعلم اللي يدرسنا خسف وأريد اصفعه وافجره</div>
+    <div class="rw-box" style="color:#999;">كيف افهم الناس الغبية أنهم اغبياء </div>
   </div>
 </div>"""
 
@@ -1284,7 +1316,7 @@ def render_extension_guide(t, rtl=False):
     sec_header("3", t["sec_states"], t["sec_states"], rtl=rtl)
 
     st.markdown(
-        f'<p style="color:#6b6560;font-size:.9rem;margin-bottom:18px;'
+        f'<p style="color:#6b6560;font-size:1rem;margin-bottom:18px;'
         f'{"text-align:right;direction:rtl;" if rtl else ""}">'
         f'{"عند ضغط إرسال داخل ChatGPT أو Gemini تظهر نافذة منبثقة تعرض نتيجة الفحص. لها ثلاث حالات." if rtl else "When you press Send inside ChatGPT or Gemini, a popup appears showing the scan result. It has three states."}'
         f'</p>',
@@ -1322,7 +1354,7 @@ def render_extension_guide(t, rtl=False):
     # ── Section 4: Settings ───────────────────────────────────────────────────
     sec_header("4", t["sec_settings"], t["sec_settings"], rtl=rtl)
     st.markdown(
-        f'<p style="color:#6b6560;font-size:.9rem;margin-bottom:16px;'
+        f'<p style="color:#6b6560;font-size:1rem;margin-bottom:16px;'
         f'{"text-align:right;direction:rtl;" if rtl else ""}">'
         f'{t["set_intro"]}</p>',
         unsafe_allow_html=True
@@ -1330,7 +1362,7 @@ def render_extension_guide(t, rtl=False):
 
     col_s, col_t = st.columns([1, 1.2])
     with col_s:
-        st.markdown(ext_popup_settings(t), unsafe_allow_html=True)
+        st.markdown(ext_popup_settings(t, rtl=rtl), unsafe_allow_html=True)
     with col_t:
         guide_table(
             [t["action_col"] if rtl else "Setting",
@@ -1368,18 +1400,22 @@ def render_user_guide():
     # ── Determine active tab early (needed for header) ────────────────────────
     active_tab = st.query_params.get("tab", "website")
 
-    # ── Language toggle — beige pill matching app.py style, top-right ─────────
+    # ── Language toggle - beige pill matching app.py style, top-right ─────────
     lang_state = st.session_state.get("guide_lang", "en")
 
     # Render EN/AR toggle as a small button in top-right corner
     # We use a single-column float trick: empty left col + button right col
+    st.markdown('<div class="top-bar">', unsafe_allow_html=True)
+    
     _, lang_col = st.columns([11, 1])
     with lang_col:
         current_label = "AR" if lang_state == "en" else "EN"
         if st.button(current_label, key="guide_lang_toggle", use_container_width=True):
             st.session_state.guide_lang = "ar" if lang_state == "en" else "en"
             st.rerun()
-
+            
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     lang_state = st.session_state.get("guide_lang", "en")
     rtl = lang_state == "ar"
     t   = T["ar"] if rtl else T["en"]
