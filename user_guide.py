@@ -84,7 +84,7 @@ section[data-testid="stSidebar"] { display: none !important; }
 .guide-card-navy   { border-top: 3px solid #0F1C35; }
 
 /* ── STEP ROWS ── */
-.step-wrap { display: flex; gap: 0; margin-bottom: 0; direction: rtl; }
+.step-wrap { display: flex; flex-direction: row-reverse; gap: 0; margin-bottom: 0; direction: rtl; }
 .step-left { display: flex; flex-direction: column; align-items: center; width: 44px; flex-shrink: 0; }
 .step-num {
     width: 30px; height: 30px; border-radius: 50%;
