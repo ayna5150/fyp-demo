@@ -30,23 +30,6 @@ if "page" not in st.session_state:
 
 if st.session_state.page == "guide":
     from user_guide import render_user_guide
-    st.markdown("""
-    <style>
-    div.stButton > button:first-child {
-        margin-top: 10px;
-        background-color: #bbb6ae;
-        color: #fff;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 700 !important;
-        font-size: 0.82rem !important;
-        padding: 6px 12px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    if st.button("← Back to Scanner"):
-        st.session_state.page = "scanner"
-        st.rerun()
     render_user_guide()
     st.stop()
 
@@ -586,6 +569,7 @@ def call_rewrite(original, masked, tox_label):
         return resp.json().get("rewritten", "") if resp.ok else None
     except: return None
 
+
 # ─── LOAD MODELS ────────────────────────────────────────────
 with st.spinner("جارٍ تحميل النماذج…"):
     ar_tok, ar_mdl, ar_id2tag = load_arabert()
@@ -599,71 +583,52 @@ tx_ok = tx_mdl is not None
 inject_css()
 T         = STRINGS[st.session_state.language]
 models_ok = [ar_ok, xl_ok, True, tx_ok]
+is_ar     = st.session_state.language == "ar"
 
-# ─── TOP BAR ────────────────────────────────────────────────
-logo_path = Path("assets/logo.png")
+# ─── TOP BAR — single HTML block, buttons always inline ─────
 import base64
+logo_path = Path("assets/logo.png")
 logo_html = ""
 if logo_path.exists():
     logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
     logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;flex-shrink:0;" />'
 
-is_ar = st.session_state.language == "ar"
-st.markdown(f"""
-<div style="display:flex;align-items:center;justify-content:space-between;
-            flex-direction:{'row-reverse' if is_ar else 'row'};
-            flex-wrap:nowrap;gap:8px;margin-bottom:8px;">
-  <div style="display:flex;align-items:center;gap:10px;
-              flex-direction:{'row-reverse' if is_ar else 'row'};">
-    {logo_html}
-    <div style="{'text-align:right;' if is_ar else ''}">
-      <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
-      <div class="ps-slogan">{T["tagline"]}</div>
-    </div>
+# CSS: force all st.columns in the top bar to never wrap
+st.markdown("""<style>
+div[data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;}
+div[data-testid="stHorizontalBlock"]>div[data-testid="stColumn"]{min-width:0!important;flex:1 1 0!important;}
+div[data-testid="stHorizontalBlock"]>div[data-testid="stColumn"] button{
+    padding:.4rem .5rem!important;font-size:.8rem!important;
+    min-width:0!important;white-space:nowrap!important;
+}
+</style>""", unsafe_allow_html=True)
+
+hdr_logo, hdr_btns = st.columns([6, 4])
+with hdr_logo:
+    st.markdown(f"""
+<div style="display:flex;align-items:center;gap:10px;{'flex-direction:row-reverse;' if is_ar else ''}">
+  {logo_html}
+  <div style="{'text-align:right;' if is_ar else ''}">
+    <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
+    <div class="ps-slogan">{T["tagline"]}</div>
   </div>
-</div>
-""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
 
-# Buttons row — always horizontal using CSS override
-st.markdown("""
-<style>
-div[data-testid="stHorizontalBlock"] {
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-}
-div[data-testid="stHorizontalBlock"] > div {
-    min-width: 0 !important;
-    flex: 1 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Place buttons in a hidden row at the top using absolute positioning trick
-_, btn_col = st.columns([4, 1])
-with btn_col:
-    b1, b2, b3 = st.columns(3)
-    with b1:
-        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
+with hdr_btns:
+    hb1, hb2, hb3 = st.columns(3)
+    with hb1:
+        if st.button("🌙" if not st.session_state.dark_mode else "☀️",
+                     key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-    with b2:
+    with hb2:
         if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
-    with b3:
+    with hb3:
         if st.button("📖", key="btn_guide", use_container_width=True):
             st.session_state.page = "guide"
             st.rerun()
-
-# Pull buttons up to overlap with logo row using negative margin
-st.markdown("""
-<style>
-/* Pull the button row up to sit beside the logo */
-div[data-testid="stVerticalBlock"] > div:nth-child(3) {
-    margin-top: -72px !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
