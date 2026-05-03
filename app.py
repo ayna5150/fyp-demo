@@ -292,6 +292,8 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
+/* Keep top buttons in one row on mobile */
+[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; }
 """
 
 def inject_css():
@@ -616,7 +618,7 @@ with top_left:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with top_right:
-    rc1, rc2, rc3 = st.columns([1, 1, 2])
+    rc1, rc2, rc3 = st.columns([1, 1, 1])
     with rc1:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
