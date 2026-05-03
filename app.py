@@ -601,33 +601,69 @@ T         = STRINGS[st.session_state.language]
 models_ok = [ar_ok, xl_ok, True, tx_ok]
 
 # ─── TOP BAR ────────────────────────────────────────────────
-top_left, top_right = st.columns([7, 3])
-with top_left:
-    logo_path = Path("assets/logo.png")
-    import base64
-    if logo_path.exists():
-        logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
-        st.markdown(f'''
-<div style="display:flex;align-items:center;gap:10px;">
-  <img src="data:image/png;base64,{logo_b64}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;flex-shrink:0;" />
-  <div>
-    <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
-    <div class="ps-slogan">{T["tagline"]}</div>
-  </div>
-</div>''', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+logo_path = Path("assets/logo.png")
+import base64
+logo_html = ""
+if logo_path.exists():
+    logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
+    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;flex-shrink:0;" />'
 
-with top_right:
-    bc1, bc2 = st.columns(2)
-    with bc1:
+is_ar = st.session_state.language == "ar"
+st.markdown(f"""
+<div style="display:flex;align-items:center;justify-content:space-between;
+            flex-direction:{'row-reverse' if is_ar else 'row'};
+            flex-wrap:nowrap;gap:8px;margin-bottom:8px;">
+  <div style="display:flex;align-items:center;gap:10px;
+              flex-direction:{'row-reverse' if is_ar else 'row'};">
+    {logo_html}
+    <div style="{'text-align:right;' if is_ar else ''}">
+      <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
+      <div class="ps-slogan">{T["tagline"]}</div>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Buttons row — always horizontal using CSS override
+st.markdown("""
+<style>
+div[data-testid="stHorizontalBlock"] {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+}
+div[data-testid="stHorizontalBlock"] > div {
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Place buttons in a hidden row at the top using absolute positioning trick
+_, btn_col = st.columns([4, 1])
+with btn_col:
+    b1, b2, b3 = st.columns(3)
+    with b1:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-    with bc2:
+    with b2:
         if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
+    with b3:
+        if st.button("📖", key="btn_guide", use_container_width=True):
+            st.session_state.page = "guide"
+            st.rerun()
+
+# Pull buttons up to overlap with logo row using negative margin
+st.markdown("""
+<style>
+/* Pull the button row up to sit beside the logo */
+div[data-testid="stVerticalBlock"] > div:nth-child(3) {
+    margin-top: -72px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
@@ -794,11 +830,6 @@ with col_main:
                     else:
                         st.error(T["rewrite_fail"])
             st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
-if st.button("📖 " + ("دليل المستخدم" if st.session_state.language == "ar" else "User Guide"), key="btn_guide"):
-    st.session_state.page = "guide"
-    st.rerun()
 
 # ─── FOOTER ─────────────────────────────────────────────────
 st.markdown('''
