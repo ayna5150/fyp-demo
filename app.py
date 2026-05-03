@@ -357,12 +357,13 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
     font-family: 'JetBrains Mono', monospace !important;
     font-size: .68rem;
     font-weight: 700;
-    color: white;
+    color: #fff;
     background: #E8520A;
-    border-radius: 6px;
-    padding: 3px 8px;
+    border-radius: 4px;
+    padding: 2px 8px;
     white-space: nowrap;
     flex-shrink: 0;
+    display: inline-block;
 }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .sb-ex-btn { display: block; width: 100%; text-align: right; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .78rem; color: var(--ink); cursor: pointer; margin-bottom: 5px; transition: border-color .15s; }
