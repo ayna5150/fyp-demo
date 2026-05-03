@@ -590,7 +590,7 @@ import base64
 logo_path = Path("assets/logo.png")
 is_ar = st.session_state.language == "ar"
 
-top_left, top_right = st.columns([6, 4])
+top_left, top_right = st.columns([7, 3])
 with top_left:
     if logo_path.exists():
         logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
@@ -606,15 +606,19 @@ with top_left:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with top_right:
-    if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
-        st.session_state.dark_mode = not st.session_state.dark_mode
-        st.rerun()
-    if st.button(T["lang_toggle"], key="toggle_lang"):
-        st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
-        st.rerun()
-    if st.button("📖 " + ("دليل" if st.session_state.language == "ar" else "Guide"), key="btn_guide"):
-        st.session_state.page = "guide"
-        st.rerun()
+    rb1, rb2, rb3 = st.columns(3)
+    with rb1:
+        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
+            st.session_state.dark_mode = not st.session_state.dark_mode
+            st.rerun()
+    with rb2:
+        if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
+            st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
+            st.rerun()
+    with rb3:
+        if st.button("📖", key="btn_guide", use_container_width=True):
+            st.session_state.page = "guide"
+            st.rerun()
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
@@ -624,23 +628,23 @@ col_info, col_main = st.columns([3, 7], gap="large")
 with col_info:
     # About
     st.markdown(f'''
-<div class="info-panel">
+<div class="info-panel" style="direction:rtl;text-align:right;">
   <div class="sb-title">{T["sidebar_about"]}</div>
   <div class="sb-desc">{T["sidebar_desc"]}</div>
 </div>''', unsafe_allow_html=True)
 
     # Models — solid color badges matching guide exactly
-    st.markdown(f'<div class="sb-title" style="margin-top:1rem">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="sb-title" style="margin-top:1rem;direction:rtl;text-align:right;">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
     models_html = '<div class="info-panel">'
     for (name, desc), ok in zip(T["models_info"], models_ok):
         dot = "🟢" if ok else "🔴"
         bg  = "#2D5BE3" if "AraBERT v2" in name else "#E8520A"
-        models_html += f'<div class="sb-model"><span style="font-family:JetBrains Mono,monospace;font-size:.68rem;font-weight:700;color:#fff;background:{bg};border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0;display:inline-block;">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
+        models_html += f'<div class="sb-model" style="direction:rtl;"><span style="font-family:JetBrains Mono,monospace;font-size:.68rem;font-weight:700;color:#fff;background:{bg};border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0;display:inline-block;">{name}</span><span class="sb-model-desc" style="text-align:right;">{dot} {desc}</span></div>'
     models_html += "</div>"
     st.markdown(models_html, unsafe_allow_html=True)
 
     # Examples
-    st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem;direction:rtl;text-align:right;">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
     for lbl, ex in T["examples"]:
         if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
             st.session_state.prompt_value = ex
