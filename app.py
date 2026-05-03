@@ -570,6 +570,7 @@ def call_rewrite(original, masked, tox_label):
     except: return None
 
 
+
 # ─── LOAD MODELS ────────────────────────────────────────────
 with st.spinner("جارٍ تحميل النماذج…"):
     ar_tok, ar_mdl, ar_id2tag = load_arabert()
@@ -583,52 +584,37 @@ tx_ok = tx_mdl is not None
 inject_css()
 T         = STRINGS[st.session_state.language]
 models_ok = [ar_ok, xl_ok, True, tx_ok]
-is_ar     = st.session_state.language == "ar"
 
-# ─── TOP BAR — single HTML block, buttons always inline ─────
+# ─── TOP BAR ────────────────────────────────────────────────
 import base64
 logo_path = Path("assets/logo.png")
-logo_html = ""
-if logo_path.exists():
-    logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
-    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="width:44px;height:44px;object-fit:contain;border-radius:10px;flex-shrink:0;" />'
+is_ar = st.session_state.language == "ar"
 
-# CSS: force all st.columns in the top bar to never wrap
-st.markdown("""<style>
-div[data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;}
-div[data-testid="stHorizontalBlock"]>div[data-testid="stColumn"]{min-width:0!important;flex:1 1 0!important;}
-div[data-testid="stHorizontalBlock"]>div[data-testid="stColumn"] button{
-    padding:.4rem .5rem!important;font-size:.8rem!important;
-    min-width:0!important;white-space:nowrap!important;
-}
-</style>""", unsafe_allow_html=True)
-
-hdr_logo, hdr_btns = st.columns([6, 4])
-with hdr_logo:
-    st.markdown(f"""
+top_left, top_right = st.columns([6, 4])
+with top_left:
+    if logo_path.exists():
+        logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
+        st.markdown(f'''
 <div style="display:flex;align-items:center;gap:10px;{'flex-direction:row-reverse;' if is_ar else ''}">
-  {logo_html}
+  <img src="data:image/png;base64,{logo_b64}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;flex-shrink:0;" />
   <div style="{'text-align:right;' if is_ar else ''}">
     <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
     <div class="ps-slogan">{T["tagline"]}</div>
   </div>
-</div>""", unsafe_allow_html=True)
+</div>''', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
-with hdr_btns:
-    hb1, hb2, hb3 = st.columns(3)
-    with hb1:
-        if st.button("🌙" if not st.session_state.dark_mode else "☀️",
-                     key="toggle_dark", use_container_width=True):
-            st.session_state.dark_mode = not st.session_state.dark_mode
-            st.rerun()
-    with hb2:
-        if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
-            st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
-            st.rerun()
-    with hb3:
-        if st.button("📖", key="btn_guide", use_container_width=True):
-            st.session_state.page = "guide"
-            st.rerun()
+with top_right:
+    if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark"):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
+    if st.button(T["lang_toggle"], key="toggle_lang"):
+        st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
+        st.rerun()
+    if st.button("📖 " + ("دليل" if st.session_state.language == "ar" else "Guide"), key="btn_guide"):
+        st.session_state.page = "guide"
+        st.rerun()
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
