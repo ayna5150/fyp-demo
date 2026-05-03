@@ -512,18 +512,24 @@ def step_item(num, label, desc, lang, last=False):
     line = "" if last else '<div class="step-line"></div>'
     if lang == "ar":
         html = f"""
-<div class="step-wrap" style="direction:rtl;">
-  <div class="step-body" style="text-align:right;margin-left:0;margin-right:10px;">
+<div style="display:flex;flex-direction:row;gap:0;margin-bottom:0;direction:rtl;">
+  <div style="display:flex;flex-direction:column;align-items:center;width:44px;flex-shrink:0;">
+    <div class="step-num">{num}</div>
+    {line}
+  </div>
+  <div class="step-body" style="text-align:right;margin-right:10px;margin-left:0;">
     <div class="step-label">{label}</div>
     <div class="step-desc">{desc}</div>
   </div>
-  <div class="step-num-col">{line}<div class="step-num">{num}</div></div>
 </div>"""
     else:
         html = f"""
-<div class="step-wrap" style="direction:ltr;">
-  <div class="step-num-col"><div class="step-num">{num}</div>{line}</div>
-  <div class="step-body" style="text-align:left;margin-left:10px;">
+<div style="display:flex;flex-direction:row;gap:0;margin-bottom:0;direction:ltr;">
+  <div style="display:flex;flex-direction:column;align-items:center;width:44px;flex-shrink:0;">
+    <div class="step-num">{num}</div>
+    {line}
+  </div>
+  <div class="step-body" style="text-align:left;margin-left:10px;margin-right:0;">
     <div class="step-label">{label}</div>
     <div class="step-desc">{desc}</div>
   </div>
