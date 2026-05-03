@@ -29,7 +29,7 @@ if "page" not in st.session_state:
     st.session_state.page = "scanner"
 
 if st.session_state.page == "guide":
-    from user_guide import render_user_guide
+    from userguide import render_user_guide
     st.markdown("""
     <style>
     div.stButton > button:first-child {
@@ -44,7 +44,9 @@ if st.session_state.page == "guide":
     }
     </style>
     """, unsafe_allow_html=True)
-    
+    if st.button("← Back to Scanner"):
+        st.session_state.page = "scanner"
+        st.rerun()
     render_user_guide()
     st.stop()
 
@@ -290,8 +292,6 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
-/* Keep top buttons in one row on mobile */
-[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; }
 """
 
 def inject_css():
@@ -601,32 +601,33 @@ T         = STRINGS[st.session_state.language]
 models_ok = [ar_ok, xl_ok, True, tx_ok]
 
 # ─── TOP BAR ────────────────────────────────────────────────
-top_left, top_right = st.columns([6, 4])
+top_left, top_right = st.columns([7, 3])
 with top_left:
     logo_path = Path("assets/logo.png")
+    import base64
     if logo_path.exists():
-        lc1, lc2 = st.columns([1, 10])
-        with lc1:
-            import base64
-            logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
-            st.markdown(f'<img src="data:image/png;base64,{logo_b64}" style="width:52px;height:52px;object-fit:contain;border-radius:10px;" />', unsafe_allow_html=True)
-        with lc2:
-            st.markdown(f'<div class="ps-wordmark" style="padding-top:6px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+        logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
+        st.markdown(f'''
+<div style="display:flex;align-items:center;gap:10px;">
+  <img src="data:image/png;base64,{logo_b64}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;flex-shrink:0;" />
+  <div>
+    <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
+    <div class="ps-slogan">{T["tagline"]}</div>
+  </div>
+</div>''', unsafe_allow_html=True)
     else:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
-
-with top_right:
-    rc1, rc2, rc3 = st.columns([1, 1, 1])
-    with rc1:
-        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
+    bc1, bc2, bc3 = st.columns(3)
+    with bc1:
+        if st.button(dark_lbl, key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
-    with rc2:
-        if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
+    with bc2:
+        if st.button(lang_lbl, key="toggle_lang", use_container_width=True):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
-    with rc3:
-        if st.button("📖 دليل", key="btn_guide", use_container_width=True):
+    with bc3:
+        if st.button("📖", key="btn_guide", use_container_width=True):
             st.session_state.page = "guide"
             st.rerun()
 
