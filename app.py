@@ -595,9 +595,9 @@ with top_left:
     if logo_path.exists():
         logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
         st.markdown(f'''
-<div style="display:flex;align-items:center;gap:10px;{'flex-direction:row-reverse;' if is_ar else ''}">
+<div style="display:flex;align-items:center;gap:10px;">
   <img src="data:image/png;base64,{logo_b64}" style="width:48px;height:48px;object-fit:contain;border-radius:10px;flex-shrink:0;" />
-  <div style="{'text-align:right;' if is_ar else ''}">
+  <div>
     <div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div>
     <div class="ps-slogan">{T["tagline"]}</div>
   </div>
