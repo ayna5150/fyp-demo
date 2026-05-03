@@ -44,9 +44,7 @@ if st.session_state.page == "guide":
     }
     </style>
     """, unsafe_allow_html=True)
-    if st.button("← Back to Scanner"):
-        st.session_state.page = "scanner"
-        st.rerun()
+    
     render_user_guide()
     st.stop()
 
