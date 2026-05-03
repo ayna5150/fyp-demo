@@ -5,25 +5,15 @@ import base64
 # ─────────────────────────────────────────────────────────────
 # CSS — matches app.py brand exactly
 # ─────────────────────────────────────────────────────────────
-def get_guide_css(dark=False):
-    if dark:
-        return """
-        :root {
-            --bg:      #0B1426; --card: #162240; --white: #1E2A45;
-            --navy:    #EAE4D9; --ink:  #EAE4D9; --muted: #7A8BAA;
-            --border:  rgba(255,255,255,0.07);
-        }
-        html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
-        """
-    else:
-        return """
-        :root {
-            --bg:      #EAE4D9; --card: #F3EDE3; --white: #FDFAF5;
-            --navy:    #0F1C35; --ink:  #1A1714; --muted: #7A7068;
-            --border:  rgba(0,0,0,0.08);
-        }
-        html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
-        """
+def get_guide_css():
+    return """
+    :root {
+        --bg:      #EAE4D9; --card: #F3EDE3; --white: #FDFAF5;
+        --navy:    #0F1C35; --ink:  #1A1714; --muted: #7A7068;
+        --border:  rgba(0,0,0,0.08);
+    }
+    html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
+    """
 
 GUIDE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -58,10 +48,13 @@ section[data-testid="stSidebar"] { display: none !important; }
 /* ── SECTION HEADERS ── */
 .sec-head {
     display: flex; align-items: center; gap: 12px;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
     margin: 36px 0 18px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--navy);
     direction: rtl;
+    text-align: right;
 }
 .sec-num {
     background: var(--navy); color: #EAE4D9;
@@ -131,15 +124,21 @@ section[data-testid="stSidebar"] { display: none !important; }
 .model-name-orange { background: #E8520A; color: #fff; }
 .model-name-blue   { background: #2D5BE3; color: #fff; }
 .model-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 7px; }
-.model-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.model-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-start; direction: rtl; }
 .cat-pill   { font-size: 0.67rem; font-weight: 700; padding: 2px 7px; border-radius: 8px; letter-spacing: 0.02em; font-family: 'JetBrains Mono', monospace !important; }
 
 /* ── PII TABLE ── */
-.pii-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 12px 0; direction: rtl; }
+.pii-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 12px 0; direction: rtl; text-align: right; }
 .pii-table th { background: var(--navy); color: #EAE4D9; padding: 8px 12px; text-align: right; font-size: 0.73rem; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace !important; }
 .pii-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: right; }
 .pii-table tr:nth-child(even) td { background: var(--white); }
 .pii-tag { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 4px; padding: 1px 6px; font-size: 0.68rem; font-family: 'JetBrains Mono', monospace !important; font-weight: 700; }
+
+.qr-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin: 12px 0; direction: rtl; text-align: right; }
+.qr-table th { background: var(--navy); color: #EAE4D9; padding: 8px 12px; text-align: right; font-size: 0.73rem; text-transform: uppercase; font-family: 'JetBrains Mono', monospace !important; }
+.qr-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: right; }
+.qr-table tr:nth-child(even) td { background: var(--white); }
+.qr-table td:first-child { font-weight: 600; color: var(--navy); }
 
 /* ── TOX BADGES ── */
 .badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; font-family: 'JetBrains Mono', monospace !important; }
@@ -147,13 +146,6 @@ section[data-testid="stSidebar"] { display: none !important; }
 .b-warn   { background: rgba(232,82,10,0.10); color: #E8520A;  border: 1px solid rgba(232,82,10,0.3); }
 .b-flag   { background: rgba(217,48,37,0.10); color: #D93025;  border: 1px solid rgba(217,48,37,0.3); }
 .b-crit   { background: rgba(107,79,187,0.10);color: #6B4FBB;  border: 1px solid rgba(107,79,187,0.3); }
-
-/* ── QUICK REF TABLE ── */
-.qr-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin: 12px 0; direction: rtl; }
-.qr-table th { background: var(--navy); color: #EAE4D9; padding: 8px 12px; text-align: right; font-size: 0.73rem; text-transform: uppercase; font-family: 'JetBrains Mono', monospace !important; }
-.qr-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: right; }
-.qr-table tr:nth-child(even) td { background: var(--white); }
-.qr-table td:first-child { font-weight: 600; color: var(--navy); }
 
 /* ── EXT POPUP MOCKUP ── */
 .ext-popup { background: #EAE4D9; border: 1px solid rgba(0,0,0,0.1); border-radius: 14px; overflow: hidden; width: 290px; box-shadow: 0 8px 32px rgba(15,28,53,0.15); }
@@ -222,31 +214,56 @@ div[data-testid="stButton"] button[kind="secondary"] {
 .guide-footer span { color: #E8520A; }
 """
 
-def inject_css(dark=False):
-    st.markdown(f"<style>{get_guide_css(dark)}{GUIDE_CSS}</style>", unsafe_allow_html=True)
+def inject_css():
+    st.markdown(f"<style>{get_guide_css()}{GUIDE_CSS}</style>", unsafe_allow_html=True)
 
 def img_b64(path):
     return base64.b64encode(Path(path).read_bytes()).decode()
 
 # ─────────────────────────────────────────────────────────────
+# LANGUAGE STRINGS
+# ─────────────────────────────────────────────────────────────
+LANG = {
+    "ar": {
+        "lang_btn":   "EN",
+        "hero_sub":   "حارس خصوصيتك في عالم الذكاء الاصطناعي",
+        "hero_title": "دليل المستخدم",
+        "hero_desc":  "تعليمات خطوة بخطوة لاستخدام PromptScanner للكشف عن المعلومات الشخصية والمحتوى الضار في مطالباتك العربية قبل إرسالها إلى روبوتات الدردشة.",
+        "tab1":       "الجزء الأول — الموقع الإلكتروني",
+        "tab2":       "الجزء الثاني — إضافة المتصفح",
+        "footer_web": "دليل المستخدم · الجزء الأول: الموقع الإلكتروني",
+        "footer_ext": "دليل المستخدم · الجزء الثاني: إضافة المتصفح",
+    },
+    "en": {
+        "lang_btn":   "عربي",
+        "hero_sub":   "Your Privacy Guardian in the AI World",
+        "hero_title": "User Guide",
+        "hero_desc":  "Step-by-step instructions for using PromptScanner to detect personal information and harmful content in your Arabic prompts before sending them to AI chatbots.",
+        "tab1":       "Part 1 — Website",
+        "tab2":       "Part 2 — Browser Extension",
+        "footer_web": "User Guide · Part 1: Website",
+        "footer_ext": "User Guide · Part 2: Browser Extension",
+    },
+}
+
+# ─────────────────────────────────────────────────────────────
 # HELPER RENDERERS
 # ─────────────────────────────────────────────────────────────
-def hero(logo_b64):
+def hero(logo_b64, lang="ar"):
+    L = LANG[lang]
+    rtl_style = "direction:rtl;text-align:right;" if lang == "ar" else "direction:ltr;text-align:left;"
     st.markdown(f"""
-<div class="guide-hero">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+<div class="guide-hero" style="{rtl_style}">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;{'flex-direction:row-reverse;' if lang=='en' else ''}">
     <img src="data:image/png;base64,{logo_b64}"
          style="width:46px;height:46px;border-radius:10px;object-fit:contain;" />
     <div>
       <div class="guide-hero-logo">Prompt<span>Scanner</span></div>
-      <div class="guide-hero-sub">حارس خصوصيتك في عالم الذكاء الاصطناعي</div>
+      <div class="guide-hero-sub">{L["hero_sub"]}</div>
     </div>
   </div>
-  <div class="guide-hero-title">دليل المستخدم</div>
-  <p class="guide-hero-desc">
-    تعليمات خطوة بخطوة لاستخدام PromptScanner للكشف عن المعلومات الشخصية
-    والمحتوى الضار في مطالباتك العربية قبل إرسالها إلى روبوتات الدردشة.
-  </p>
+  <div class="guide-hero-title">{L["hero_title"]}</div>
+  <p class="guide-hero-desc">{L["hero_desc"]}</p>
   <div class="guide-rule"></div>
 </div>
 """, unsafe_allow_html=True)
@@ -254,7 +271,7 @@ def hero(logo_b64):
 
 def sec(num, title):
     st.markdown(f"""
-<div class="sec-head">
+<div class="sec-head" style="direction:rtl;text-align:right;">
   <div class="sec-num">{num}</div>
   <div class="sec-title">{title}</div>
 </div>""", unsafe_allow_html=True)
@@ -793,35 +810,38 @@ def render_extension(logo_b64):
 # MAIN ENTRY POINT
 # ─────────────────────────────────────────────────────────────
 def render_user_guide():
-    dark = st.session_state.get("guide_dark", False)
-    inject_css(dark)
+    inject_css()
 
-    logo_b64 = img_b64("assets/logo.png")
+    logo_b64   = img_b64("assets/logo.png")
+    lang       = st.session_state.get("guide_lang", "ar")
+    active_tab = st.session_state.get("guide_tab", "website")
+    L          = LANG[lang]
+    is_rtl     = lang == "ar"
 
-    # ── Top controls — only dark mode toggle ─────────────────
-    c1, c2 = st.columns([7, 1])
-    with c2:
-        if st.button("🌙" if not dark else "☀️", key="guide_dark_toggle"):
-            st.session_state.guide_dark = not dark
+    # ── Top bar: language toggle only ────────────────────────
+    c_space, c_lang = st.columns([8, 1])
+    with c_lang:
+        if st.button(L["lang_btn"], key="guide_lang_toggle", use_container_width=True):
+            st.session_state.guide_lang = "en" if lang == "ar" else "ar"
             st.rerun()
 
-    # ── Hero header ───────────────────────────────────────────
-    hero(logo_b64)
+    # ── Hero ─────────────────────────────────────────────────
+    hero(logo_b64, lang=lang)
 
-    # ── Tab buttons — part of page layout ────────────────────
-    active_tab = st.session_state.get("guide_tab", "website")
-    t1_style = "background:#E8520A;color:#fff;cursor:pointer;" if active_tab == "website" else "background:var(--card);color:var(--muted);cursor:pointer;"
-    t2_style = "background:#E8520A;color:#fff;cursor:pointer;" if active_tab == "extension" else "background:var(--card);color:var(--muted);cursor:pointer;"
-    
-    tb1, tb2, tb3 = st.columns([2, 2, 4])
-    with tb1:
-        if st.button("الجزء الأول — الموقع الإلكتروني", key="tab_website",
+    # ── Tab buttons ──────────────────────────────────────────
+    if is_rtl:
+        tc1, tc2, tc3 = st.columns([2, 2, 4])
+    else:
+        tc1, tc2, tc3 = st.columns([2, 2, 4])
+
+    with tc1:
+        if st.button(L["tab1"], key="tab_website",
                      type="primary" if active_tab == "website" else "secondary",
                      use_container_width=True):
             st.session_state.guide_tab = "website"
             st.rerun()
-    with tb2:
-        if st.button("الجزء الثاني — إضافة المتصفح", key="tab_extension",
+    with tc2:
+        if st.button(L["tab2"], key="tab_extension",
                      type="primary" if active_tab == "extension" else "secondary",
                      use_container_width=True):
             st.session_state.guide_tab = "extension"
@@ -829,7 +849,7 @@ def render_user_guide():
 
     st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
 
-    # ── Render tab ────────────────────────────────────────────
+    # ── Render content ────────────────────────────────────────
     if active_tab == "website":
         render_website(logo_b64)
     else:
