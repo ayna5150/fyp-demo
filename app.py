@@ -29,7 +29,7 @@ if "page" not in st.session_state:
     st.session_state.page = "scanner"
 
 if st.session_state.page == "guide":
-    from userguide import render_user_guide
+    from user_guide import render_user_guide
     st.markdown("""
     <style>
     div.stButton > button:first-child {
