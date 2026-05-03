@@ -617,13 +617,15 @@ with top_left:
 </div>''', unsafe_allow_html=True)
     else:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
+
+with top_right:
     bc1, bc2, bc3 = st.columns(3)
     with bc1:
-        if st.button(dark_lbl, key="toggle_dark", use_container_width=True):
+        if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
             st.rerun()
     with bc2:
-        if st.button(lang_lbl, key="toggle_lang", use_container_width=True):
+        if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
     with bc3:
