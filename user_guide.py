@@ -127,8 +127,8 @@ T = {
     "hero_sub":    "حارس خصوصيتك في عالم الذكاء الاصطناعي",
     "hero_title":  "دليل المستخدم",
     "hero_desc":   "تعليمات خطوة بخطوة لاستخدام PromptScanner للكشف عن المعلومات الشخصية والمحتوى الضار في مطالباتك العربية قبل إرسالها إلى روبوتات الدردشة.",
-    "tab1":        " الموقع الإلكتروني",
-    "tab2":        " إضافة المتصفح",
+    "tab1":        "الجزء الأول — الموقع الإلكتروني",
+    "tab2":        "الجزء الثاني — إضافة المتصفح",
     "dir":         "rtl",
     "align":       "right",
     # website
@@ -152,7 +152,7 @@ T = {
         ("اقرأ خريطة الكلمات المؤثرة", "كل كلمة مُلوَّنة بحسب مدى تأثيرها في قرار التصنيف. اللون الداكن يعني تأثيراً أعلى."),
         ("استخدم إعادة الصياغة", "عند اكتشاف محتوى ضار يظهر قسم إعادة الصياغة. يعرض نسخة آمنة بديلة مع الحفاظ على المعنى الأصلي."),
     ],
-    "w_tip2": "استخدم دائماً <strong>النص الآمن</strong> بدلاً من النص الأصلي، روبوت الدردشة سيفهم طلبك دون استقبال بياناتك الشخصية.",
+    "w_tip2": "استخدم دائماً <strong>النص المُقنَّع</strong> بدلاً من النص الأصلي — روبوت الدردشة سيفهم طلبك دون استقبال بياناتك الشخصية.",
     "w_s4": "أنواع المعلومات الشخصية",
     "w_pii_headers": ["البطاقة","النوع","مثال","يكتشفه"],
     "w_pii_rows": [
@@ -200,35 +200,35 @@ T = {
         ("افتح متجر Chrome الإلكتروني", "اذهب إلى <strong>chromewebstore.google.com</strong> وابحث عن PromptScanner، أو استخدم الرابط المباشر الموجود على موقعنا."),
         ("انقر «إضافة إلى Chrome»", "اضغط على زر «Add to Chrome» ثم أكّد التثبيت عند ظهور نافذة التأكيد."),
         ("ثبّت الإضافة في شريط الأدوات", "انقر على أيقونة قطعة الأحجية 🧩 في أعلى يمين المتصفح، ابحث عن PromptScanner، ثم انقر أيقونة الدبوس 📌 لإبقائها ظاهرة دائماً."),
-        ("ابدأ الاستخدام", "ادخل إلى ChatGPT أو Gemini، اكتب مطالبتك، واضغط إرسال، ستظهر نافذة PromptScanner تلقائياً."),
+        ("ابدأ الاستخدام", "ادخل إلى ChatGPT أو Gemini، اكتب مطالبتك، واضغط إرسال — ستظهر نافذة PromptScanner تلقائياً."),
     ],
     "e_tip_install": "تأكد من أن الإضافة تظهر في شريط الأدوات قبل البدء. يمكنك التحقق بالنقر على أيقونة PromptScanner مباشرةً.",
     "e_s3": "حالات النافذة المنبثقة",
     "e_states_intro": "عند الضغط على إرسال تظهر نافذة PromptScanner بإحدى الحالات الأربع التالية حسب نتيجة الفحص:",
     "e_state_a": "الحالة أ — محتوى آمن ✓",
-    "e_state_b": "الحالة ب —> تم اكتشاف معلومات شخصية",
-    "e_state_c": "الحالة ج —> تم اكتشاف محتوى ضار",
-    "e_state_d": "الحالة د —> بعد إعادة الصياغة",
+    "e_state_b": "الحالة ب — تم اكتشاف معلومات شخصية",
+    "e_state_c": "الحالة ج — تم اكتشاف محتوى ضار",
+    "e_state_d": "الحالة د — بعد إعادة الصياغة",
     "e_ann_a": [
         ("1","النص المُقنَّع يؤكد عدم وجود معلومات شخصية."),
-        ("2","التصنيف الأخضر «عادي» بثقة عالية ، المحتوى آمن تماماً."),
+        ("2","التصنيف الأخضر «عادي» بثقة عالية — المحتوى آمن تماماً."),
         ("3","<strong>⟶ إرسال</strong> — يرسل المطالبة كما هي. نقرة واحدة وتنتهي."),
     ],
     "e_ann_b": [
         ("1","النص المُقنَّع يعرض المطالبة مع استبدال البيانات الشخصية بعلامات مثل <span class='pii-tag'>[PERS]</span>."),
-        ("2","<strong>⟶ إرسال الأمر بدون معلومات خاصة</strong> يُرسل النسخة الآمنة دون بياناتك الشخصية."),
-        ("3","<strong>⟶ إرسال الأصلي</strong>  يُرسل النص كما كتبته. القرار لك دائماً."),
+        ("2","<strong>⟶ إرسال الأمر بدون معلومات خاصة</strong> — يُرسل النسخة الآمنة دون بياناتك الشخصية."),
+        ("3","<strong>⟶ إرسال الأصلي</strong> — يُرسل النص كما كتبته. القرار لك دائماً."),
     ],
     "e_ann_c": [
         ("1","قسم «الكلمات المؤثرة» يُظهر الكلمات التي أثّرت في قرار التصنيف بألوان متدرجة."),
-        ("2","<strong>إعادة الصياغة</strong>  يُولِّد نسخة آمنة تحافظ على المعنى الأصلي قدر الإمكان."),
-        ("3","<strong>⟶ إرسال الأصلي</strong>  إرسال النص رغم التحذير. القرار النهائي لك."),
+        ("2","<strong>إعادة الصياغة</strong> — يُولِّد نسخة آمنة تحافظ على المعنى الأصلي قدر الإمكان."),
+        ("3","<strong>⟶ إرسال الأصلي</strong> — إرسال النص رغم التحذير. القرار النهائي لك."),
     ],
     "e_ann_d": [
         ("1","قسم «النص المُعاد كتابته» بحد أخضر يعرض البديل الآمن."),
-        ("2","<strong>⟶ إرسال المُعاد كتابته</strong>  يُرسل النسخة الآمنة مباشرةً."),
-        ("3","<strong>⟶ إرسال الأصلي</strong>  يُرسل النص الأصلي رغم التحذير."),
-        ("4","<strong>✕ إلغاء</strong>  يغلق النافذة دون إرسال لتتمكن من التعديل يدوياً."),
+        ("2","<strong>⟶ إرسال المُعاد كتابته</strong> — يُرسل النسخة الآمنة مباشرةً."),
+        ("3","<strong>⟶ إرسال الأصلي</strong> — يُرسل النص الأصلي رغم التحذير."),
+        ("4","<strong>✕ إلغاء</strong> — يغلق النافذة دون إرسال لتتمكن من التعديل يدوياً."),
     ],
     "e_s4": "الإعدادات",
     "e_settings_intro": "انقر أيقونة ⚙ في رأس النافذة المنبثقة للوصول إلى الإعدادات.",
@@ -301,8 +301,8 @@ T = {
     "hero_sub":    "Your Privacy Guardian in the AI World",
     "hero_title":  "User Guide",
     "hero_desc":   "Step-by-step instructions for using PromptScanner to detect personal information and harmful content in your Arabic prompts before sending them to AI chatbots.",
-    "tab1":        "Website",
-    "tab2":        "Browser Extension",
+    "tab1":        "Part 1 — Website",
+    "tab2":        "Part 2 — Browser Extension",
     "dir":         "ltr",
     "align":       "left",
     # website
@@ -851,11 +851,27 @@ def render_user_guide():
     lang       = st.session_state.get("guide_lang", "ar")
     active_tab = st.session_state.get("guide_tab", "website")
     L          = T[lang]
+    is_rtl     = lang == "ar"
 
-    # ── Top bar: language toggle only ────────────────────────
-    c_back, c_space, c_lang = st.columns([2, 6, 1])
+    # Global RTL for Arabic
+    if is_rtl:
+        st.markdown('<style>body,.block-container{direction:rtl;}</style>', unsafe_allow_html=True)
+    else:
+        st.markdown('<style>body,.block-container{direction:ltr;}</style>', unsafe_allow_html=True)
+
+    # ── Top bar: back button + language toggle on same row ────
+    st.markdown("""<style>
+div[data-testid="stHorizontalBlock"]{flex-wrap:nowrap!important;}
+div[data-testid="stHorizontalBlock"]>div[data-testid="stColumn"]{min-width:0!important;flex:1 1 0!important;}
+</style>""", unsafe_allow_html=True)
+
+    if is_rtl:
+        c_lang, c_space, c_back = st.columns([1, 6, 2])
+    else:
+        c_back, c_space, c_lang = st.columns([2, 6, 1])
+
     with c_back:
-        if st.button("← رجوع" if lang == "ar" else "← Back", key="guide_back", use_container_width=True):
+        if st.button("← رجوع" if is_rtl else "← Back", key="guide_back", use_container_width=True):
             st.session_state.page = "scanner"
             st.rerun()
     with c_lang:
@@ -867,7 +883,11 @@ def render_user_guide():
     hero(logo_b64, lang)
 
     # ── Tab buttons ──────────────────────────────────────────
-    tc1, tc2, tc3 = st.columns([2, 2, 4])
+    if is_rtl:
+        tc1, tc2, tc3 = st.columns([2, 2, 4])
+    else:
+        tc1, tc2, tc3 = st.columns([2, 2, 4])
+
     with tc1:
         if st.button(L["tab1"], key="tab_website",
                      type="primary" if active_tab == "website" else "secondary",
