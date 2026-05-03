@@ -29,15 +29,13 @@ if "page" not in st.session_state:
     st.session_state.page = "scanner"
 
 if st.session_state.page == "guide":
-    from user_guide import render_user_guide
-
-    # Inject custom CSS
+    from userguide import render_user_guide
     st.markdown("""
     <style>
     div.stButton > button:first-child {
-        margin-top: 10px;       
+        margin-top: 10px;
         background-color: #bbb6ae;
-        color: #fff;              
+        color: #fff;
         border: none !important;
         border-radius: 8px !important;
         font-weight: 700 !important;
@@ -46,14 +44,11 @@ if st.session_state.page == "guide":
     }
     </style>
     """, unsafe_allow_html=True)
-    
-    # Back button
     if st.button("← Back to Scanner"):
         st.session_state.page = "scanner"
         st.rerun()
-
     render_user_guide()
-    st.stop()   # ← critical: stops the rest of app.py from rendering
+    st.stop()
 
 if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
 if "language"     not in st.session_state: st.session_state.language     = "ar"
@@ -90,18 +85,15 @@ STRINGS = {
         "med_attn":     "تأثير متوسط (0.4–0.7)",
         "low_attn":     "تأثير منخفض (0.1–0.4)",
         "stop_word":    "حرف وصل",
-        "dark_toggle":  "🌙 داكن",
-        "light_toggle": "☀️ فاتح",
         "lang_toggle":  "EN",
         "badge_safe":   "آمن",
         "badge_warn":   "تحذير",
         "badge_flag":   "مُبلَّغ",
         "badge_crit":   "خطر",
         "badge_clean":  "آمن",
-        "footer":       "كشف المعلومات الشخصية · تحليل السمية ",
-        "sidebar_about": "عن الأداة",
-        "sidebar_desc":  " تحمي خصوصيتك عند استخدام روبوتات الدردشة. يكتشف المعلومات الشخصية والمحتوى الضار في مدخلاتك قبل إرسالها.",
-        "sidebar_models": "النماذج المستخدمة",
+        "sidebar_about":    "عن الأداة",
+        "sidebar_desc":     "تحمي خصوصيتك عند استخدام روبوتات الدردشة. يكتشف المعلومات الشخصية والمحتوى الضار في مدخلاتك قبل إرسالها.",
+        "sidebar_models":   "النماذج المستخدمة",
         "sidebar_examples": "أمثلة للتجربة",
         "tox_labels": {
             "Normal":            "عادي",
@@ -125,7 +117,7 @@ STRINGS = {
             ("AraBERT NER", "كشف الأشخاص والمؤسسات والعناوين والتواريخ"),
             ("XLM-RoBERTa", "كشف الهويات وبيانات الدخول"),
             ("Regex Engine", "الهاتف والبريد وIP والروابط والمعلومات المالية"),
-            ("AraBERT v2", "تصنيف المحتوى السام إلى 7 فئات"),
+            ("AraBERT v2",   "تصنيف المحتوى السام إلى 7 فئات"),
         ],
     },
     "en": {
@@ -136,7 +128,7 @@ STRINGS = {
         "btn_rewrite":  "Rewrite Prompt",
         "scanning":     "Scanning…",
         "rewriting":    "Rewriting prompt…",
-        "scanned_in":   "Scanning time",
+        "scanned_in":   "Scanned in",
         "pii_head":     "◆ Text without personal information",
         "tox_head":     "◆ Toxicity Analysis",
         "hl_head":      "◆ Keyword Attention",
@@ -153,18 +145,15 @@ STRINGS = {
         "med_attn":     "Medium (0.4–0.7)",
         "low_attn":     "Low (0.1–0.4)",
         "stop_word":    "Stop word",
-        "dark_toggle":  "🌙 Dark",
-        "light_toggle": "☀️ Light",
         "lang_toggle":  "عربي",
         "badge_safe":   "Safe",
         "badge_warn":   "Warning",
         "badge_flag":   "Flagged",
         "badge_crit":   "Critical",
         "badge_clean":  "Clean",
-        "footer":       "Arabic PII Detection · Toxicity Classification",
-        "sidebar_about": "About PromptScanner",
-        "sidebar_desc":  "PromptScanner protects your privacy when using AI chatbot. It detects personal information and harmful content in your prompts before they are sent.",
-        "sidebar_models": "Models used",
+        "sidebar_about":    "About PromptScanner",
+        "sidebar_desc":     "PromptScanner protects your privacy when using AI chatbots. It detects personal information and harmful content in your prompts before they are sent.",
+        "sidebar_models":   "Models used",
         "sidebar_examples": "Try an example",
         "tox_labels": {
             "Normal":            "Normal",
@@ -188,7 +177,7 @@ STRINGS = {
             ("AraBERT NER", "Detects persons, organizations, addresses, dates"),
             ("XLM-RoBERTa", "Detects IDs and credentials"),
             ("Regex Engine", "Phone, email, IP, URL, financial info"),
-            ("AraBERT v2", "Classifies toxic content into 7 categories"),
+            ("AraBERT v2",   "Classifies toxic content into 7 categories"),
         ],
     },
 }
@@ -197,9 +186,9 @@ def get_css(dark):
     if dark:
         return """
         :root {
-            --bg:      #0B1426; --surface: #0F1C35; --card: #162240;
-            --white:   #1E2A45; --navy:    #EAE4D9; --ink:  #EAE4D9;
-            --muted:   #7A8BAA; --border:  rgba(255,255,255,0.07);
+            --bg: #0B1426; --surface: #0F1C35; --card: #162240;
+            --white: #1E2A45; --navy: #EAE4D9; --ink: #EAE4D9;
+            --muted: #7A8BAA; --border: rgba(255,255,255,0.07);
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--card) !important; color: var(--ink) !important; border-color: var(--border) !important; }
@@ -208,9 +197,9 @@ def get_css(dark):
     else:
         return """
         :root {
-            --bg:      #EAE4D9; --surface: #F3EDE3; --card: #F3EDE3;
-            --white:   #FDFAF5; --navy:    #0F1C35; --ink:  #1A1714;
-            --muted:   #7A7068; --border:  rgba(0,0,0,0.08);
+            --bg: #EAE4D9; --surface: #F3EDE3; --card: #F3EDE3;
+            --white: #FDFAF5; --navy: #0F1C35; --ink: #1A1714;
+            --muted: #7A7068; --border: rgba(0,0,0,0.08);
         }
         html, body, [class*="css"] { background: var(--bg) !important; color: var(--ink) !important; }
         .stTextArea textarea { background: var(--white) !important; color: var(--ink) !important; }
@@ -222,49 +211,27 @@ COMMON_CSS = """
 * { font-family: 'Plus Jakarta Sans', sans-serif !important; }
 .block-container { padding: 1.5rem 2rem 4rem; max-width: 900px; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden; display: none; }
-
 .stApp,[data-testid="stAppViewContainer"],[data-testid="stAppViewBlockContainer"],
 [data-testid="stHeader"],[data-testid="stBottomBlockContainer"],.main .block-container {
     background: var(--bg) !important; color: var(--ink) !important;
 }
-
 .ps-wordmark { font-weight: 800; font-size: 2rem; letter-spacing: -1px; line-height: 1; }
 .ps-wordmark .dark { color: var(--navy); }
 .ps-wordmark .orng { color: #E8520A; }
 .ps-slogan { font-style: italic; font-weight: 300; font-size: 0.9rem; color: var(--muted); margin-top: 3px; }
-.ps-sub { font-family: 'JetBrains Mono', monospace !important; font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.6; margin-bottom: 0.9rem; margin-top: 0.3rem; }
 .ps-rule { height: 1px; background: linear-gradient(90deg, #E8520A, #2D5BE3 45%, transparent); margin-bottom: 1.3rem; opacity: 0.2; }
 [data-testid="collapsedControl"] { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
-
 .stTextArea textarea {
     border: 1px solid var(--border) !important; border-radius: 12px !important;
     font-size: 1.05rem !important; padding: 1rem !important; line-height: 1.7 !important;
     direction: rtl; transition: border-color .2s;
 }
-.stTextArea textarea:focus {
-    border-color: var(--border) !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.stTextArea textarea:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-textarea {
-    caret-color: #E8520A !important;
-}
-[data-baseweb="textarea"] {
-    border: none !important;
-    box-shadow: none !important;
-}
-div[data-testid="stForm"] {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-}
+.stTextArea textarea:focus { border-color: var(--border) !important; box-shadow: none !important; outline: none !important; }
+.stTextArea textarea:focus-visible { outline: none !important; box-shadow: none !important; }
+textarea { caret-color: #E8520A !important; }
+[data-baseweb="textarea"] { border: none !important; box-shadow: none !important; }
+div[data-testid="stForm"] { border: none !important; background: transparent !important; padding: 0 !important; }
 div[data-testid="stButton"] button {
     background: #0F1C35 !important; color: #EAE4D9 !important;
     font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
@@ -281,115 +248,50 @@ div[data-testid="stFormSubmitButton"] button {
     font-size: .85rem !important; border: none !important; border-radius: 10px !important;
     padding: .55rem 2rem !important; letter-spacing: .04em !important;
     transition: all .2s !important; cursor: pointer !important;
-    box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important;
-    width: auto !important;
+    box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important; width: auto !important;
 }
 div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
-
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; transition: all .2s ease; }
+.card:hover { transform: translateY(-2px); }
 .card-pii  { border-top: 3px solid #E8520A; }
 .card-tox  { border-top: 3px solid #2D5BE3; }
 .card-hl   { border-top: 3px solid #6B4FBB; }
 .card-rw   { border-top: 3px solid #00C9A7; }
-.card-head { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 1rem; font-weight: 700; letter-spacing: 0; color: var(--ink); margin-bottom: .85rem; }
-
+.card-head { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: .85rem; }
 .richtext { font-size: 1rem; line-height: 2.2; padding: .85rem 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 10px; direction: rtl; text-align: right; word-break: break-word; color: var(--ink); }
 .tag-pii { display: inline-block; background: rgba(232,82,10,0.10); color: #E8520A; border: 1px solid rgba(232,82,10,0.3); border-radius: 5px; padding: 1px 6px; font-family: 'JetBrains Mono', monospace !important; font-size: .7rem; margin: 0 2px; vertical-align: middle; }
-
 .epills { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
 .epill { display: flex; align-items: center; gap: .3rem; background: rgba(232,82,10,0.07); border: 1px solid rgba(232,82,10,0.2); border-radius: 20px; padding: .2rem .7rem; font-size: .78rem; }
 .epill-lbl { color: #E8520A; font-family: 'JetBrains Mono', monospace !important; font-size: .66rem; font-weight: 700; }
 .epill-val { color: var(--ink); }
-
 .tox-name { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px; }
 .tox-conf { color: var(--muted); font-size: .86rem; margin-top: .1rem; }
 .pbar-bg { background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; margin-top: .45rem; }
 .pbar-fill { height: 100%; border-radius: 4px; }
-.ptable { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .85rem; }
-.ptable {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 8px;
-    margin-top: 1rem;
-}
-
-.ptable tr {
-    background: rgba(255,255,255,0.03);
-    border-radius: 10px;
-}
-
-.ptable td {
-    padding: .55rem .7rem;
-    border: none !important;
-    color: var(--ink);
-}
-
-.ptable td:first-child {
-    color: var(--muted);
-    font-weight: 600;
-}
-
-.ptable td:last-child {
-    text-align: left;
-    font-family: 'JetBrains Mono', monospace !important;
-}
+.ptable { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 1rem; }
+.ptable tr { background: rgba(255,255,255,0.03); border-radius: 10px; }
+.ptable td { padding: .55rem .7rem; border: none !important; color: var(--ink); }
+.ptable td:first-child { color: var(--muted); font-weight: 600; }
+.ptable td:last-child { text-align: left; font-family: 'JetBrains Mono', monospace !important; }
 .pmini { display: inline-block; height: 5px; border-radius: 3px; vertical-align: middle; margin-right: .3rem; }
-
 .badge { display: inline-block; padding: .16rem .65rem; border-radius: 20px; font-size: .68rem; font-family: 'JetBrains Mono', monospace !important; font-weight: 700; letter-spacing: .06em; }
 .b-safe { background: rgba(0,201,167,0.10); color: #00C9A7;  border: 1px solid rgba(0,201,167,0.3); }
 .b-warn { background: rgba(232,82,10,0.10); color: #E8520A;  border: 1px solid rgba(232,82,10,0.3); }
 .b-flag { background: rgba(217,48,37,0.10); color: #D93025;  border: 1px solid rgba(217,48,37,0.3); }
 .b-crit { background: rgba(107,79,187,0.10);color: #6B4FBB;  border: 1px solid rgba(107,79,187,0.3); }
-
 .hl-word { display: inline-block; border-radius: 5px; padding: 1px 6px; margin: 0 2px; font-size: 1rem; }
 .legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .74rem; color: var(--muted); margin-top: .55rem; }
 .leg-item { display: flex; align-items: center; gap: .3rem; }
 .leg-sq { width: 11px; height: 11px; border-radius: 3px; }
 .nopii { color: #00C9A7; font-family: 'JetBrains Mono', monospace !important; font-size: .82rem; padding: .3rem 0; }
-
 .rw-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1rem; font-size: 1rem; line-height: 1.8; direction: rtl; text-align: right; color: var(--ink); white-space: pre-wrap; margin-bottom: .6rem; }
 .rw-label { font-family: 'JetBrains Mono', monospace !important; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
-
-.sb-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .88rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #0F1C35; margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 2px solid rgba(15,28,53,0.15); }.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
+.sb-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: .88rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #0F1C35; margin-bottom: .6rem; padding-bottom: 6px; border-bottom: 2px solid rgba(15,28,53,0.15); }
+.sb-desc { font-size: .84rem; color: var(--ink); line-height: 1.6; margin-bottom: 0; }
 .info-panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .8rem; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
-.sb-model-name {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: .68rem;
-    font-weight: 700;
-    color: #fff;
-    background: #E8520A;
-    border-radius: 4px;
-    padding: 2px 8px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    display: inline-block;
-}
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
-.sb-ex-btn { display: block; width: 100%; text-align: right; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .78rem; color: var(--ink); cursor: pointer; margin-bottom: 5px; transition: border-color .15s; }
-.sb-ex-btn:hover { border-color: #E8520A; color: #E8520A; }
 .section-gap { margin-top: 1rem; }
-.pii-model {
-    background: rgba(232,82,10,0.15) !important;
-    border: 1px solid rgba(232,82,10,0.3);
-    color: #E8520A !important;
-}
-
-.tox-model {
-    background: #2464e0 !important;
-    border: 1px solid rgba(45,91,227,0.18);
-    color: #EAE4D9 !important;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px rgba(15,28,53,0.18);
-}
-.card {
-    backdrop-filter: blur(12px);
-    transition: all .2s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
 """
 
 def inject_css():
@@ -426,16 +328,15 @@ ARABIC_STOP_WORDS = {
 
 MODELS_DIR = Path("models")
 REGEX_PATTERNS = {
-    'PHONE': [r'\+968\s?[79]\d{7}', r'00968\s?[79]\d{7}', r'\b[79]\d{7}\b', r'\b[79]\d{3}[\s\-]\d{4}\b'],
-    'EMAIL':          [r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'],
-    'IP':             [r'\b(?:\d{1,3}\.){3}\d{1,3}\b'],
-    'MAC':            [r'\b([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}\b'],
-    'URL':            [r'https?://[^\s<>"]+', r'www\.[^\s<>"]+'],
-    'FINANCIAL_INFO': [r'\b4\d{3}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b', r'\bOM\d{2}[A-Z]{3}\d{16}\b'],
+    'PHONE':        [r'\+968\s?[79]\d{7}', r'00968\s?[79]\d{7}', r'\b[79]\d{7}\b', r'\b[79]\d{3}[\s\-]\d{4}\b'],
+    'EMAIL':        [r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'],
+    'IP':           [r'\b(?:\d{1,3}\.){3}\d{1,3}\b'],
+    'MAC':          [r'\b([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}\b'],
+    'URL':          [r'https?://[^\s<>"]+', r'www\.[^\s<>"]+'],
+    'FINANCIAL_INFO':[r'\b4\d{3}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b', r'\bOM\d{2}[A-Z]{3}\d{16}\b'],
 }
 
 LATIN_OR_DIGIT = re.compile(r'[a-zA-Z0-9]')
-
 HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
 
 @st.cache_resource(show_spinner="جارٍ تحميل النماذج…")
@@ -500,17 +401,14 @@ def clean_arabic(text):
         text = re.sub(a, b, text)
     text = re.sub(r'[^\u0600-\u06FF\s]', '', text)
     return re.sub(r'\s+', ' ', text).strip()
-    
+
 def is_mostly_english(text, threshold=0.7):
     english_chars = re.findall(r'[A-Za-z]', text)
-    arabic_chars = re.findall(r'[\u0600-\u06FF]', text)
-
+    arabic_chars  = re.findall(r'[\u0600-\u06FF]', text)
     total = len(english_chars) + len(arabic_chars)
-
-    if total == 0:
-        return False
-
+    if total == 0: return False
     return (len(english_chars) / total) > threshold
+
 def regex_detect(text):
     found = []
     for pii_type, patterns in REGEX_PATTERNS.items():
@@ -523,31 +421,16 @@ def regex_detect(text):
         if it['char_start'] >= last_end:
             filtered.append(it); last_end = it['char_end']
     return filtered
-    
-def is_valid_id_or_credential(value: str) -> bool:
-    """
-    Returns True only if the value could plausibly be an ID or credential.
-    Rejects pure Arabic strings, single characters, and empty values.
-    """
-    if not value or len(value.strip()) < 2:
-        return False
-    # Must contain at least one Latin letter or digit
-    if not LATIN_OR_DIGIT.search(value):
-        return False
-    return True
 
-def filter_invalid_entities(entities: list) -> list:
-    """
-    Post-processing filter applied after all three components have run.
-    Removes ID and CREDENTIAL detections that are provably wrong.
-    """
+def is_valid_id_or_credential(value):
+    if not value or len(value.strip()) < 2: return False
+    return bool(LATIN_OR_DIGIT.search(value))
+
+def filter_invalid_entities(entities):
     filtered = []
     for e in entities:
         if e['type'] in ('ID', 'CREDENTIAL'):
-            if not is_valid_id_or_credential(e['value']):
-                # Log for debugging if needed
-                # print(f"[FILTER] Rejected {e['type']}: '{e['value']}'")
-                continue
+            if not is_valid_id_or_credential(e['value']): continue
         filtered.append(e)
     return filtered
 
@@ -565,7 +448,8 @@ def _token_overlaps_regex(ts, te, tok_char, regex_spans):
 def _predict_ner(text, tokenizer, model, id2tag):
     tokens = text.split()
     if not tokens: return []
-    inputs = tokenizer(tokens, is_split_into_words=True, return_tensors="pt", truncation=True, padding=True, max_length=256)
+    inputs = tokenizer(tokens, is_split_into_words=True, return_tensors="pt",
+                       truncation=True, padding=True, max_length=256)
     with torch.no_grad():
         preds = torch.argmax(model(**inputs).logits, dim=2)[0].tolist()
     word_ids = inputs.word_ids(0)
@@ -589,7 +473,7 @@ def _predict_ner(text, tokenizer, model, id2tag):
 
 def hybrid_detect(text, ar_tok, ar_mdl, ar_id2tag, xl_tok, xl_mdl, xl_id2tag):
     tokens = text.split(); all_ents = []
-    regex_hits = regex_detect(text)
+    regex_hits  = regex_detect(text)
     regex_spans = [(e["char_start"], e["char_end"]) for e in regex_hits]
     all_ents.extend(regex_hits)
     tok_char = _token_char_ranges(tokens)
@@ -603,22 +487,20 @@ def hybrid_detect(text, ar_tok, ar_mdl, ar_id2tag, xl_tok, xl_mdl, xl_id2tag):
             if e["type"] not in XLMR_CATEGORIES: continue
             if _token_overlaps_regex(e["token_start"], e["token_end"], tok_char, regex_spans): continue
             e["source"] = "xlmr"; all_ents.append(e)
-            
-    # Apply post-filter before returning
     all_ents = filter_invalid_entities(all_ents)
     return all_ents
 
 def predict_toxicity_with_attention(text, tokenizer, model):
     processed = clean_arabic(text)
     if not processed: return None
-    enc = tokenizer(processed, max_length=128, padding="max_length", truncation=True, return_tensors="pt")
-    ids = enc["input_ids"]; mask = enc["attention_mask"]
+    enc  = tokenizer(processed, max_length=128, padding="max_length", truncation=True, return_tensors="pt")
+    ids  = enc["input_ids"]; mask = enc["attention_mask"]
     tids = enc.get("token_type_ids", torch.zeros_like(ids))
     with torch.no_grad():
-        out = model(ids, attention_mask=mask, token_type_ids=tids, output_attentions=True)
+        out   = model(ids, attention_mask=mask, token_type_ids=tids, output_attentions=True)
         probs = F.softmax(out.logits, dim=1).squeeze().cpu().numpy()
-    attn = torch.stack(out.attentions)[:, 0, :, 0, :].mean(dim=(0,1)).cpu().numpy()
-    tokens = tokenizer.convert_ids_to_tokens(ids.squeeze().cpu().numpy())
+    attn       = torch.stack(out.attentions)[:, 0, :, 0, :].mean(dim=(0,1)).cpu().numpy()
+    tokens     = tokenizer.convert_ids_to_tokens(ids.squeeze().cpu().numpy())
     actual_len = mask.sum().item()
     tokens, attn = tokens[:actual_len], attn[:actual_len]
     words, scores, cur_w, cur_s = [], [], "", []
@@ -631,14 +513,14 @@ def predict_toxicity_with_attention(text, tokenizer, model):
             cur_w, cur_s = tok.replace("+",""), [sc]
     if cur_w: words.append(cur_w); scores.append(float(max(cur_s)))
     scores_arr = np.array(scores, dtype=float)
-    filtered = np.array([0.0 if w in ARABIC_STOP_WORDS else s for w, s in zip(words, scores_arr)])
-    is_stop = [w in ARABIC_STOP_WORDS for w in words]
+    filtered   = np.array([0.0 if w in ARABIC_STOP_WORDS else s for w, s in zip(words, scores_arr)])
+    is_stop    = [w in ARABIC_STOP_WORDS for w in words]
     if filtered.max() > 0: filtered /= filtered.max()
     pred_idx = int(np.argmax(probs))
     return {
         "prediction": TOX_IDX2LABEL[pred_idx],
         "confidence": float(probs[pred_idx]),
-        "all_probs": {TOX_IDX2LABEL[i]: float(p) for i, p in enumerate(probs)},
+        "all_probs":  {TOX_IDX2LABEL[i]: float(p) for i, p in enumerate(probs)},
         "words": words, "scores": filtered.tolist(), "is_stop": is_stop,
     }
 
@@ -704,6 +586,7 @@ def call_rewrite(original, masked, tox_label):
         return resp.json().get("rewritten", "") if resp.ok else None
     except: return None
 
+# ─── LOAD MODELS ────────────────────────────────────────────
 with st.spinner("جارٍ تحميل النماذج…"):
     ar_tok, ar_mdl, ar_id2tag = load_arabert()
     xl_tok, xl_mdl, xl_id2tag = load_xlmr()
@@ -714,19 +597,19 @@ xl_ok = xl_mdl is not None
 tx_ok = tx_mdl is not None
 
 inject_css()
-T = STRINGS[st.session_state.language]
+T         = STRINGS[st.session_state.language]
 models_ok = [ar_ok, xl_ok, True, tx_ok]
 
-inject_css()
-
-# ─── TOP BAR ───────────────────────────────────────────────
+# ─── TOP BAR ────────────────────────────────────────────────
 top_left, top_right = st.columns([6, 4])
 with top_left:
     logo_path = Path("assets/logo.png")
     if logo_path.exists():
         lc1, lc2 = st.columns([1, 10])
         with lc1:
-            st.markdown(f'<img src="data:image/png;base64,{__import__("base64").b64encode(open(str(logo_path),"rb").read()).decode()}" style="width:52px;height:52px;object-fit:contain;border-radius:10px;" />', unsafe_allow_html=True)
+            import base64
+            logo_b64 = base64.b64encode(open(str(logo_path), "rb").read()).decode()
+            st.markdown(f'<img src="data:image/png;base64,{logo_b64}" style="width:52px;height:52px;object-fit:contain;border-radius:10px;" />', unsafe_allow_html=True)
         with lc2:
             st.markdown(f'<div class="ps-wordmark" style="padding-top:6px"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
     else:
@@ -743,59 +626,31 @@ with top_right:
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
             st.rerun()
     with rc3:
-        if st.button("📖", use_container_width=True):
+        if st.button("📖 دليل", key="btn_guide", use_container_width=True):
             st.session_state.page = "guide"
             st.rerun()
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 
-# ─── MAIN 2-COLUMN LAYOUT ──────────────────────────────────
+# ─── MAIN 2-COLUMN LAYOUT ───────────────────────────────────
 col_info, col_main = st.columns([3, 7], gap="large")
 
-# ── LEFT: Info panel ──────────────────────────────────────
 with col_info:
     # About
     st.markdown(f'''
 <div class="info-panel">
   <div class="sb-title">{T["sidebar_about"]}</div>
   <div class="sb-desc">{T["sidebar_desc"]}</div>
-</div>
-''', unsafe_allow_html=True)
+</div>''', unsafe_allow_html=True)
 
-    # Models
-    
-    
-    st.markdown(
-        f'''
-        <div class="sb-title" style="margin-top:1rem">
-            {T["sidebar_models"]}
-        </div>
-        ''',
-        unsafe_allow_html=True
-    )
-    
+    # Models — solid color badges matching guide exactly
+    st.markdown(f'<div class="sb-title" style="margin-top:1rem">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
     models_html = '<div class="info-panel">'
-    
     for (name, desc), ok in zip(T["models_info"], models_ok):
-    
         dot = "🟢" if ok else "🔴"
-    
-        model_class = "tox-model" if "AraBERT v2" in name else "pii-model"
-    
-        models_html += f"""
-<div class="sb-model">
-<span class="sb-model-name {model_class}">
-    {name}
-</span>
-
-<span class="sb-model-desc">
-    {dot} {desc}
-</span>
-</div>
-        """
-    
+        bg  = "#2D5BE3" if "AraBERT v2" in name else "#E8520A"
+        models_html += f'<div class="sb-model"><span style="font-family:JetBrains Mono,monospace;font-size:.68rem;font-weight:700;color:#fff;background:{bg};border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0;display:inline-block;">{name}</span><span class="sb-model-desc">{dot} {desc}</span></div>'
     models_html += "</div>"
-    
     st.markdown(models_html, unsafe_allow_html=True)
 
     # Examples
@@ -808,51 +663,44 @@ with col_info:
             st.session_state.rewritten    = None
             st.rerun()
 
-# ── RIGHT: Scanner ─────────────────────────────────────────
 with col_main:
     prompt = st.text_area(
-    "prompt_input",
-    value=st.session_state.prompt_value,
-    height=130,
-    placeholder=T["placeholder"],
-    label_visibility="collapsed",
-    key=f"prompt_{st.session_state.prompt_reset}"
-)
+        "prompt_input",
+        value=st.session_state.prompt_value,
+        height=130,
+        placeholder=T["placeholder"],
+        label_visibility="collapsed",
+        key=f"prompt_{st.session_state.prompt_reset}"
+    )
 
-    # Enter key triggers scan via form
     with st.form(key="scan_form", clear_on_submit=False):
         scan_clicked = st.form_submit_button(T["btn_scan"])
 
-    # ── SCAN ─────────────────────────────────────────────
     if scan_clicked and prompt.strip():
         if is_mostly_english(prompt):
-            st.error("⚠️ Prompt must be written in Arabic.")
+            st.error("⚠️ يُرجى كتابة النص بالعربية فقط." if st.session_state.language == "ar" else "⚠️ Prompt must be written in Arabic.")
             st.stop()
-
         with st.spinner(T["scanning"]):
-            t0 = time.time()
-            res = run_scan(prompt.strip(), ar_tok, ar_mdl, ar_id2tag,
-                           xl_tok, xl_mdl, xl_id2tag, tx_tok, tx_mdl)
+            t0      = time.time()
+            res     = run_scan(prompt.strip(), ar_tok, ar_mdl, ar_id2tag, xl_tok, xl_mdl, xl_id2tag, tx_tok, tx_mdl)
             elapsed = round(time.time() - t0, 2)
         st.session_state.scan_result = {"res": res, "prompt": prompt.strip(), "elapsed": elapsed}
-        st.session_state.rewritten = None
+        st.session_state.rewritten   = None
     elif scan_clicked and not prompt.strip():
         st.warning(T["warn_empty"])
 
-    # ── RESULTS ──────────────────────────────────────────
     if st.session_state.scan_result:
-        # Clear button only appears after scan
         if st.button(T["btn_clear"], key="btn_clear"):
             st.session_state.scan_result = None
-            st.session_state.rewritten = None
+            st.session_state.rewritten   = None
             st.session_state.prompt_reset += 1
             st.rerun()
 
-        sr = st.session_state.scan_result
-        res = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
+        sr       = st.session_state.scan_result
+        res      = sr["res"]; prompt_ = sr["prompt"]; elapsed = sr["elapsed"]
         pii_ents = res.get("pii", []); tox_res = res.get("tox")
 
-        st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;direction:rtl;text-align:right;">{T["scanned_in"]} <bdi>{elapsed} sec</bdi></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;direction:rtl;text-align:right;">{T["scanned_in"]} <bdi>{elapsed}s</bdi></div>', unsafe_allow_html=True)
 
         r_left, r_right = st.columns(2, gap="medium")
 
@@ -869,7 +717,7 @@ with col_main:
                 st.markdown('</div>', unsafe_allow_html=True)
                 src_counts = Counter(e.get("source","?") for e in pii_ents)
                 src_labels = {"regex":"Regex","arabert":"AraBERT","xlmr":"XLM-RoBERTa"}
-                src_html = " · ".join(f'<span style="color:var(--muted);font-size:.74rem;">{src_labels.get(k,k)}: <span style="color:var(--ink);">{v}</span></span>' for k, v in src_counts.items())
+                src_html   = " · ".join(f'<span style="color:var(--muted);font-size:.74rem;">{src_labels.get(k,k)}: <span style="color:var(--ink);">{v}</span></span>' for k, v in src_counts.items())
                 st.markdown(f'<div style="margin-top:.6rem;">{src_html}</div>', unsafe_allow_html=True)
             else:
                 st.markdown(f'<div class="nopii">{T["no_pii"]}</div>', unsafe_allow_html=True)
@@ -878,36 +726,37 @@ with col_main:
         with r_right:
             st.markdown(f'<div class="card card-tox"><div class="card-head">{T["tox_head"]}</div>', unsafe_allow_html=True)
             if tox_res:
-                label = tox_res["prediction"]; conf = tox_res["confidence"]
-                probs = tox_res["all_probs"]; color = TOX_COLOR.get(label, "#00C9A7")
+                label  = tox_res["prediction"]; conf  = tox_res["confidence"]
+                probs  = tox_res["all_probs"];  color = TOX_COLOR.get(label, "#00C9A7")
                 ar_lbl = T["tox_labels"].get(label, label)
                 st.markdown(f'''
 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
   <div><div class="tox-name" style="color:{color};">{ar_lbl}</div>
-       <div class="tox-conf">‎<span dir="ltr">%{conf*100:.1f}  </span>{T["confidence"]}    </div></div>
+       <div class="tox-conf"><span dir="ltr">{conf*100:.1f}%</span> {T["confidence"]}</div></div>
   <div style="margin-top:.2rem;">{tox_badge(label, T)}</div>
 </div>
 <div class="pbar-bg"><div class="pbar-fill" style="width:{conf*100:.1f}%;background:{color};"></div></div>
 ''', unsafe_allow_html=True)
                 rows = ""
                 for lbl, p in sorted(probs.items(), key=lambda x: -x[1]):
-                    w = max(2, int(p * 110)); c2 = TOX_COLOR.get(lbl, "#7A7068")
-                    ar = T["tox_labels"].get(lbl, lbl)
-                    rows += f'<tr><td>{ar}</td><td><span class="pmini" style="width:{w}px;background:{c2};"></span>{p*100:.1f}%</td></tr>'
+                    w   = max(2, int(p * 110)); c2 = TOX_COLOR.get(lbl, "#7A7068")
+                    ar  = T["tox_labels"].get(lbl, lbl)
+                    rows += f'<tr><td>{ar}</td><td><span class="pmini" style="width:{w}px;background:{c2};"></span><span dir="ltr">{p*100:.1f}%</span></td></tr>'
                 st.markdown(f'<table class="ptable">{rows}</table>', unsafe_allow_html=True)
             else:
-                st.markdown(f'''<div style="color:var(--muted);font-size:.74rem;font-family:JetBrains Mono,monospace;margin:.8rem 0 .4rem;direction:rtl;text-align:right;">{T["scanned_in"]}<span dir="ltr">{elapsed} s</span></div>''',unsafe_allow_html=True)
+                st.markdown(f'<div style="color:var(--muted);font-size:.84rem;">{T["tox_unavail"]}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
         if tox_res and tox_res.get("words"):
-            label = tox_res["prediction"]; color = TOX_COLOR.get(label, "#00C9A7")
-            hl_html = build_highlight_html(tox_res["words"], tox_res["scores"], tox_res["is_stop"], color)
+            label     = tox_res["prediction"]; color = TOX_COLOR.get(label, "#00C9A7")
+            hl_html   = build_highlight_html(tox_res["words"], tox_res["scores"], tox_res["is_stop"], color)
             key_words = sorted([(w,s) for w,s,stop in zip(tox_res["words"],tox_res["scores"],tox_res["is_stop"]) if not stop and s>0.4], key=lambda x:-x[1])[:3]
-            key_str = " · ".join(f'<span style="color:{color};font-weight:700;">{w}</span> <span style="color:var(--muted);font-size:.74rem;">({s:.2f})</span>' for w,s in key_words) if key_words else "—"
+            key_str   = " · ".join(f'<span style="color:{color};font-weight:700;">{w}</span> <span style="color:var(--muted);font-size:.74rem;">({s:.2f})</span>' for w,s in key_words) if key_words else "—"
+            desc_text = "يوضح المخطط تأثير الكلمات في التصنيف، بحيث تظهر الكلمات الأكثر تأثيراً بلون داكن." if st.session_state.language == "ar" else "This map highlights words that influenced the toxicity classification. Darker = more influential."
             st.markdown(f'''
 <div class="card card-hl section-gap">
   <div class="card-head">{T["hl_head"]}</div>
-  <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;">{"يوضح المخطط تأثير الكلمات في التصنيف الذي حصلت عليه، بحيث تظهر الكلمات الأكثر تأثيرا بلون داكن " if st.session_state.language == "ar" else "This map highlights the words that influenced the toxicity classification. Words with higher attention scores appear darker and more saturated."}</div>
+  <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;">{desc_text}</div>
   <div class="richtext" style="margin-bottom:.7rem;">{hl_html}</div>
   <div style="font-size:.78rem;color:var(--muted);margin-bottom:.45rem;">{T["top_words"]}: {key_str}</div>
   <div class="legend">
@@ -916,8 +765,7 @@ with col_main:
     <div class="leg-item"><div class="leg-sq" style="background:{color};opacity:.2;"></div><span>{T["low_attn"]}</span></div>
     <div class="leg-item"><div class="leg-sq" style="background:rgba(0,0,0,0.06);"></div><span>{T["stop_word"]}</span></div>
   </div>
-</div>
-''', unsafe_allow_html=True)
+</div>''', unsafe_allow_html=True)
 
         if tox_res and tox_res["prediction"] != "Normal":
             st.markdown(f'<div class="card card-rw section-gap"><div class="card-head">{T["rewrite_head"]}</div>', unsafe_allow_html=True)
@@ -948,8 +796,8 @@ with col_main:
                         st.error(T["rewrite_fail"])
             st.markdown('</div>', unsafe_allow_html=True)
 
-# ─── FOOTER ────────────────────────────────────────────────
-st.markdown(f'''
+# ─── FOOTER ─────────────────────────────────────────────────
+st.markdown('''
 <div style="margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);
             display:flex;justify-content:space-between;align-items:center;
             font-size:.72rem;color:var(--muted);">
