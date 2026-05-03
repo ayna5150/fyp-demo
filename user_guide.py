@@ -84,8 +84,8 @@ section[data-testid="stSidebar"] { display: none !important; }
 .guide-card-navy   { border-top: 3px solid #0F1C35; }
 
 /* ── STEP ROWS ── */
-.step-wrap { display: flex; flex-direction: row-reverse; gap: 0; margin-bottom: 0; direction: rtl; }
-.step-left { display: flex; flex-direction: column; align-items: center; width: 44px; flex-shrink: 0; }
+.step-wrap { display: flex; flex-direction: row; gap: 0; margin-bottom: 0; direction: rtl; }
+.step-left { display: flex; flex-direction: column; align-items: center; width: 44px; flex-shrink: 0; margin-right: 0; margin-left: 10px; }
 .step-num {
     width: 30px; height: 30px; border-radius: 50%;
     background: var(--navy); color: #EAE4D9;
@@ -197,13 +197,19 @@ section[data-testid="stSidebar"] { display: none !important; }
 
 /* ── BUTTONS ── */
 div[data-testid="stButton"] button {
-    background: #0F1C35 !important; color: #EAE4D9 !important;
-    font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 700 !important;
     font-size: .82rem !important; border: none !important; border-radius: 10px !important;
     padding: .5rem 1.4rem !important; transition: all .2s !important;
     cursor: pointer !important; white-space: nowrap !important;
 }
 div[data-testid="stButton"] button:hover { opacity: 0.85 !important; }
+div[data-testid="stButton"] button[kind="primary"] {
+    background: #E8520A !important; color: #fff !important;
+}
+div[data-testid="stButton"] button[kind="secondary"] {
+    background: var(--card) !important; color: var(--muted) !important;
+    box-shadow: none !important; border: 1px solid var(--border) !important;
+}
 
 /* ── HIGHLIGHT WORDS ── */
 .hl-h { display:inline-block;border-radius:4px;padding:2px 6px;margin:1px;font-size:.8rem;background:rgba(217,48,37,0.75);color:#fff;font-weight:700; }
@@ -258,13 +264,13 @@ def step_item(num, label, desc, last=False):
     line = "" if last else '<div class="step-line"></div>'
     st.markdown(f"""
 <div class="step-wrap">
-  <div class="step-left">
-    <div class="step-num">{num}</div>
-    {line}
-  </div>
   <div class="step-body">
     <div class="step-label">{label}</div>
     <div class="step-desc">{desc}</div>
+  </div>
+  <div class="step-left">
+    <div class="step-num">{num}</div>
+    {line}
   </div>
 </div>""", unsafe_allow_html=True)
 
@@ -280,12 +286,17 @@ def tip(text, warn=False):
 
 
 def flow(*nodes):
+    # Reverse order for RTL — rightmost node first visually
+    reversed_nodes = list(reversed(nodes))
     parts = []
-    for i, (label, cls) in enumerate(nodes):
+    for i, (label, cls) in enumerate(reversed_nodes):
         parts.append(f'<div class="flow-node {cls}">{label}</div>')
-        if i < len(nodes) - 1:
-            parts.append('<div class="flow-arr">→</div>')
-    st.markdown(f'<div class="flow">{"".join(parts)}</div>', unsafe_allow_html=True)
+        if i < len(reversed_nodes) - 1:
+            parts.append('<div class="flow-arr">←</div>')
+    st.markdown(
+        f'<div class="flow" style="direction:rtl;">{"".join(parts)}</div>',
+        unsafe_allow_html=True
+    )
 
 
 def ann_panel(items):
@@ -787,35 +798,36 @@ def render_user_guide():
 
     logo_b64 = img_b64("assets/logo.png")
 
-    # ── Top controls ─────────────────────────────────────────
-    c1, c2, c3 = st.columns([6, 1, 1])
+    # ── Top controls — only dark mode toggle ─────────────────
+    c1, c2 = st.columns([7, 1])
     with c2:
         if st.button("🌙" if not dark else "☀️", key="guide_dark_toggle"):
             st.session_state.guide_dark = not dark
-            st.rerun()
-    with c3:
-        active_tab = st.session_state.get("guide_tab", "website")
-        tab_label  = "الإضافة" if active_tab == "website" else "الموقع"
-        if st.button(tab_label, key="guide_tab_toggle"):
-            st.session_state.guide_tab = "extension" if active_tab == "website" else "website"
             st.rerun()
 
     # ── Hero header ───────────────────────────────────────────
     hero(logo_b64)
 
-    # ── Tab indicator ─────────────────────────────────────────
+    # ── Tab buttons — part of page layout ────────────────────
     active_tab = st.session_state.get("guide_tab", "website")
-    t1_style = "background:#E8520A;color:#fff;" if active_tab == "website" else "background:var(--card);color:var(--muted);"
-    t2_style = "background:#E8520A;color:#fff;" if active_tab == "extension" else "background:var(--card);color:var(--muted);"
-    st.markdown(f"""
-<div style="display:flex;gap:8px;direction:rtl;margin-bottom:8px;">
-  <div style="{t1_style}border-radius:8px;padding:7px 18px;font-weight:700;font-size:0.84rem;cursor:pointer;">
-    الجزء الأول — الموقع الإلكتروني
-  </div>
-  <div style="{t2_style}border-radius:8px;padding:7px 18px;font-weight:700;font-size:0.84rem;cursor:pointer;">
-    الجزء الثاني — إضافة المتصفح
-  </div>
-</div>""", unsafe_allow_html=True)
+    t1_style = "background:#E8520A;color:#fff;cursor:pointer;" if active_tab == "website" else "background:var(--card);color:var(--muted);cursor:pointer;"
+    t2_style = "background:#E8520A;color:#fff;cursor:pointer;" if active_tab == "extension" else "background:var(--card);color:var(--muted);cursor:pointer;"
+    
+    tb1, tb2, tb3 = st.columns([2, 2, 4])
+    with tb1:
+        if st.button("الجزء الأول — الموقع الإلكتروني", key="tab_website",
+                     type="primary" if active_tab == "website" else "secondary",
+                     use_container_width=True):
+            st.session_state.guide_tab = "website"
+            st.rerun()
+    with tb2:
+        if st.button("الجزء الثاني — إضافة المتصفح", key="tab_extension",
+                     type="primary" if active_tab == "extension" else "secondary",
+                     use_container_width=True):
+            st.session_state.guide_tab = "extension"
+            st.rerun()
+
+    st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
 
     # ── Render tab ────────────────────────────────────────────
     if active_tab == "website":
