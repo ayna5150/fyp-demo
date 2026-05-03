@@ -619,7 +619,7 @@ with top_left:
         st.markdown(f'<div class="ps-wordmark"><span class="dark">Prompt</span><span class="orng">Scanner</span></div><div class="ps-slogan">{T["tagline"]}</div>', unsafe_allow_html=True)
 
 with top_right:
-    bc1, bc2, bc3 = st.columns(3)
+    bc1, bc2 = st.columns(2)
     with bc1:
         if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_dark", use_container_width=True):
             st.session_state.dark_mode = not st.session_state.dark_mode
@@ -627,10 +627,6 @@ with top_right:
     with bc2:
         if st.button(T["lang_toggle"], key="toggle_lang", use_container_width=True):
             st.session_state.language = "en" if st.session_state.language == "ar" else "ar"
-            st.rerun()
-    with bc3:
-        if st.button("📖", key="btn_guide", use_container_width=True):
-            st.session_state.page = "guide"
             st.rerun()
 
 st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
@@ -798,6 +794,11 @@ with col_main:
                     else:
                         st.error(T["rewrite_fail"])
             st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+if st.button("📖 " + ("دليل المستخدم" if st.session_state.language == "ar" else "User Guide"), key="btn_guide"):
+    st.session_state.page = "guide"
+    st.rerun()
 
 # ─── FOOTER ─────────────────────────────────────────────────
 st.markdown('''
