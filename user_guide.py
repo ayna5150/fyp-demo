@@ -853,7 +853,11 @@ def render_user_guide():
     L          = T[lang]
 
     # ── Top bar: language toggle only ────────────────────────
-    c_space, c_lang = st.columns([8, 1])
+    c_back, c_space, c_lang = st.columns([2, 6, 1])
+    with c_back:
+        if st.button("← رجوع" if lang == "ar" else "← Back", key="guide_back", use_container_width=True):
+            st.session_state.page = "scanner"
+            st.rerun()
     with c_lang:
         if st.button(L["lang_btn"], key="guide_lang_toggle", use_container_width=True):
             st.session_state.guide_lang = "en" if lang == "ar" else "ar"
