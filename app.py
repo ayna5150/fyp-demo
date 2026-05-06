@@ -29,7 +29,7 @@ if "page" not in st.session_state:
     st.session_state.page = "scanner"
 
 if st.session_state.page == "guide":
-    from user_guide import render_user_guide
+    from userguide import render_user_guide
     render_user_guide()
     st.stop()
 
@@ -275,6 +275,27 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
+/* File uploader expander — blends with card style */
+div[data-testid="stExpander"] {
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    margin-bottom: .6rem !important;
+}
+div[data-testid="stExpander"] summary {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: .78rem !important;
+    font-weight: 700 !important;
+    color: var(--muted) !important;
+    padding: .6rem 1rem !important;
+}
+div[data-testid="stExpander"] summary:hover { color: var(--navy) !important; }
+div[data-testid="stFileUploader"] {
+    background: var(--white) !important;
+    border: 1.5px dashed var(--border) !important;
+    border-radius: 10px !important;
+}
+div[data-testid="stFileUploader"] label { display: none !important; }
 """
 
 def inject_css():
@@ -654,6 +675,39 @@ with col_info:
             st.rerun()
 
 with col_main:
+    # ── File upload (hidden until expanded) ──────────────────
+    with st.expander("📎 " + ("رفع ملف PDF أو Word" if st.session_state.language == "ar" else "Upload PDF or Word file"), expanded=False):
+        uploaded_file = st.file_uploader(
+            "upload",
+            type=["pdf", "docx"],
+            label_visibility="collapsed",
+            key="file_uploader"
+        )
+        if uploaded_file is not None:
+            try:
+                if uploaded_file.name.endswith(".pdf"):
+                    import pdfplumber
+                    with pdfplumber.open(uploaded_file) as pdf:
+                        extracted = "\n".join(p.extract_text() or "" for p in pdf.pages)
+                elif uploaded_file.name.endswith(".docx"):
+                    import docx
+                    doc = docx.Document(uploaded_file)
+                    extracted = "\n".join(p.text for p in doc.paragraphs)
+                extracted = extracted.strip()
+                if extracted:
+                    if st.button("📥 " + ("تحميل النص في حقل الفحص" if st.session_state.language == "ar" else "Load text into scanner"), key="load_file_text"):
+                        st.session_state.prompt_value = extracted[:3000]  # cap at 3000 chars
+                        st.session_state.prompt_reset += 1
+                        st.session_state.scan_result  = None
+                        st.session_state.rewritten    = None
+                        st.rerun()
+                    char_count = len(extracted)
+                    st.markdown(f'<div style="font-size:.75rem;color:var(--muted);direction:rtl;text-align:right;margin-top:4px;">✓ {uploaded_file.name} — {char_count:,} {"حرف" if st.session_state.language == "ar" else "chars"}{" (سيتم أخذ أول 3000 حرف)" if char_count > 3000 and st.session_state.language == "ar" else " (first 3000 chars)" if char_count > 3000 else ""}</div>', unsafe_allow_html=True)
+                else:
+                    st.warning("⚠️ " + ("لم يتم استخراج أي نص من الملف." if st.session_state.language == "ar" else "No text could be extracted from this file."))
+            except Exception as e:
+                st.error("⚠️ " + ("خطأ في قراءة الملف." if st.session_state.language == "ar" else "Error reading file."))
+
     prompt = st.text_area(
         "prompt_input",
         value=st.session_state.prompt_value,
