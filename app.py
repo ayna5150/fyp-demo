@@ -275,7 +275,7 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
-/* File uploader expander — blends with card style */
+/* File uploader expander */
 div[data-testid="stExpander"] {
     background: var(--card) !important;
     border: 1px solid var(--border) !important;
@@ -283,23 +283,17 @@ div[data-testid="stExpander"] {
     margin-bottom: .6rem !important;
     overflow: hidden !important;
 }
-details > summary {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: .78rem !important;
-    font-weight: 700 !important;
-    color: var(--muted) !important;
-    list-style: none !important;
-}
-details > summary::-webkit-details-marker { display: none !important; }
-details > summary::marker { display: none !important; }
-div[data-testid="stExpander"] > details > summary:hover { color: var(--navy) !important; }
-div[data-testid="stFileUploader"] {
-    background: var(--white) !important;
-    border: 1.5px dashed var(--border) !important;
-    border-radius: 10px !important;
-}
+/* Hide the ugly arrow_down text - it's a span inside summary */
+div[data-testid="stExpander"] summary span[data-testid="stExpanderToggleIcon"] { display: none !important; }
+div[data-testid="stExpander"] summary p { font-family: 'JetBrains Mono', monospace !important; font-size: .78rem !important; font-weight: 700 !important; color: var(--muted) !important; }
+/* File uploader widget */
+div[data-testid="stFileUploader"] section { background: var(--white) !important; border: 1.5px dashed var(--border) !important; border-radius: 10px !important; }
+/* Hide "upload" button label text and keep only the button */
+div[data-testid="stFileUploaderDropzoneInstructions"] { display: none !important; }
 div[data-testid="stFileUploader"] label { display: none !important; }
 div[data-testid="stFileUploader"] small { display: none !important; }
+/* Style the upload button itself */
+div[data-testid="stFileUploader"] button { font-size: .78rem !important; padding: .4rem 1rem !important; }
 """
 
 def inject_css():
