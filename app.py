@@ -686,27 +686,63 @@ with col_main:
         if uploaded_file is not None:
             try:
                 if uploaded_file.name.endswith(".pdf"):
-                    import pdfplumber
+                    try:
+                        import pdfplumber
+                    except ImportError:
+                        st.error("⚠️ pdfplumber غير مثبت — أضفه إلى requirements.txt")
+                        st.stop()
+
+                    def fix_arabic_line(line):
+                        """Reverse word order for RTL Arabic lines extracted LTR."""
+                        words = line.split()
+                        if not words: return line
+                        arabic = sum(1 for c in line if '\u0600' <= c <= '\u06FF')
+                        if arabic / max(len(line),1) > 0.3:
+                            return " ".join(reversed(words))
+                        return line
+
                     with pdfplumber.open(uploaded_file) as pdf:
-                        extracted = "\n".join(p.extract_text() or "" for p in pdf.pages)
+                        pages_text = []
+                        for p in pdf.pages:
+                            txt = p.extract_text() or ""
+                            if txt.strip():
+                                fixed = "\n".join(fix_arabic_line(l) for l in txt.splitlines())
+                                pages_text.append(fixed.strip())
+                        extracted = "\n\n".join(pages_text)
                 elif uploaded_file.name.endswith(".docx"):
-                    import docx
+                    try:
+                        import docx
+                    except ImportError:
+                        st.error("⚠️ python-docx غير مثبت — أضفه إلى requirements.txt")
+                        st.stop()
                     doc = docx.Document(uploaded_file)
                     extracted = "\n".join(p.text for p in doc.paragraphs)
                 extracted = extracted.strip()
                 if extracted:
-                    if st.button("📥 " + ("تحميل النص في حقل الفحص" if st.session_state.language == "ar" else "Load text into scanner"), key="load_file_text"):
-                        st.session_state.prompt_value = extracted[:3000]  # cap at 3000 chars
-                        st.session_state.prompt_reset += 1
-                        st.session_state.scan_result  = None
-                        st.session_state.rewritten    = None
-                        st.rerun()
-                    char_count = len(extracted)
-                    st.markdown(f'<div style="font-size:.75rem;color:var(--muted);direction:rtl;text-align:right;margin-top:4px;">✓ {uploaded_file.name} — {char_count:,} {"حرف" if st.session_state.language == "ar" else "chars"}{" (سيتم أخذ أول 3000 حرف)" if char_count > 3000 and st.session_state.language == "ar" else " (first 3000 chars)" if char_count > 3000 else ""}</div>', unsafe_allow_html=True)
+                    # Check if Arabic is actually present
+                    arabic_chars = len(re.findall(r'[\u0600-\u06FF]', extracted))
+                    total_chars  = len([c for c in extracted if c.strip()])
+                    arabic_ratio = arabic_chars / total_chars if total_chars else 0
+
+                    # Show preview
+                    preview = extracted[:300] + ("…" if len(extracted) > 300 else "")
+                    st.markdown(f'<div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85rem;direction:rtl;text-align:right;line-height:1.8;color:var(--ink);margin:8px 0;">{preview}</div>', unsafe_allow_html=True)
+
+                    if arabic_ratio < 0.3:
+                        st.warning("⚠️ النص المستخرج قد يحتوي على مشاكل في الترميز. إذا بدا النص غير مقروء، فالملف يستخدم خطاً غير قياسي ولا يمكن استخراجه.")
+                    else:
+                        if st.button("📥 " + ("تحميل النص في حقل الفحص" if st.session_state.language == "ar" else "Load text into scanner"), key="load_file_text"):
+                            st.session_state.prompt_value = extracted[:3000]
+                            st.session_state.prompt_reset += 1
+                            st.session_state.scan_result  = None
+                            st.session_state.rewritten    = None
+                            st.rerun()
+                        char_count = len(extracted)
+                        st.markdown(f'<div style="font-size:.75rem;color:var(--muted);direction:rtl;text-align:right;margin-top:4px;">✓ {uploaded_file.name} — {char_count:,} {"حرف" if st.session_state.language == "ar" else "chars"}{"  (سيتم أخذ أول 3000 حرف)" if char_count > 3000 else ""}</div>', unsafe_allow_html=True)
                 else:
                     st.warning("⚠️ " + ("لم يتم استخراج أي نص من الملف." if st.session_state.language == "ar" else "No text could be extracted from this file."))
             except Exception as e:
-                st.error("⚠️ " + ("خطأ في قراءة الملف." if st.session_state.language == "ar" else "Error reading file."))
+                st.error("⚠️ " + ("خطأ في قراءة الملف: " if st.session_state.language == "ar" else "Error reading file: ") + str(e))
 
     prompt = st.text_area(
         "prompt_input",
