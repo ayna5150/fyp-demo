@@ -271,21 +271,28 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
     margin-bottom: .6rem;
 }
 
-/* ── File uploader widget: hide label, clean up dropzone ── */
-div[data-testid="stFileUploader"] label { display: none !important; }
-div[data-testid="stFileUploader"] small { display: none !important; }
+/* ── File uploader widget ── */
+div[data-testid="stFileUploader"] { margin-top: 0 !important; }
+div[data-testid="stFileUploader"] label,
+div[data-testid="stFileUploader"] small,
 div[data-testid="stFileUploaderDropzoneInstructions"] { display: none !important; }
 div[data-testid="stFileUploader"] section {
     background: var(--white) !important;
     border: 1.5px dashed var(--border) !important;
     border-radius: 10px !important;
-    padding: .6rem !important;
+    padding: .6rem 1rem !important;
 }
-div[data-testid="stFileUploader"] section > div { justify-content: flex-start !important; }
-
-/* ── Checkbox: hide it entirely (we use it only as state, button is shown instead) ── */
-.upload-checkbox { display: none !important; }
-div[data-testid="stCheckbox"] { display: none !important; }
+div[data-testid="stFileUploader"] button {
+    font-size: 0 !important;
+    color: transparent !important;
+}
+div[data-testid="stFileUploader"] button::before {
+    content: "Browse files";
+    font-size: .82rem;
+    color: #EAE4D9;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; transition: all .2s ease; }
 .card:hover { transform: translateY(-2px); }
@@ -704,19 +711,19 @@ with col_info:
 
 with col_main:
 
-    # ── File upload toggle (pure st.button, no expander) ─────
-    toggle_label = T["upload_hide"] if st.session_state.show_uploader else T["upload_toggle"]
+    # ── File upload toggle ────────────────────────────────────
     st.markdown('<div class="upload-toggle-btn">', unsafe_allow_html=True)
-    if st.button(toggle_label, key="btn_upload_toggle"):
+    if st.button(T["upload_toggle"], key="btn_upload_toggle"):
         st.session_state.show_uploader = not st.session_state.show_uploader
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ── File upload panel (shown only when toggled) ───────────
+    uploaded_file = None
     if st.session_state.show_uploader:
         st.markdown('<div class="upload-panel">', unsafe_allow_html=True)
         uploaded_file = st.file_uploader(
-            " ",
+            "file",
             type=["pdf", "docx"],
             label_visibility="collapsed",
             key="file_uploader"
