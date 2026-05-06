@@ -281,21 +281,25 @@ div[data-testid="stExpander"] {
     border: 1px solid var(--border) !important;
     border-radius: 12px !important;
     margin-bottom: .6rem !important;
+    overflow: hidden !important;
 }
-div[data-testid="stExpander"] summary {
+details > summary {
     font-family: 'JetBrains Mono', monospace !important;
     font-size: .78rem !important;
     font-weight: 700 !important;
     color: var(--muted) !important;
-    padding: .6rem 1rem !important;
+    list-style: none !important;
 }
-div[data-testid="stExpander"] summary:hover { color: var(--navy) !important; }
+details > summary::-webkit-details-marker { display: none !important; }
+details > summary::marker { display: none !important; }
+div[data-testid="stExpander"] > details > summary:hover { color: var(--navy) !important; }
 div[data-testid="stFileUploader"] {
     background: var(--white) !important;
     border: 1.5px dashed var(--border) !important;
     border-radius: 10px !important;
 }
 div[data-testid="stFileUploader"] label { display: none !important; }
+div[data-testid="stFileUploader"] small { display: none !important; }
 """
 
 def inject_css():
@@ -675,8 +679,9 @@ with col_info:
             st.rerun()
 
 with col_main:
-    # ── File upload (hidden until expanded) ──────────────────
-    with st.expander("📎 " + ("رفع ملف PDF أو Word" if st.session_state.language == "ar" else "Upload PDF or Word file"), expanded=False):
+    # ── File upload ───────────────────────────────────────────
+    upload_label = "📎 رفع ملف PDF أو Word" if st.session_state.language == "ar" else "📎 Upload PDF or Word file"
+    with st.expander(upload_label, expanded=False):
         uploaded_file = st.file_uploader(
             "upload",
             type=["pdf", "docx"],
