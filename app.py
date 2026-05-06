@@ -33,12 +33,13 @@ if st.session_state.page == "guide":
     render_user_guide()
     st.stop()
 
-if "dark_mode"    not in st.session_state: st.session_state.dark_mode    = False
-if "language"     not in st.session_state: st.session_state.language     = "ar"
-if "scan_result"  not in st.session_state: st.session_state.scan_result  = None
-if "rewritten"    not in st.session_state: st.session_state.rewritten    = None
-if "prompt_reset" not in st.session_state: st.session_state.prompt_reset = 0
-if "prompt_value" not in st.session_state: st.session_state.prompt_value = ""
+if "dark_mode"      not in st.session_state: st.session_state.dark_mode      = False
+if "language"       not in st.session_state: st.session_state.language       = "ar"
+if "scan_result"    not in st.session_state: st.session_state.scan_result    = None
+if "rewritten"      not in st.session_state: st.session_state.rewritten      = None
+if "prompt_reset"   not in st.session_state: st.session_state.prompt_reset   = 0
+if "prompt_value"   not in st.session_state: st.session_state.prompt_value   = ""
+if "show_uploader"  not in st.session_state: st.session_state.show_uploader  = False
 
 RAILWAY_URL = "https://promptscanner-production.up.railway.app"
 
@@ -78,6 +79,9 @@ STRINGS = {
         "sidebar_desc":     "تحمي خصوصيتك عند استخدام روبوتات الدردشة. يكتشف المعلومات الشخصية والمحتوى الضار في مدخلاتك قبل إرسالها.",
         "sidebar_models":   "النماذج المستخدمة",
         "sidebar_examples": "أمثلة للتجربة",
+        "upload_toggle":    "📎 رفع ملف PDF أو Word",
+        "upload_hide":      "▲ إخفاء",
+        "load_btn":         "📥 تحميل النص في حقل الفحص",
         "tox_labels": {
             "Normal":            "عادي",
             "Mild Offense":      "مسيء بشكل خفيف",
@@ -138,6 +142,9 @@ STRINGS = {
         "sidebar_desc":     "PromptScanner protects your privacy when using AI chatbots. It detects personal information and harmful content in your prompts before they are sent.",
         "sidebar_models":   "Models used",
         "sidebar_examples": "Try an example",
+        "upload_toggle":    "📎 Upload PDF or Word file",
+        "upload_hide":      "▲ Hide",
+        "load_btn":         "📥 Load text into scanner",
         "tox_labels": {
             "Normal":            "Normal",
             "Mild Offense":      "Mild Offense",
@@ -234,6 +241,52 @@ div[data-testid="stFormSubmitButton"] button {
     box-shadow: 0 2px 8px rgba(15,28,53,0.2) !important; width: auto !important;
 }
 div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
+
+/* ── Upload toggle button — styled differently from action buttons ── */
+.upload-toggle-btn > div[data-testid="stButton"] > button {
+    background: var(--card) !important;
+    color: var(--muted) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    font-size: .78rem !important;
+    padding: .4rem 1.1rem !important;
+    box-shadow: none !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em !important;
+}
+.upload-toggle-btn > div[data-testid="stButton"] > button:hover {
+    opacity: 1 !important;
+    border-color: #E8520A !important;
+    color: #E8520A !important;
+    transform: none !important;
+}
+
+/* ── Upload panel ── */
+.upload-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .9rem 1.1rem;
+    margin-bottom: .6rem;
+}
+
+/* ── File uploader widget: hide label, clean up dropzone ── */
+div[data-testid="stFileUploader"] label { display: none !important; }
+div[data-testid="stFileUploader"] small { display: none !important; }
+div[data-testid="stFileUploaderDropzoneInstructions"] { display: none !important; }
+div[data-testid="stFileUploader"] section {
+    background: var(--white) !important;
+    border: 1.5px dashed var(--border) !important;
+    border-radius: 10px !important;
+    padding: .6rem !important;
+}
+div[data-testid="stFileUploader"] section > div { justify-content: flex-start !important; }
+
+/* ── Checkbox: hide it entirely (we use it only as state, button is shown instead) ── */
+.upload-checkbox { display: none !important; }
+div[data-testid="stCheckbox"] { display: none !important; }
+
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem; margin-bottom: .8rem; transition: all .2s ease; }
 .card:hover { transform: translateY(-2px); }
 .card-pii  { border-top: 3px solid #E8520A; }
@@ -275,49 +328,10 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
-
 """
 
 def inject_css():
     st.markdown(f"<style>{get_css(st.session_state.dark_mode)}{COMMON_CSS}</style>", unsafe_allow_html=True)
-    
-    # JS-based DOM fix for stubborn Streamlit elements
-    st.markdown("""
-    <script>
-    function fixStreamlitUI() {
-        // Fix expander: remove "arrow_down" text nodes
-        document.querySelectorAll('[data-testid="stExpander"] summary').forEach(summary => {
-            summary.childNodes.forEach(node => {
-                if (node.nodeType === 3 && node.textContent.trim() !== '') {
-                    node.textContent = '';
-                }
-            });
-            // Hide SVG arrow icon
-            summary.querySelectorAll('svg').forEach(svg => svg.style.display = 'none');
-        });
-
-        // Fix file uploader button: remove duplicate text
-        document.querySelectorAll('[data-testid="stFileUploader"] button').forEach(btn => {
-            btn.childNodes.forEach(node => {
-                if (node.nodeType === 3) node.textContent = '';
-            });
-            btn.querySelectorAll('p, span').forEach((el, i) => {
-                if (i > 0) el.style.display = 'none';
-                else el.textContent = 'Browse file';
-            });
-        });
-    }
-
-    // Run immediately and after Streamlit re-renders
-    fixStreamlitUI();
-    setTimeout(fixStreamlitUI, 500);
-    setTimeout(fixStreamlitUI, 1500);
-
-    // Watch for DOM changes (Streamlit re-renders dynamically)
-    const observer = new MutationObserver(() => fixStreamlitUI());
-    observer.observe(document.body, { childList: true, subtree: true });
-    </script>
-    """, unsafe_allow_html=True)
 
 TOX_IDX2LABEL = {
     0: 'Dangerous', 1: 'Mental Health', 2: 'Mild Offense',
@@ -609,7 +623,6 @@ def call_rewrite(original, masked, tox_label):
     except: return None
 
 
-
 # ─── LOAD MODELS ────────────────────────────────────────────
 with st.spinner("جارٍ تحميل النماذج…"):
     ar_tok, ar_mdl, ar_id2tag = load_arabert()
@@ -665,14 +678,12 @@ st.markdown('<div class="ps-rule"></div>', unsafe_allow_html=True)
 col_info, col_main = st.columns([3, 7], gap="large")
 
 with col_info:
-    # About
     st.markdown(f'''
 <div class="info-panel" style="direction:rtl;text-align:right;">
   <div class="sb-title">{T["sidebar_about"]}</div>
   <div class="sb-desc">{T["sidebar_desc"]}</div>
 </div>''', unsafe_allow_html=True)
 
-    # Models — solid color badges matching guide exactly
     st.markdown(f'<div class="sb-title" style="margin-top:1rem;direction:rtl;text-align:right;">{T["sidebar_models"]}</div>', unsafe_allow_html=True)
     models_html = '<div class="info-panel">'
     for (name, desc), ok in zip(T["models_info"], models_ok):
@@ -682,7 +693,6 @@ with col_info:
     models_html += "</div>"
     st.markdown(models_html, unsafe_allow_html=True)
 
-    # Examples
     st.markdown(f'<div class="sb-title" style="margin-top:1.2rem;margin-bottom:.5rem;direction:rtl;text-align:right;">{T["sidebar_examples"]}</div>', unsafe_allow_html=True)
     for lbl, ex in T["examples"]:
         if st.button(lbl, key=f"ex_{lbl}", use_container_width=True):
@@ -693,24 +703,34 @@ with col_info:
             st.rerun()
 
 with col_main:
-    # ── File upload ───────────────────────────────────────────
-    upload_label = "📎 رفع ملف PDF أو Word" if st.session_state.language == "ar" else "📎 Upload PDF or Word file"
-    with st.expander(upload_label, expanded=False):
+
+    # ── File upload toggle (pure st.button, no expander) ─────
+    toggle_label = T["upload_hide"] if st.session_state.show_uploader else T["upload_toggle"]
+    st.markdown('<div class="upload-toggle-btn">', unsafe_allow_html=True)
+    if st.button(toggle_label, key="btn_upload_toggle"):
+        st.session_state.show_uploader = not st.session_state.show_uploader
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── File upload panel (shown only when toggled) ───────────
+    if st.session_state.show_uploader:
+        st.markdown('<div class="upload-panel">', unsafe_allow_html=True)
         uploaded_file = st.file_uploader(
-            "upload",
+            " ",
             type=["pdf", "docx"],
             label_visibility="collapsed",
             key="file_uploader"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
+
         if uploaded_file is not None:
             try:
                 if uploaded_file.name.endswith(".pdf"):
                     try:
-                        import fitz  # pymupdf
+                        import fitz
                     except ImportError:
                         st.error("⚠️ pymupdf غير مثبت — أضفه إلى requirements.txt")
                         st.stop()
-
                     import tempfile, os
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                         tmp.write(uploaded_file.read())
@@ -719,21 +739,16 @@ with col_main:
                         doc_pdf = fitz.open(tmp_path)
                         pages_text = []
                         for page in doc_pdf:
-                            # get_text("blocks") preserves RTL block order better
                             blocks = page.get_text("blocks")
-                            # sort blocks top-to-bottom
                             blocks.sort(key=lambda b: b[1])
-                            page_lines = []
-                            for b in blocks:
-                                txt = b[4].strip()
-                                if txt:
-                                    page_lines.append(txt)
+                            page_lines = [b[4].strip() for b in blocks if b[4].strip()]
                             if page_lines:
                                 pages_text.append("\n".join(page_lines))
                         doc_pdf.close()
                         extracted = "\n\n".join(pages_text)
                     finally:
                         os.unlink(tmp_path)
+
                 elif uploaded_file.name.endswith(".docx"):
                     try:
                         import docx
@@ -742,33 +757,36 @@ with col_main:
                         st.stop()
                     doc = docx.Document(uploaded_file)
                     extracted = "\n".join(p.text for p in doc.paragraphs)
+
                 extracted = extracted.strip()
                 if extracted:
-                    # Check if Arabic is actually present
                     arabic_chars = len(re.findall(r'[\u0600-\u06FF]', extracted))
                     total_chars  = len([c for c in extracted if c.strip()])
                     arabic_ratio = arabic_chars / total_chars if total_chars else 0
 
-                    # Show preview
                     preview = extracted[:300] + ("…" if len(extracted) > 300 else "")
                     st.markdown(f'<div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.85rem;direction:rtl;text-align:right;line-height:1.8;color:var(--ink);margin:8px 0;">{preview}</div>', unsafe_allow_html=True)
 
                     if arabic_ratio < 0.3:
-                        st.warning("⚠️ النص المستخرج قد يحتوي على مشاكل في الترميز. إذا بدا النص غير مقروء، فالملف يستخدم خطاً غير قياسي ولا يمكن استخراجه.")
+                        st.warning("⚠️ النص المستخرج قد يحتوي على مشاكل في الترميز.")
                     else:
-                        if st.button("📥 " + ("تحميل النص في حقل الفحص" if st.session_state.language == "ar" else "Load text into scanner"), key="load_file_text"):
+                        if st.button(T["load_btn"], key="load_file_text"):
                             st.session_state.prompt_value = extracted[:3000]
                             st.session_state.prompt_reset += 1
                             st.session_state.scan_result  = None
                             st.session_state.rewritten    = None
+                            st.session_state.show_uploader = False
                             st.rerun()
                         char_count = len(extracted)
-                        st.markdown(f'<div style="font-size:.75rem;color:var(--muted);direction:rtl;text-align:right;margin-top:4px;">✓ {uploaded_file.name} — {char_count:,} {"حرف" if st.session_state.language == "ar" else "chars"}{"  (سيتم أخذ أول 3000 حرف)" if char_count > 3000 else ""}</div>', unsafe_allow_html=True)
+                        suffix = "  (سيتم أخذ أول 3000 حرف)" if char_count > 3000 and is_ar else "  (first 3000 chars)" if char_count > 3000 else ""
+                        unit   = "حرف" if is_ar else "chars"
+                        st.markdown(f'<div style="font-size:.75rem;color:var(--muted);direction:rtl;text-align:right;margin-top:4px;">✓ {uploaded_file.name} — {char_count:,} {unit}{suffix}</div>', unsafe_allow_html=True)
                 else:
-                    st.warning("⚠️ " + ("لم يتم استخراج أي نص من الملف." if st.session_state.language == "ar" else "No text could be extracted from this file."))
+                    st.warning("⚠️ " + ("لم يتم استخراج أي نص من الملف." if is_ar else "No text could be extracted from this file."))
             except Exception as e:
-                st.error("⚠️ " + ("خطأ في قراءة الملف: " if st.session_state.language == "ar" else "Error reading file: ") + str(e))
+                st.error("⚠️ " + ("خطأ في قراءة الملف: " if is_ar else "Error reading file: ") + str(e))
 
+    # ── Prompt textarea ───────────────────────────────────────
     prompt = st.text_area(
         "prompt_input",
         value=st.session_state.prompt_value,
@@ -783,7 +801,7 @@ with col_main:
 
     if scan_clicked and prompt.strip():
         if is_mostly_english(prompt):
-            st.error("⚠️ يُرجى كتابة النص بالعربية فقط." if st.session_state.language == "ar" else "⚠️ Prompt must be written in Arabic.")
+            st.error("⚠️ يُرجى كتابة النص بالعربية فقط." if is_ar else "⚠️ Prompt must be written in Arabic.")
             st.stop()
         with st.spinner(T["scanning"]):
             t0      = time.time()
@@ -857,7 +875,7 @@ with col_main:
             hl_html   = build_highlight_html(tox_res["words"], tox_res["scores"], tox_res["is_stop"], color)
             key_words = sorted([(w,s) for w,s,stop in zip(tox_res["words"],tox_res["scores"],tox_res["is_stop"]) if not stop and s>0.4], key=lambda x:-x[1])[:3]
             key_str   = " · ".join(f'<span style="color:{color};font-weight:700;">{w}</span> <span style="color:var(--muted);font-size:.74rem;">({s:.2f})</span>' for w,s in key_words) if key_words else "—"
-            desc_text = "يوضح المخطط تأثير الكلمات في التصنيف، بحيث تظهر الكلمات الأكثر تأثيراً بلون داكن." if st.session_state.language == "ar" else "This map highlights words that influenced the toxicity classification. Darker = more influential."
+            desc_text = "يوضح المخطط تأثير الكلمات في التصنيف، بحيث تظهر الكلمات الأكثر تأثيراً بلون داكن." if is_ar else "This map highlights words that influenced the toxicity classification. Darker = more influential."
             st.markdown(f'''
 <div class="card card-hl section-gap">
   <div class="card-head">{T["hl_head"]}</div>
