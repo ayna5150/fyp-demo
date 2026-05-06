@@ -282,15 +282,14 @@ div[data-testid="stExpander"] {
     margin-bottom: .6rem !important;
     overflow: hidden !important;
 }
-div[data-testid="stExpander"] summary { list-style: none !important; }
-div[data-testid="stExpander"] summary::-webkit-details-marker { display: none !important; }
 div[data-testid="stExpander"] summary svg { display: none !important; }
-div[data-testid="stExpander"] summary span { display: none !important; }
 div[data-testid="stExpander"] summary p {
     font-family: 'JetBrains Mono', monospace !important;
-    font-size: .78rem !important; font-weight: 700 !important;
-    color: var(--muted) !important; display: block !important;
+    font-size: .78rem !important;
+    font-weight: 700 !important;
+    color: var(--muted) !important;
 }
+
 div[data-testid="stFileUploader"] section {
     background: var(--white) !important;
     border: 1.5px dashed var(--border) !important;
@@ -299,12 +298,17 @@ div[data-testid="stFileUploader"] section {
 div[data-testid="stFileUploaderDropzoneInstructions"] { display: none !important; }
 div[data-testid="stFileUploader"] label { display: none !important; }
 div[data-testid="stFileUploader"] small { display: none !important; }
-div[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] > div > span { display: none !important; }
 div[data-testid="stFileUploader"] button {
-    font-size: .78rem !important; padding: .4rem 1rem !important;
+    font-size: .78rem !important;
+    padding: .4rem 1rem !important;
 }
-div[data-testid="stFileUploader"] button span { display: inline !important; }
-div[data-testid="stFileUploader"] button span + span { display: none !important; }
+div[data-testid="stFileUploader"] button p { display: none !important; }
+div[data-testid="stFileUploader"] button::after {
+    content: "Browse file";
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem;
+    font-weight: 700;
+}
 """
 
 def inject_css():
