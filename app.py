@@ -687,28 +687,34 @@ with col_main:
             try:
                 if uploaded_file.name.endswith(".pdf"):
                     try:
-                        import pdfplumber
+                        import fitz  # pymupdf
                     except ImportError:
-                        st.error("⚠️ pdfplumber غير مثبت — أضفه إلى requirements.txt")
+                        st.error("⚠️ pymupdf غير مثبت — أضفه إلى requirements.txt")
                         st.stop()
 
-                    def fix_arabic_line(line):
-                        """Reverse word order for RTL Arabic lines extracted LTR."""
-                        words = line.split()
-                        if not words: return line
-                        arabic = sum(1 for c in line if '\u0600' <= c <= '\u06FF')
-                        if arabic / max(len(line),1) > 0.3:
-                            return " ".join(reversed(words))
-                        return line
-
-                    with pdfplumber.open(uploaded_file) as pdf:
+                    import tempfile, os
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                        tmp.write(uploaded_file.read())
+                        tmp_path = tmp.name
+                    try:
+                        doc_pdf = fitz.open(tmp_path)
                         pages_text = []
-                        for p in pdf.pages:
-                            txt = p.extract_text() or ""
-                            if txt.strip():
-                                fixed = "\n".join(fix_arabic_line(l) for l in txt.splitlines())
-                                pages_text.append(fixed.strip())
+                        for page in doc_pdf:
+                            # get_text("blocks") preserves RTL block order better
+                            blocks = page.get_text("blocks")
+                            # sort blocks top-to-bottom
+                            blocks.sort(key=lambda b: b[1])
+                            page_lines = []
+                            for b in blocks:
+                                txt = b[4].strip()
+                                if txt:
+                                    page_lines.append(txt)
+                            if page_lines:
+                                pages_text.append("\n".join(page_lines))
+                        doc_pdf.close()
                         extracted = "\n\n".join(pages_text)
+                    finally:
+                        os.unlink(tmp_path)
                 elif uploaded_file.name.endswith(".docx"):
                     try:
                         import docx
