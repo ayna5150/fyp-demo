@@ -275,44 +275,49 @@ div[data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
 .sb-model { display: flex; gap: 8px; align-items: flex-start; margin-bottom: .55rem; }
 .sb-model-desc { font-size: .77rem; color: var(--muted); line-height: 1.4; }
 .section-gap { margin-top: 1rem; }
-div[data-testid="stExpander"] {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 12px !important;
-    margin-bottom: .6rem !important;
-    overflow: hidden !important;
-}
-div[data-testid="stExpander"] summary svg { display: none !important; }
-div[data-testid="stExpander"] summary p {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: .78rem !important;
-    font-weight: 700 !important;
-    color: var(--muted) !important;
-}
 
-div[data-testid="stFileUploader"] section {
-    background: var(--white) !important;
-    border: 1.5px dashed var(--border) !important;
-    border-radius: 10px !important;
-}
-div[data-testid="stFileUploaderDropzoneInstructions"] { display: none !important; }
-div[data-testid="stFileUploader"] label { display: none !important; }
-div[data-testid="stFileUploader"] small { display: none !important; }
-div[data-testid="stFileUploader"] button {
-    font-size: .78rem !important;
-    padding: .4rem 1rem !important;
-}
-div[data-testid="stFileUploader"] button p { display: none !important; }
-div[data-testid="stFileUploader"] button::after {
-    content: "Browse file";
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .78rem;
-    font-weight: 700;
-}
 """
 
 def inject_css():
     st.markdown(f"<style>{get_css(st.session_state.dark_mode)}{COMMON_CSS}</style>", unsafe_allow_html=True)
+    
+    # JS-based DOM fix for stubborn Streamlit elements
+    st.markdown("""
+    <script>
+    function fixStreamlitUI() {
+        // Fix expander: remove "arrow_down" text nodes
+        document.querySelectorAll('[data-testid="stExpander"] summary').forEach(summary => {
+            summary.childNodes.forEach(node => {
+                if (node.nodeType === 3 && node.textContent.trim() !== '') {
+                    node.textContent = '';
+                }
+            });
+            // Hide SVG arrow icon
+            summary.querySelectorAll('svg').forEach(svg => svg.style.display = 'none');
+        });
+
+        // Fix file uploader button: remove duplicate text
+        document.querySelectorAll('[data-testid="stFileUploader"] button').forEach(btn => {
+            btn.childNodes.forEach(node => {
+                if (node.nodeType === 3) node.textContent = '';
+            });
+            btn.querySelectorAll('p, span').forEach((el, i) => {
+                if (i > 0) el.style.display = 'none';
+                else el.textContent = 'Browse file';
+            });
+        });
+    }
+
+    // Run immediately and after Streamlit re-renders
+    fixStreamlitUI();
+    setTimeout(fixStreamlitUI, 500);
+    setTimeout(fixStreamlitUI, 1500);
+
+    // Watch for DOM changes (Streamlit re-renders dynamically)
+    const observer = new MutationObserver(() => fixStreamlitUI());
+    observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+    """, unsafe_allow_html=True)
 
 TOX_IDX2LABEL = {
     0: 'Dangerous', 1: 'Mental Health', 2: 'Mild Offense',
