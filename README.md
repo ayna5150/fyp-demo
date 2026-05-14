@@ -1,223 +1,86 @@
-# PromptScanner — Upload & Deployment Guide
+# PromptScanner Web Application
 
-## Folder structure the app expects
+A Streamlit web application that provides a browser-based interface for scanning Arabic prompts for personal information and harmful content. It uses the same backend models as the Chrome extension and is designed for users who want to test or use PromptScanner without installing anything.
+
+## Live Demo
+
+https://promptscanner-demo.streamlit.app
+
+## What It Does
+
+The user types or pastes an Arabic prompt into the text area, or uploads a PDF or Word document, and presses Scan. The application sends the text to the PromptScanner backend and displays four result cards: a PII card showing the masked text with detected entities highlighted, a toxicity card showing the predicted category and confidence score, a keyword attention card showing which words influenced the classification, and a rewrite card that appears when harmful content is detected and generates a safe alternative.
+
+## File Structure
 
 ```
-prompt_scanner/
+webapp/
 ├── app.py
+├── userguide.py
 ├── requirements.txt
-└── models/
-    ├── arabert_pii/           ← fine-tuned AraBERT/CamelBERT NER model
-    │   ├── config.json
-    │   ├── pytorch_model.bin  (or model.safetensors)
-    │   ├── tokenizer_config.json
-    │   ├── vocab.txt
-    │   └── tag_vocab.json     ← see below
-    ├── xlmr_pii/              ← fine-tuned XLM-RoBERTa NER model
-    │   ├── config.json
-    │   ├── pytorch_model.bin  (or model.safetensors)
-    │   ├── tokenizer_config.json
-    │   ├── sentencepiece.bpe.model
-    │   └── tag_vocab.json
-    └── tox_model/
-        └── arabert_expanded.pt   ← OR arabert_contrast.pt (whichever scored better)
+└── assets/
+    └── logo.png
 ```
 
----
+## File Descriptions
 
-## Step 1 — Save PII models from Colab (run in your PII notebook)
+### app.py
+The entire web application in a single file. It handles page routing, model loading, the scanner interface, and all result rendering.
 
-The models were already saved in your notebook cell 98.
-Your files are currently at:
-  /content/drive/MyDrive/FYP_PromptScanner/PII/saved_models/arabert_pii_augmorg/
-  /content/drive/MyDrive/FYP_PromptScanner/PII/saved_models/xlmr_pii_augmorg/
+At the top, it checks the session state page variable. If the user has navigated to the guide, it imports and renders `userguide.py` and stops. Otherwise it proceeds to render the main scanner.
 
-Run this in a new Colab cell to confirm and create the tag_vocab.json files
-with the exact format the app expects:
+The CSS section defines the full visual identity of the application: the cream background, navy text, orange accent colour, Plus Jakarta Sans for body text, and JetBrains Mono for code and labels. It also handles dark mode by swapping CSS variables, and hides Streamlit's default toolbar and footer.
 
-```python
-import json, os
+The STRINGS dictionary holds all interface text in both Arabic and English. Switching language changes every label, placeholder, button, and badge text simultaneously without reloading.
 
-# Confirm vocab files exist and show content
-arabert_path = '/content/drive/MyDrive/FYP_PromptScanner/PII/saved_models/arabert_pii_augmorg'
-xlmr_path    = '/content/drive/MyDrive/FYP_PromptScanner/PII/saved_models/xlmr_pii_augmorg'
+Model loading uses `@st.cache_resource` so the four models (AraBERT NER, XLM-RoBERTa, Regex Engine, AraBERT v2 toxicity) are downloaded once and reused across all sessions. The actual scanning calls the Railway backend via HTTP rather than running models locally, keeping the Streamlit app lightweight.
 
-# Check what vocab file was saved
-for path in [arabert_path, xlmr_path]:
-    for name in ['tag_vocab.json', 'tag_vocab_augmorg.json']:
-        f = os.path.join(path, name)
-        if os.path.exists(f):
-            with open(f) as fp:
-                v = json.load(fp)
-            print(f"\n{f}")
-            print("  tag2id keys:", list(v['tag2id'].keys())[:5])
-            print("  id2tag keys:", list(v['id2tag'].keys())[:5])
-```
+The layout is a permanent two-column split. The left column shows the about panel, model status indicators, and example prompt buttons. The right column contains the file uploader, text area, scan button, and all result cards.
 
-The app accepts both tag_vocab.json and tag_vocab_augmorg.json automatically.
+The file upload section supports PDF and Word documents. PDF text is extracted using PyMuPDF, which handles Arabic font encoding better than most alternatives. Word documents are parsed with python-docx. Extracted text is loaded into the text area so the user can review it before scanning.
 
----
+The result section renders four cards. The PII card shows the masked text with entity tags styled as inline chips, each labelled with the entity type and the model that detected it. The toxicity card shows the predicted category name, confidence percentage, a colour-coded progress bar, and a full breakdown of all seven category probabilities. The keyword attention card renders each word as a coloured chip where the saturation indicates the word's attention score. The rewrite card appears only for flagged prompts and calls the backend rewrite endpoint, displaying the original and rewritten prompts side by side.
 
-## Step 2 — Save toxicity model from Colab (run in your toxicity notebook)
+### userguide.py
+A fully bilingual user guide rendered as a Streamlit page. It is imported by `app.py` when the user clicks the guide button and is stopped with `st.stop()` so nothing else from `app.py` renders.
 
-The toxicity model was saved as a raw PyTorch checkpoint (.pt file), NOT as a
-HuggingFace model directory. This is different from the PII models.
+The guide has two tabs: Part 1 for the web application and Part 2 for the Chrome extension. Each tab contains numbered step sections, flow diagrams, model description cards, PII type tables, toxicity category tables, popup state mockups, and a quick reference table. All content exists in both Arabic and English and switches when the user toggles the language button in the guide header.
 
-Your checkpoint is at:
-  /content/drive/MyDrive/toxic/arabert_expanded.pt
-  (or arabert_contrast.pt — whichever had the higher F1)
+The guide header contains a back button that sets the session page back to scanner and a language toggle. The hero section uses the navy brand card with the PromptScanner logo and a subtitle.
 
-Verify the checkpoint format:
-```python
-import torch
-ckpt = torch.load('/content/drive/MyDrive/toxic/arabert_expanded.pt', weights_only=False)
-print(ckpt.keys())   # should print: dict_keys(['model_state_dict', ...])
-```
+Step items render with the number circle on the right side for Arabic and the left side for English. Flow diagrams reverse their node order and arrow direction for Arabic so they read right to left. All tables have `direction: rtl` applied when Arabic is active.
 
-If it prints model_state_dict — you're ready. Nothing else needed.
+The popup mockups in Part 2 are built entirely from HTML and CSS inside the Python file. They show accurate reproductions of the four popup states using the exact button labels and badge text from the real extension.
 
----
+### requirements.txt
+Lists all Python dependencies for the Streamlit Cloud deployment. Key packages include streamlit, requests for backend calls, transformers and torch for the model loading functions (even though inference runs on Railway), huggingface-hub for model download utilities, pymupdf for PDF parsing, and python-docx for Word document parsing.
 
-## Step 3 — Download model files from Google Drive
+### assets/logo.png
+The PromptScanner logo mark. A rectangular magnifier icon in the navy and orange brand colours. Used in the top bar of the main app and in the hero section of the user guide.
 
-In your Colab notebook (PII notebook), run:
+## How a Scan Works
 
-```python
-import shutil
+1. The user enters text in the text area or loads it from a file.
+2. Pressing Scan triggers `run_scan()` which posts the text to `POST /scan` on the Railway backend.
+3. The backend runs PII detection and toxicity analysis in parallel and returns a JSON response within one to two seconds.
+4. The app stores the result in `st.session_state` and re-renders the result cards.
+5. If the toxicity prediction is not Normal, a rewrite button appears. Clicking it calls `POST /rewrite` on the backend and displays the result.
 
-# Zip all three model folders
-shutil.make_archive('/content/arabert_pii', 'zip',
-                    '/content/drive/MyDrive/FYP_PromptScanner/PII/saved_models',
-                    'arabert_pii_augmorg')
+## Language Support
 
-shutil.make_archive('/content/xlmr_pii', 'zip',
-                    '/content/drive/MyDrive/FYP_PromptScanner/PII/saved_models',
-                    'xlmr_pii_augmorg')
+The interface supports Arabic and English. The default is Arabic. All strings, result labels, badge text, and error messages switch when the user toggles the language button in the top bar. The text area uses `direction: rtl` for correct Arabic text rendering.
 
-from google.colab import files
-files.download('/content/arabert_pii.zip')
-files.download('/content/xlmr_pii.zip')
-```
+## Dark Mode
 
-In your Colab notebook (toxicity notebook), run:
+A moon icon in the top bar toggles dark mode. The colour scheme switches from cream and navy to a dark navy background with light text. The toggle state is stored in `st.session_state` for the duration of the browser session.
 
-```python
-from google.colab import files
-files.download('/content/drive/MyDrive/toxic/arabert_expanded.pt')
-# or: files.download('/content/drive/MyDrive/toxic/arabert_contrast.pt')
-```
+## Example Prompts
 
----
+The left panel includes seven example buttons covering all detection scenarios: a name and organisation, a phone number and email, a national ID and credential, dangerous content, mental health content, offensive content, and a clean normal prompt. Clicking any example loads the text directly into the scanner without typing.
 
-## Step 4 — Organise files locally
+## Backend
 
-Unzip the downloaded files and rename/arrange into this structure:
+The web application communicates with the same Railway backend as the Chrome extension at `https://promptscanner-production.up.railway.app`. The `/health` endpoint is not called on startup in the web app, but model status is indicated by the coloured dots next to each model name in the left panel, which reflect whether each model loaded successfully at Railway startup.
 
-```
-models/
-  arabert_pii/        ← contents of arabert_pii_augmorg.zip
-  xlmr_pii/           ← contents of xlmr_pii_augmorg.zip
-  tox_model/
-    arabert_expanded.pt
-```
+## Deployment
 
-IMPORTANT: The arabert_pii folder should contain the HuggingFace model files
-(config.json, pytorch_model.bin / model.safetensors, vocab files).
-The tox_model folder contains ONLY the .pt checkpoint file.
-The base model (aubmindlab/bert-base-arabertv02) is downloaded automatically
-by the app the first time it runs.
-
----
-
-## Step 5 — Host model files on Hugging Face Hub (FREE, recommended)
-
-Model files are too large for GitHub. Use HuggingFace Hub:
-
-1. Create a free account at https://huggingface.co
-2. Create a new **private** repository: e.g. your-username/promptscanner-models
-3. Upload all files from arabert_pii/, xlmr_pii/, and tox_model/ into this repo,
-   preserving the subfolder structure
-4. Get your access token from: https://huggingface.co/settings/tokens
-
-Then add this to the top of app.py to download models at startup on Streamlit Cloud:
-
-```python
-import os
-from huggingface_hub import snapshot_download
-
-HF_TOKEN = st.secrets.get("HF_TOKEN", os.environ.get("HF_TOKEN", ""))
-
-@st.cache_resource(show_spinner="Downloading models from HuggingFace Hub...")
-def download_models():
-    if not Path("models").exists():
-        snapshot_download(
-            repo_id="your-username/promptscanner-models",
-            token=HF_TOKEN,
-            local_dir="models",
-        )
-
-download_models()
-```
-
-Add huggingface_hub to requirements.txt.
-
----
-
-## Step 6 — Deploy to Streamlit Community Cloud (FREE)
-
-1. Push app.py and requirements.txt to a public GitHub repo
-   (do NOT push the models/ folder — it goes on HuggingFace)
-2. Go to https://share.streamlit.io → sign in with GitHub
-3. Click "New app" → select repo → select app.py
-4. Under "Advanced settings" → "Secrets", add:
-   HF_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxxxxx"
-5. Click Deploy
-
-The app will be live at:
-  https://your-username-repo-name.streamlit.app
-
-First load will take 2-5 minutes while it downloads models.
-Subsequent loads use the @st.cache_resource cache.
-
----
-
-## Step 7 — Local testing
-
-```bash
-pip install streamlit torch transformers arabert
-
-# Place models/ folder next to app.py
-streamlit run app.py
-# Opens at: http://localhost:8501
-```
-
----
-
-## How the hybrid PII system works in the app
-
-The HybridPIIDetector from your notebook is reimplemented as a function
-(hybrid_detect) in app.py. The logic is identical:
-
-1. Regex runs FIRST and is authoritative for its 6 categories
-2. AraBERT runs next — any prediction overlapping a regex span is suppressed
-3. XLM-RoBERTa runs last — same overlap suppression rule
-
-This matches exactly what HybridPIIDetector.detect() does in notebook cell 79.
-The class is not imported from the notebook because the notebook cannot be
-imported as a module — but the logic is a direct line-by-line port.
-
-## How the toxicity keyword highlighting works
-
-The highlight uses BERT attention weights — specifically the average attention
-from the [CLS] token across all 12 layers and all attention heads.
-High attention score = the model was "looking at" that word more when making
-its classification decision. Stop words are zeroed out. Scores are normalised
-to [0,1]. This is the same method as get_arabert_importance() in notebook cell 11.
-
-The colour of highlights matches the toxicity category:
-  - Normal: teal
-  - Dangerous / Obscene: red
-  - Mental Health: purple
-  - Offensive: orange
-  - Privacy Violation: blue
-  - Mild Offense: amber
+The application is deployed on Streamlit Community Cloud connected to the GitHub repository. Any push to the main branch triggers an automatic redeployment. The `HF_TOKEN` secret is configured in the Streamlit Cloud dashboard for authenticated model downloads from HuggingFace Hub.
